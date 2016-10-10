@@ -1,7 +1,7 @@
 program tlibimpEx;
 
 uses
-  Fastmm4,
+  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,

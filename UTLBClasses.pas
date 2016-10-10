@@ -3,6 +3,7 @@ unit UTLBClasses;
 interface
 
 uses
+  System.Classes,
   System.Generics.Collections;
 
 type
@@ -13,6 +14,9 @@ type
   strict private
     FFile: TextFile;
     FIdentStr: string;
+    FLevels: TStrings;
+  strict private
+    function GetLevel(AIdx: Integer): string;
   public
     constructor Create(const AFileName: string);
     destructor Destroy; override;
@@ -21,6 +25,8 @@ type
     procedure EmptyLine;
     procedure IncIdent;
     procedure DecIdent;
+  public
+    property Level[AIdx: Integer]: string read GetLevel;
   end;
 
   TUnitManager = class
@@ -61,17 +67,26 @@ begin
   inherited Create;
   AssignFile(FFile, AFileName);
   Rewrite(FFile);
+  FLevels := TStringList.Create;
+  FLevels.Add('');
 end;
 
 destructor TOutFile.Destroy;
 begin
+  FLevels.Free;
   CloseFile(FFile);
   inherited Destroy;
+end;
+
+function TOutFile.GetLevel(AIdx: Integer): string;
+begin
+  Result := FLevels[FLevels.Count - 1 + AIdx];
 end;
 
 procedure TOutFile.Write(const AStr: string);
 begin
   System.Writeln(FFile, FIdentStr, AStr);
+  FLevels[FLevels.Count - 1] := AStr;
 end;
 
 procedure TOutFile.WriteFmt(const AFmt: string; const AArgs: array of const);
@@ -87,11 +102,13 @@ end;
 procedure TOutFile.IncIdent;
 begin
   FIdentStr := FIdentStr + CIdent;
+  FLevels.Add('');
 end;
 
 procedure TOutFile.DecIdent;
 begin
   SetLength(FIdentStr, Length(FIdentStr) - Length(CIdent));
+  FLevels.Delete(FLevels.Count - 1);
 end;
 
 { TUnitManager }

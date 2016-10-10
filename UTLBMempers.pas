@@ -105,9 +105,12 @@ type
     FItems: TObjectList<TEnumItem>;
     FShowEnum: Boolean;
     FShowHex: Boolean;
+  strict protected
+    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
   public
     constructor Create(const ATypeLib: ITypeLib; AIdx: Integer);
     destructor Destroy; override;
+    procedure Print(AOut: TOutFile); override;
   end;
 
   TRecord = class(TTLBMember)
@@ -389,6 +392,26 @@ begin
   finally
     AOut.DecIdent;
   end;
+  if
+    (FEnums.Count > 0) or
+    (FRecords.Count > 0) or
+    (FInterfaces.Count > 0)
+  then
+    AOut.Write('type');
+  AOut.IncIdent;
+  try
+    if FEnums.Count > 0 then begin
+      AOut.Write('// Enumerators');
+      for Li := 0 to FEnums.Count - 1 do
+        FEnums[Li].Print(AOut);
+      AOut.EmptyLine;
+    end;
+
+
+  finally
+    AOut.DecIdent;
+  end;
+
 end;
 
 end.
