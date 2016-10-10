@@ -11,8 +11,8 @@ unit MSXML2_TLB;
 // manual modifications will be lost.                                         
 // ************************************************************************ //
 
-// $Rev: 45604 $
-// File generated on 09.10.2016 22:59:29 from Type Library described below.
+// $Rev: 52393 $
+// File generated on 10.10.2016 19:51:30 from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: msxml6.dll (1)
@@ -32,7 +32,7 @@ unit MSXML2_TLB;
 //   Hint: Parameter 'type' of ISchemaAttribute.type changed to 'type_'
 //   Hint: Parameter 'var' of IXMLDOMSchemaCollection.add changed to 'var_'
 // Cmdline:
-//   "C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\tlibimp.exe" -p+ msxml6.dll
+//   "C:\Program Files (x86)\Embarcadero\RAD Studio\10.0\bin\tlibimp.exe" -p+ msxml6.dll
 // ************************************************************************ //
 {$TYPEDADDRESS OFF} // Unit must be compiled without type-checked pointers. 
 {$WARN SYMBOL_PLATFORM OFF}
@@ -343,10 +343,6 @@ const
   XHR_PROP_TIMEOUT = $00000002;
   XHR_PROP_NO_DEFAULT_HEADERS = $00000003;
   XHR_PROP_REPORT_REDIRECT_STATUS = $00000004;
-  XHR_PROP_NO_CACHE = $00000005;
-  XHR_PROP_EXTENDED_ERROR = $00000006;
-  XHR_PROP_QUERY_STRING_UTF8 = $00000007;
-  XHR_PROP_IGNORE_CERT_ERRORS = $00000008;
 
 type
 

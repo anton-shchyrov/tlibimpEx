@@ -1,10 +1,12 @@
 program tlibimpEx;
 
 uses
-//  Winapi.Windows,
+  Fastmm4,
   System.SysUtils,
   Winapi.ActiveX,
-  System.Win.ComObj;
+  System.Win.ComObj,
+  UTLBMempers in 'UTLBMempers.pas',
+  UTLBClasses in 'UTLBClasses.pas';
 
 {$R *.res}
 
@@ -13,71 +15,12 @@ type
 
   end;
 
-  TOutFile = class
-  strict private
-    const
-      CIdent = '  ';
-  strict private
-    FFile: TextFile;
-    FIdentStr: string;
-  public
-    constructor Create(const AName: string);
-    destructor Destroy; override;
-    procedure Write(const AStr: string);
-    procedure WriteFmt(const AFmt: string; const AArgs: array of const);
-    procedure EmptyStr;
-    procedure IncIdent;
-    procedure DecIdent;
-  end;
-
   TImporter = class
   strict private
     function LoadTLB(const AFileName: string): ITypeLib2; inline;
   public
     procedure ImportTLB(const AFileName: string);
   end;
-
-{ TOutFile }
-
-constructor TOutFile.Create(const AName: string);
-begin
-  inherited Create;
-  AssignFile(FFile, AName);
-  Rewrite(FFile);
-  WriteFmt('unit %s;', [ChangeFileExt(ExtractFileName(AName), '')]);
-  EmptyStr;
-end;
-
-destructor TOutFile.Destroy;
-begin
-  CloseFile(FFile);
-  inherited Destroy;
-end;
-
-procedure TOutFile.Write(const AStr: string);
-begin
-  System.Writeln(FFile, FIdentStr, AStr);
-end;
-
-procedure TOutFile.WriteFmt(const AFmt: string; const AArgs: array of const);
-begin
-  Write(Format(AFmt, AArgs));
-end;
-
-procedure TOutFile.EmptyStr;
-begin
-  System.Writeln(FFile);
-end;
-
-procedure TOutFile.IncIdent;
-begin
-  FIdentStr := FIdentStr + CIdent;
-end;
-
-procedure TOutFile.DecIdent;
-begin
-  SetLength(FIdentStr, Length(FIdentStr) - Length(CIdent));
-end;
 
 { TImporter }
 
@@ -111,9 +54,9 @@ begin
         LFile.IncIdent;
         LFile.WriteFmt('%sMajorVersion = %d;', [LTlbName, LLibAttr^.wMajorVerNum]);
         LFile.WriteFmt('%sMinorVersion = %d;', [LTlbName, LLibAttr^.wMinorVerNum]);
-        LFile.EmptyStr;
+        LFile.EmptyLine;
         LFile.WriteFmt('LIBID_%s: TGUID = %s;', [LTlbName, GUIDToString(LLibAttr^.guid)]);
-        LFile.EmptyStr;
+        LFile.EmptyLine;
       finally
         LTlb.ReleaseTLibAttr(LLibAttr);
       end;
@@ -145,12 +88,19 @@ begin
 end;
 
 var
-  LImp: TImporter;
+  LParser: TTLBInfo;
+  LOut: TOutFile;
 begin
-  LImp := TImporter.Create;
+  LParser := TTLBInfo.Create('msxml6.dll');
+//  LParser := TTLBInfo.Create('test.tlb');
   try
-    LImp.ImportTLB('msxml6.dll');
+    LOut := TOutFile.Create(LParser.UnitName + '.pas');
+    try
+      LParser.Print(LOut);
+    finally
+      LOut.Free;
+    end;
   finally
-    LImp.Free;
+    LParser.Free;
   end;
 end.
