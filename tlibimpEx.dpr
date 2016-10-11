@@ -1,11 +1,11 @@
 program tlibimpEx;
 
 uses
-  FastMM4,
+//  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
-  UTLBMempers in 'UTLBMempers.pas',
+  UTLBMembers in 'UTLBMembers.pas',
   UTLBClasses in 'UTLBClasses.pas';
 
 {$R *.res}

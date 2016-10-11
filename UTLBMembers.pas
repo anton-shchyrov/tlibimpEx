@@ -1,4 +1,4 @@
-unit UTLBMempers;
+unit UTLBMembers;
 
 interface
 
@@ -54,14 +54,15 @@ type
     FFlag: Byte;
   end;
 
-  TIntfMethod = class(TIntfItem)
+  TIntfMethod = class(TTypeMember)
   strict private
     FRetType: string;
     FCallingConv: TCallConv;
     FArgs: TObjectList<TMethodArg>;
   public
-    constructor Create(const AName: string);
+    constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     destructor Destroy; override;
+    procedure Print(AOut: TOutFile); override;
   end;
 
   TGUIDMember = class(TTLBMember)
@@ -77,9 +78,20 @@ type
     procedure PrintForward(AOut: TOutFile); virtual; abstract;
   end;
 
-  TInterface = class(TGUIDMember)
+  TCustomInterface = class(TGUIDMember)
+  strict private
+    FFuncCount: Integer;
+  strict protected
+    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
+  public
+    property Name;
+    property FuncCount: Integer read FFuncCount;
+  end;
+
+  TInterface = class(TCustomInterface)
   strict private
     FMethods: TObjectList<TIntfMethod>;
+    FParent: TCustomInterface;
     FFlags: Word;
   strict protected
     property Flags: Word read FFlags;
@@ -89,11 +101,10 @@ type
   strict protected
     function GetIIDPrefix: string; override;
     procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
+    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
   public
     procedure Print(AOut: TOutFile); override;
     procedure PrintForward(AOut: TOutFile); override;
-  public
-    property Name;
   end;
 
   TDispInterface = class(TInterface)
@@ -102,17 +113,18 @@ type
   strict protected
     function GetIIDPrefix: string; override;
   public
+    constructor Create(const ATypeInfo: ITypeInfo); override;
     procedure Print(AOut: TOutFile); override;
     procedure PrintForward(AOut: TOutFile); override;
   end;
 
   TCoClass = class(TGUIDMember)
   strict private
-    FDefaultIntf: TInterface;
+    FDefaultIntf: TCustomInterface;
     FCountImpl: Integer;
   strict protected
     function GetIIDPrefix: string; override;
-    procedure ParseTypeAttr(const ATypeAttr: tagTYPEATTR); override;
+    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
     procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
   public
     destructor Destroy; override;
@@ -196,6 +208,7 @@ type
     procedure PrintForwardClass(AOut: TOutFile);
     procedure PrintAliaces(AOut: TOutFile);
     procedure PrintRecords(AOut: TOutFile);
+    procedure PrintIntf(AOut: TOutFile);
   public
     constructor Create(const AFileName: string);
     destructor Destroy; override;
@@ -253,7 +266,13 @@ begin
     VT_PTR: ATypeStr := 'Pointer';
     VT_SAFEARRAY: ATypeStr := '!!!UNKNOWN Type VT_SAFEARRAY!!!';
     VT_CARRAY: ATypeStr := '!!!UNKNOWN Type VT_CARRAY!!!';
-    VT_USERDEFINED: AHRef := ATypeDesc.hreftype;
+    VT_USERDEFINED: begin
+      AHRef := ATypeDesc.hreftype;
+      if AHRef = 0 then
+        ATypeStr := '!!!UNKNOWN HRefType!!!'
+      else
+        ATypeStr := '';
+    end;
     VT_LPSTR: ATypeStr := 'PAnsiChar';
     VT_LPWSTR: ATypeStr := 'PWideChar';
     VT_RECORD: ATypeStr := '!!!UNKNOWN Type VT_RECORD!!!';
@@ -268,7 +287,7 @@ begin
     VT_BLOB_OBJECT: ATypeStr := '!!!UNKNOWN Type VT_BLOB_OBJECT!!!';
     VT_CF: ATypeStr := '!!!UNKNOWN Type VT_CF!!!';
     VT_CLSID: ATypeStr := '!!!UNKNOWN Type VT_CLSID!!!';
-    VT_VERSIONED_STREAM: ATypeStr := '!!!UNKNOWN Type VT_VERSIONED_STREAM!!!';
+//    VT_VERSIONED_STREAM: ATypeStr := '!!!UNKNOWN Type VT_VERSIONED_STREAM!!!';
   else
     ATypeStr := Format('!!!UNKNOWN Type desc. VT: %.4x!!!', [ATypeDesc.vt]);
   end;
@@ -373,9 +392,16 @@ end;
 
 { TIntfMethod }
 
-constructor TIntfMethod.Create(const AName: string);
+constructor TIntfMethod.Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
+var
+  LDesc: PFuncDesc;
 begin
-  inherited Create(AName);
+  OleCheck(ATypeInfo.GetFuncDesc(AIdx, LDesc));
+  try
+    inherited Create(ATypeInfo, LDesc^.memid);
+  finally
+    ATypeInfo.ReleaseFuncDesc(LDesc);
+  end;
   FArgs := TObjectList<TMethodArg>.Create(True);
 end;
 
@@ -383,6 +409,11 @@ destructor TIntfMethod.Destroy;
 begin
   FArgs.Free;
   inherited Destroy;
+end;
+
+procedure TIntfMethod.Print(AOut: TOutFile);
+begin
+  AOut.WriteFmt('%s;', [Name]);
 end;
 
 { TGUIDMember }
@@ -398,6 +429,14 @@ begin
   AOut.WriteFmt('%s_%s: TGUID = ''%s'';', [GetIIDPrefix, Name, GUIDToString(FUUID)]);
 end;
 
+{ TCustomInterface }
+
+procedure TCustomInterface.ParseTypeAttr(const ATypeAttr: TTypeAttr);
+begin
+  inherited ParseTypeAttr(ATypeAttr);
+  FFuncCount := ATypeAttr.cFuncs;
+end;
+
 { TInterface }
 
 constructor TInterface.Create(const ATypeInfo: ITypeInfo);
@@ -408,6 +447,7 @@ end;
 
 destructor TInterface.Destroy;
 begin
+  FParent.Free;
   FMethods.Free;
   inherited Destroy;
 end;
@@ -423,9 +463,35 @@ begin
   FFlags := ATypeAttr.wTypeFlags;
 end;
 
-procedure TInterface.Print(AOut: TOutFile);
+procedure TInterface.ParseTypeInfo(const ATypeInfo: ITypeInfo);
+var
+  Li: Integer;
+  LRef: HRefType;
+  LInfo: ITypeInfo;
 begin
-  AOut.Write(Name);
+  inherited ParseTypeInfo(ATypeInfo);
+  OleCheck(ATypeInfo.GetRefTypeOfImplType(0, LRef));
+  OleCheck(ATypeInfo.GetRefTypeInfo(LRef, LInfo));
+  FParent := TCustomInterface.Create(LInfo);
+  for Li := 0 to FuncCount - 1 do
+    FMethods.Add(TIntfMethod.Create(ATypeInfo, Li));
+end;
+
+procedure TInterface.Print(AOut: TOutFile);
+var
+  Li: Integer;
+begin
+  AOut.WriteFmt('%s = interface(%s)', [Name, FParent.Name]);
+  AOut.IncIdent;
+  try
+    AOut.WriteFmt('[''%s'']', [GUIDToString(UUID)]);
+    for Li := 0 to FMethods.Count - 1 do
+      FMethods[Li].Print(AOut);
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write('end;');
+  AOut.EmptyLine;
 end;
 
 procedure TInterface.PrintForward(AOut: TOutFile);
@@ -434,6 +500,18 @@ begin
 end;
 
 { TDispInterface }
+
+constructor TDispInterface.Create(const ATypeInfo: ITypeInfo);
+var
+  LHref: HRefType;
+  LType: ITypeInfo;
+begin
+  if ATypeInfo.GetRefTypeOfImplType(-1, LHref) = S_OK then
+    OleCheck(ATypeInfo.GetRefTypeInfo(LHref, LType))
+  else
+    LType := ATypeInfo;
+  inherited Create(LType);
+end;
 
 function TDispInterface.GetDispName: string;
 begin
@@ -475,7 +553,7 @@ begin
   Result := 'CLASS';
 end;
 
-procedure TCoClass.ParseTypeAttr(const ATypeAttr: tagTYPEATTR);
+procedure TCoClass.ParseTypeAttr(const ATypeAttr: TTypeAttr);
 begin
   inherited ParseTypeAttr(ATypeAttr);
   FCountImpl := ATypeAttr.cImplTypes;
@@ -674,7 +752,7 @@ end;
 
 procedure TAlias.Print(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s = %s;', [Name, FAlias]);
+  AOut.WriteFmt('%s = type %s;', [Name, FAlias]);
 end;
 
 { TTLBInfo }
@@ -878,6 +956,24 @@ begin
   end;
 end;
 
+procedure TTLBInfo.PrintIntf(AOut: TOutFile);
+var
+  Li: Integer;
+begin
+  if FInterfaces.Count > 0 then begin
+    AOut.Write(TUnitSections.CType);
+    AOut.IncIdent;
+    try
+      AOut.Write('// Interfaces');
+      for Li := 0 to FInterfaces.Count - 1 do
+        FInterfaces[Li].Print(AOut);
+      AOut.EmptyLine;
+    finally
+      AOut.DecIdent;
+    end;
+  end;
+end;
+
 procedure TTLBInfo.Print(AOut: TOutFile);
 var
   Li: Integer;
@@ -904,6 +1000,7 @@ begin
   PrintForwardClass(AOut);
   PrintAliaces(AOut);
   PrintRecords(AOut);
+  PrintIntf(AOut);
 end;
 
 end.

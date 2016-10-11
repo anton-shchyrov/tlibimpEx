@@ -284,6 +284,10 @@ const
   XHR_PROP_TIMEOUT = _XHR_PROPERTY($00000002);
   XHR_PROP_NO_DEFAULT_HEADERS = _XHR_PROPERTY($00000003);
   XHR_PROP_REPORT_REDIRECT_STATUS = _XHR_PROPERTY($00000004);
+  XHR_PROP_NO_CACHE = _XHR_PROPERTY($00000005);
+  XHR_PROP_EXTENDED_ERROR = _XHR_PROPERTY($00000006);
+  XHR_PROP_QUERY_STRING_UTF8 = _XHR_PROPERTY($00000007);
+  XHR_PROP_IGNORE_CERT_ERRORS = _XHR_PROPERTY($00000008);
 
 type
   // Interfaces forward declarations
@@ -444,18 +448,18 @@ type
 
 type
   // Aliaces
-  DOMNodeType = tagDOMNodeType;
-  SOMITEMTYPE = _SOMITEMTYPE;
-  SCHEMADERIVATIONMETHOD = _SCHEMADERIVATIONMETHOD;
-  SCHEMATYPEVARIETY = _SCHEMATYPEVARIETY;
-  SCHEMAWHITESPACE = _SCHEMAWHITESPACE;
-  SCHEMAPROCESSCONTENTS = _SCHEMAPROCESSCONTENTS;
-  SCHEMACONTENTTYPE = _SCHEMACONTENTTYPE;
-  SCHEMAUSE = _SCHEMAUSE;
-  SERVERXMLHTTP_OPTION = _SERVERXMLHTTP_OPTION;
-  SXH_SERVER_CERT_OPTION = _SXH_SERVER_CERT_OPTION;
-  SXH_PROXY_SETTING = _SXH_PROXY_SETTING;
-  XHR_PROPERTY = _XHR_PROPERTY;
+  DOMNodeType = type tagDOMNodeType;
+  SOMITEMTYPE = type _SOMITEMTYPE;
+  SCHEMADERIVATIONMETHOD = type _SCHEMADERIVATIONMETHOD;
+  SCHEMATYPEVARIETY = type _SCHEMATYPEVARIETY;
+  SCHEMAWHITESPACE = type _SCHEMAWHITESPACE;
+  SCHEMAPROCESSCONTENTS = type _SCHEMAPROCESSCONTENTS;
+  SCHEMACONTENTTYPE = type _SCHEMACONTENTTYPE;
+  SCHEMAUSE = type _SCHEMAUSE;
+  SERVERXMLHTTP_OPTION = type _SERVERXMLHTTP_OPTION;
+  SXH_SERVER_CERT_OPTION = type _SXH_SERVER_CERT_OPTION;
+  SXH_PROXY_SETTING = type _SXH_PROXY_SETTING;
+  XHR_PROPERTY = type _XHR_PROPERTY;
 
 type
   // Records
@@ -496,6 +500,882 @@ type
   _FILETIME = record
     dwLowDateTime: Cardinal;
     dwHighDateTime: Cardinal;
+  end;
+
+
+type
+  // Interfaces
+  Disp!!!
+  IXMLDOMNode = interface(IDispatch)
+    ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
+    nodeName;
+    nodeValue;
+    nodeValue;
+    nodeType;
+    parentNode;
+    childNodes;
+    firstChild;
+    lastChild;
+    previousSibling;
+    nextSibling;
+    attributes;
+    insertBefore;
+    replaceChild;
+    removeChild;
+    appendChild;
+    hasChildNodes;
+    ownerDocument;
+    cloneNode;
+    nodeTypeString;
+    text;
+    text;
+    specified;
+    definition;
+    nodeTypedValue;
+    nodeTypedValue;
+    dataType;
+    dataType;
+    xml;
+    transformNode;
+    selectNodes;
+    selectSingleNode;
+    parsed;
+    namespaceURI;
+    prefix;
+    baseName;
+    transformNodeToObject;
+  end;
+
+  Disp!!!
+  IXMLDOMNodeList = interface(IDispatch)
+    ['{2933BF82-7B36-11D2-B20E-00C04F983E60}']
+    item;
+    length;
+    nextNode;
+    reset;
+    _newEnum;
+  end;
+
+  Disp!!!
+  IXMLDOMNamedNodeMap = interface(IDispatch)
+    ['{2933BF83-7B36-11D2-B20E-00C04F983E60}']
+    getNamedItem;
+    setNamedItem;
+    removeNamedItem;
+    item;
+    length;
+    getQualifiedItem;
+    removeQualifiedItem;
+    nextNode;
+    reset;
+    _newEnum;
+  end;
+
+  Disp!!!
+  IXMLDOMDocument = interface(IXMLDOMNode)
+    ['{2933BF81-7B36-11D2-B20E-00C04F983E60}']
+    doctype;
+    implementation;
+    documentElement;
+    documentElement;
+    createElement;
+    createDocumentFragment;
+    createTextNode;
+    createComment;
+    createCDATASection;
+    createProcessingInstruction;
+    createAttribute;
+    createEntityReference;
+    getElementsByTagName;
+    createNode;
+    nodeFromID;
+    load;
+    readyState;
+    parseError;
+    url;
+    async;
+    async;
+    abort;
+    loadXML;
+    save;
+    validateOnParse;
+    validateOnParse;
+    resolveExternals;
+    resolveExternals;
+    preserveWhiteSpace;
+    preserveWhiteSpace;
+    onreadystatechange;
+    ondataavailable;
+    ontransformnode;
+  end;
+
+  Disp!!!
+  IXMLDOMDocumentType = interface(IXMLDOMNode)
+    ['{2933BF8B-7B36-11D2-B20E-00C04F983E60}']
+    name;
+    entities;
+    notations;
+  end;
+
+  Disp!!!
+  IXMLDOMImplementation = interface(IDispatch)
+    ['{2933BF8F-7B36-11D2-B20E-00C04F983E60}']
+    hasFeature;
+  end;
+
+  Disp!!!
+  IXMLDOMElement = interface(IXMLDOMNode)
+    ['{2933BF86-7B36-11D2-B20E-00C04F983E60}']
+    tagName;
+    getAttribute;
+    setAttribute;
+    removeAttribute;
+    getAttributeNode;
+    setAttributeNode;
+    removeAttributeNode;
+    getElementsByTagName;
+    normalize;
+  end;
+
+  Disp!!!
+  IXMLDOMAttribute = interface(IXMLDOMNode)
+    ['{2933BF85-7B36-11D2-B20E-00C04F983E60}']
+    name;
+    value;
+    value;
+  end;
+
+  Disp!!!
+  IXMLDOMDocumentFragment = interface(IXMLDOMNode)
+    ['{3EFAA413-272F-11D2-836F-0000F87A7782}']
+  end;
+
+  Disp!!!
+  IXMLDOMText = interface(IXMLDOMCharacterData)
+    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
+    splitText;
+  end;
+
+  Disp!!!
+  IXMLDOMCharacterData = interface(IXMLDOMNode)
+    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
+    data;
+    data;
+    length;
+    substringData;
+    appendData;
+    insertData;
+    deleteData;
+    replaceData;
+  end;
+
+  Disp!!!
+  IXMLDOMComment = interface(IXMLDOMCharacterData)
+    ['{2933BF88-7B36-11D2-B20E-00C04F983E60}']
+  end;
+
+  Disp!!!
+  IXMLDOMCDATASection = interface(IXMLDOMText)
+    ['{2933BF8A-7B36-11D2-B20E-00C04F983E60}']
+  end;
+
+  Disp!!!
+  IXMLDOMProcessingInstruction = interface(IXMLDOMNode)
+    ['{2933BF89-7B36-11D2-B20E-00C04F983E60}']
+    target;
+    data;
+    data;
+  end;
+
+  Disp!!!
+  IXMLDOMEntityReference = interface(IXMLDOMNode)
+    ['{2933BF8E-7B36-11D2-B20E-00C04F983E60}']
+  end;
+
+  Disp!!!
+  IXMLDOMParseError = interface(IDispatch)
+    ['{3EFAA426-272F-11D2-836F-0000F87A7782}']
+    errorCode;
+    url;
+    reason;
+    srcText;
+    line;
+    linepos;
+    filepos;
+  end;
+
+  Disp!!!
+  IXMLDOMNotation = interface(IXMLDOMNode)
+    ['{2933BF8C-7B36-11D2-B20E-00C04F983E60}']
+    publicId;
+    systemId;
+  end;
+
+  Disp!!!
+  IXMLDOMEntity = interface(IXMLDOMNode)
+    ['{2933BF8D-7B36-11D2-B20E-00C04F983E60}']
+    publicId;
+    systemId;
+    notationName;
+  end;
+
+  Disp!!!
+  IXMLDOMParseError2 = interface(IXMLDOMParseError)
+    ['{3EFAA428-272F-11D2-836F-0000F87A7782}']
+    errorXPath;
+    allErrors;
+    errorParameters;
+    errorParametersCount;
+  end;
+
+  Disp!!!
+  IXMLDOMParseErrorCollection = interface(IDispatch)
+    ['{3EFAA429-272F-11D2-836F-0000F87A7782}']
+    item;
+    length;
+    next;
+    reset;
+    _newEnum;
+  end;
+
+  Disp!!!
+  IXTLRuntime = interface(IXMLDOMNode)
+    ['{3EFAA425-272F-11D2-836F-0000F87A7782}']
+    uniqueID;
+    depth;
+    childNumber;
+    ancestorChildNumber;
+    absoluteChildNumber;
+    formatIndex;
+    formatNumber;
+    formatDate;
+    formatTime;
+  end;
+
+  ISAXXMLReader = interface(IUnknown)
+    ['{A4F96ED0-F829-476E-81C0-CDC7BD2A0802}']
+    getFeature;
+    putFeature;
+    getProperty;
+    putProperty;
+    getEntityResolver;
+    putEntityResolver;
+    getContentHandler;
+    putContentHandler;
+    getDTDHandler;
+    putDTDHandler;
+    getErrorHandler;
+    putErrorHandler;
+    getBaseURL;
+    putBaseURL;
+    getSecureBaseURL;
+    putSecureBaseURL;
+    parse;
+    parseURL;
+  end;
+
+  ISAXEntityResolver = interface(IUnknown)
+    ['{99BCA7BD-E8C4-4D5F-A0CF-6D907901FF07}']
+    resolveEntity;
+  end;
+
+  ISAXContentHandler = interface(IUnknown)
+    ['{1545CDFA-9E4E-4497-A8A4-2BF7D0112C44}']
+    putDocumentLocator;
+    startDocument;
+    endDocument;
+    startPrefixMapping;
+    endPrefixMapping;
+    startElement;
+    endElement;
+    characters;
+    ignorableWhitespace;
+    processingInstruction;
+    skippedEntity;
+  end;
+
+  ISAXLocator = interface(IUnknown)
+    ['{9B7E472A-0DE4-4640-BFF3-84D38A051C31}']
+    getColumnNumber;
+    getLineNumber;
+    getPublicId;
+    getSystemId;
+  end;
+
+  ISAXAttributes = interface(IUnknown)
+    ['{F078ABE1-45D2-4832-91EA-4466CE2F25C9}']
+    getLength;
+    getURI;
+    getLocalName;
+    getQName;
+    getName;
+    getIndexFromName;
+    getIndexFromQName;
+    getType;
+    getTypeFromName;
+    getTypeFromQName;
+    getValue;
+    getValueFromName;
+    getValueFromQName;
+  end;
+
+  ISAXDTDHandler = interface(IUnknown)
+    ['{E15C1BAF-AFB3-4D60-8C36-19A8C45DEFED}']
+    notationDecl;
+    unparsedEntityDecl;
+  end;
+
+  ISAXErrorHandler = interface(IUnknown)
+    ['{A60511C4-CCF5-479E-98A3-DC8DC545B7D0}']
+    error;
+    fatalError;
+    ignorableWarning;
+  end;
+
+  ISAXXMLFilter = interface(ISAXXMLReader)
+    ['{70409222-CA09-4475-ACB8-40312FE8D145}']
+    getParent;
+    putParent;
+  end;
+
+  Disp!!!
+  IVBSAXXMLFilter = interface(IDispatch)
+    ['{1299EB1B-5B88-433E-82DE-82CA75AD4E04}']
+    parent;
+    parent;
+  end;
+
+  Disp!!!
+  IVBSAXXMLReader = interface(IDispatch)
+    ['{8C033CAA-6CD6-4F73-B728-4531AF74945F}']
+    getFeature;
+    putFeature;
+    getProperty;
+    putProperty;
+    entityResolver;
+    entityResolver;
+    contentHandler;
+    contentHandler;
+    dtdHandler;
+    dtdHandler;
+    errorHandler;
+    errorHandler;
+    baseURL;
+    baseURL;
+    secureBaseURL;
+    secureBaseURL;
+    parse;
+    parseURL;
+  end;
+
+  Disp!!!
+  IVBSAXEntityResolver = interface(IDispatch)
+    ['{0C05D096-F45B-4ACA-AD1A-AA0BC25518DC}']
+    resolveEntity;
+  end;
+
+  Disp!!!
+  IVBSAXContentHandler = interface(IDispatch)
+    ['{2ED7290A-4DD5-4B46-BB26-4E4155E77FAA}']
+    documentLocator;
+    startDocument;
+    endDocument;
+    startPrefixMapping;
+    endPrefixMapping;
+    startElement;
+    endElement;
+    characters;
+    ignorableWhitespace;
+    processingInstruction;
+    skippedEntity;
+  end;
+
+  Disp!!!
+  IVBSAXLocator = interface(IDispatch)
+    ['{796E7AC5-5AA2-4EFF-ACAD-3FAAF01A3288}']
+    columnNumber;
+    lineNumber;
+    publicId;
+    systemId;
+  end;
+
+  Disp!!!
+  IVBSAXAttributes = interface(IDispatch)
+    ['{10DC0586-132B-4CAC-8BB3-DB00AC8B7EE0}']
+    length;
+    getURI;
+    getLocalName;
+    getQName;
+    getIndexFromName;
+    getIndexFromQName;
+    getType;
+    getTypeFromName;
+    getTypeFromQName;
+    getValue;
+    getValueFromName;
+    getValueFromQName;
+  end;
+
+  Disp!!!
+  IVBSAXDTDHandler = interface(IDispatch)
+    ['{24FB3297-302D-4620-BA39-3A732D850558}']
+    notationDecl;
+    unparsedEntityDecl;
+  end;
+
+  Disp!!!
+  IVBSAXErrorHandler = interface(IDispatch)
+    ['{D963D3FE-173C-4862-9095-B92F66995F52}']
+    error;
+    fatalError;
+    ignorableWarning;
+  end;
+
+  Disp!!!
+  IMXReaderControl = interface(IDispatch)
+    ['{808F4E35-8D5A-4FBE-8466-33A41279ED30}']
+    abort;
+    resume;
+    suspend;
+  end;
+
+  Disp!!!
+  IMXSchemaDeclHandler = interface(IDispatch)
+    ['{FA4BB38C-FAF9-4CCA-9302-D1DD0FE520DB}']
+    schemaElementDecl;
+  end;
+
+  Disp!!!
+  ISchemaElement = interface(ISchemaParticle)
+    ['{50EA08B7-DD1B-4664-9A50-C2F40F4BD79A}']
+    type;
+    scope;
+    defaultValue;
+    fixedValue;
+    isNillable;
+    identityConstraints;
+    substitutionGroup;
+    substitutionGroupExclusions;
+    disallowedSubstitutions;
+    isAbstract;
+    isReference;
+  end;
+
+  Disp!!!
+  ISchemaParticle = interface(ISchemaItem)
+    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
+    minOccurs;
+    maxOccurs;
+  end;
+
+  Disp!!!
+  ISchemaItem = interface(IDispatch)
+    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
+    name;
+    namespaceURI;
+    schema;
+    id;
+    itemType;
+    unhandledAttributes;
+    writeAnnotation;
+  end;
+
+  Disp!!!
+  ISchema = interface(ISchemaItem)
+    ['{50EA08B4-DD1B-4664-9A50-C2F40F4BD79A}']
+    targetNamespace;
+    version;
+    types;
+    elements;
+    attributes;
+    attributeGroups;
+    modelGroups;
+    notations;
+    schemaLocations;
+  end;
+
+  Disp!!!
+  ISchemaItemCollection = interface(IDispatch)
+    ['{50EA08B2-DD1B-4664-9A50-C2F40F4BD79A}']
+    item;
+    itemByName;
+    itemByQName;
+    length;
+    _newEnum;
+  end;
+
+  Disp!!!
+  ISchemaStringCollection = interface(IDispatch)
+    ['{50EA08B1-DD1B-4664-9A50-C2F40F4BD79A}']
+    item;
+    length;
+    _newEnum;
+  end;
+
+  Disp!!!
+  ISchemaType = interface(ISchemaItem)
+    ['{50EA08B8-DD1B-4664-9A50-C2F40F4BD79A}']
+    baseTypes;
+    final;
+    variety;
+    derivedBy;
+    isValid;
+    minExclusive;
+    minInclusive;
+    maxExclusive;
+    maxInclusive;
+    totalDigits;
+    fractionDigits;
+    length;
+    minLength;
+    maxLength;
+    enumeration;
+    whitespace;
+    patterns;
+  end;
+
+  Disp!!!
+  ISchemaComplexType = interface(ISchemaType)
+    ['{50EA08B9-DD1B-4664-9A50-C2F40F4BD79A}']
+    isAbstract;
+    anyAttribute;
+    attributes;
+    contentType;
+    contentModel;
+    prohibitedSubstitutions;
+  end;
+
+  Disp!!!
+  ISchemaAny = interface(ISchemaParticle)
+    ['{50EA08BC-DD1B-4664-9A50-C2F40F4BD79A}']
+    namespaces;
+    processContents;
+  end;
+
+  Disp!!!
+  ISchemaModelGroup = interface(ISchemaParticle)
+    ['{50EA08BB-DD1B-4664-9A50-C2F40F4BD79A}']
+    particles;
+  end;
+
+  Disp!!!
+  IMXXMLFilter = interface(IDispatch)
+    ['{C90352F7-643C-4FBC-BB23-E996EB2D51FD}']
+    getFeature;
+    putFeature;
+    getProperty;
+    putProperty;
+    entityResolver;
+    entityResolver;
+    contentHandler;
+    contentHandler;
+    dtdHandler;
+    dtdHandler;
+    errorHandler;
+    errorHandler;
+  end;
+
+  Disp!!!
+  ISchemaAttribute = interface(ISchemaItem)
+    ['{50EA08B6-DD1B-4664-9A50-C2F40F4BD79A}']
+    type;
+    scope;
+    defaultValue;
+    fixedValue;
+    use;
+    isReference;
+  end;
+
+  Disp!!!
+  ISchemaAttributeGroup = interface(ISchemaItem)
+    ['{50EA08BA-DD1B-4664-9A50-C2F40F4BD79A}']
+    anyAttribute;
+    attributes;
+  end;
+
+  Disp!!!
+  ISchemaIdentityConstraint = interface(ISchemaItem)
+    ['{50EA08BD-DD1B-4664-9A50-C2F40F4BD79A}']
+    selector;
+    fields;
+    referencedKey;
+  end;
+
+  Disp!!!
+  ISchemaNotation = interface(ISchemaItem)
+    ['{50EA08BE-DD1B-4664-9A50-C2F40F4BD79A}']
+    systemIdentifier;
+    publicIdentifier;
+  end;
+
+  Disp!!!
+  IXMLDOMSelection = interface(IXMLDOMNodeList)
+    ['{AA634FC7-5888-44A7-A257-3A47150D3A0E}']
+    expr;
+    expr;
+    context;
+    context;
+    peekNode;
+    matches;
+    removeNext;
+    removeAll;
+    clone;
+    getProperty;
+    setProperty;
+  end;
+
+  Disp!!!
+  XMLDOMDocumentEvents = interface(IDispatch)
+    ['{3EFAA427-272F-11D2-836F-0000F87A7782}']
+    ondataavailable;
+    onreadystatechange;
+  end;
+
+  Disp!!!
+  IXMLDOMDocument3 = interface(IXMLDOMDocument2)
+    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
+    validateNode;
+    importNode;
+  end;
+
+  Disp!!!
+  IXMLDOMDocument2 = interface(IXMLDOMDocument)
+    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
+    namespaces;
+    schemas;
+    schemas;
+    validate;
+    setProperty;
+    getProperty;
+  end;
+
+  Disp!!!
+  IXMLDOMSchemaCollection = interface(IDispatch)
+    ['{373984C8-B845-449B-91E7-45AC83036ADE}']
+    add;
+    get;
+    remove;
+    length;
+    namespaceURI;
+    addCollection;
+    _newEnum;
+  end;
+
+  Disp!!!
+  IXMLDOMSchemaCollection2 = interface(IXMLDOMSchemaCollection)
+    ['{50EA08B0-DD1B-4664-9A50-C2F40F4BD79A}']
+    validate;
+    validateOnLoad;
+    validateOnLoad;
+    getSchema;
+    getDeclaration;
+  end;
+
+  Disp!!!
+  IXSLTemplate = interface(IDispatch)
+    ['{2933BF93-7B36-11D2-B20E-00C04F983E60}']
+    stylesheet;
+    stylesheet;
+    createProcessor;
+  end;
+
+  Disp!!!
+  IXSLProcessor = interface(IDispatch)
+    ['{2933BF92-7B36-11D2-B20E-00C04F983E60}']
+    input;
+    input;
+    ownerTemplate;
+    setStartMode;
+    startMode;
+    startModeURI;
+    output;
+    output;
+    transform;
+    reset;
+    readyState;
+    addParameter;
+    addObject;
+    stylesheet;
+  end;
+
+  Disp!!!
+  IXMLHTTPRequest = interface(IDispatch)
+    ['{ED8C108D-4349-11D2-91A4-00C04F7969E8}']
+    open;
+    setRequestHeader;
+    getResponseHeader;
+    getAllResponseHeaders;
+    send;
+    abort;
+    status;
+    statusText;
+    responseXML;
+    responseText;
+    responseBody;
+    responseStream;
+    readyState;
+    onreadystatechange;
+  end;
+
+  IXMLHTTPRequest2 = interface(IUnknown)
+    ['{E5D37DC0-552A-4D52-9CC0-A14D546FBD04}']
+    open;
+    send;
+    abort;
+    SetCookie;
+    SetCustomResponseStream;
+    setProperty;
+    setRequestHeader;
+    getAllResponseHeaders;
+    GetCookie;
+    getResponseHeader;
+  end;
+
+  IXMLHTTPRequest2Callback = interface(IUnknown)
+    ['{A44A9299-E321-40DE-8866-341B41669162}']
+    OnRedirect;
+    OnHeadersAvailable;
+    ondataavailable;
+    OnResponseReceived;
+    OnError;
+  end;
+
+  ISequentialStream = interface(IUnknown)
+    ['{0C733A30-2A1C-11CE-ADE5-00AA0044773D}']
+    RemoteRead;
+    RemoteWrite;
+  end;
+
+  Disp!!!
+  IServerXMLHTTPRequest2 = interface(IServerXMLHTTPRequest)
+    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
+    setProxy;
+    setProxyCredentials;
+  end;
+
+  Disp!!!
+  IServerXMLHTTPRequest = interface(IXMLHTTPRequest)
+    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
+    setTimeouts;
+    waitForResponse;
+    getOption;
+    setOption;
+  end;
+
+  Disp!!!
+  IMXWriter = interface(IDispatch)
+    ['{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}']
+    output;
+    output;
+    encoding;
+    encoding;
+    byteOrderMark;
+    byteOrderMark;
+    indent;
+    indent;
+    standalone;
+    standalone;
+    omitXMLDeclaration;
+    omitXMLDeclaration;
+    version;
+    version;
+    disableOutputEscaping;
+    disableOutputEscaping;
+    flush;
+  end;
+
+  ISAXDeclHandler = interface(IUnknown)
+    ['{862629AC-771A-47B2-8337-4E6843C1BE90}']
+    elementDecl;
+    attributeDecl;
+    internalEntityDecl;
+    externalEntityDecl;
+  end;
+
+  ISAXLexicalHandler = interface(IUnknown)
+    ['{7F85D5F5-47A8-4497-BDA5-84BA04819EA6}']
+    startDTD;
+    endDTD;
+    startEntity;
+    endEntity;
+    startCDATA;
+    endCDATA;
+    comment;
+  end;
+
+  Disp!!!
+  IVBSAXDeclHandler = interface(IDispatch)
+    ['{E8917260-7579-4BE1-B5DD-7AFBFA6F077B}']
+    elementDecl;
+    attributeDecl;
+    internalEntityDecl;
+    externalEntityDecl;
+  end;
+
+  Disp!!!
+  IVBSAXLexicalHandler = interface(IDispatch)
+    ['{032AAC35-8C0E-4D9D-979F-E3B702935576}']
+    startDTD;
+    endDTD;
+    startEntity;
+    endEntity;
+    startCDATA;
+    endCDATA;
+    comment;
+  end;
+
+  Disp!!!
+  IMXAttributes = interface(IDispatch)
+    ['{F10D27CC-3EC0-415C-8ED8-77AB1C5E7262}']
+    addAttribute;
+    addAttributeFromIndex;
+    clear;
+    removeAttribute;
+    setAttribute;
+    setAttributes;
+    setLocalName;
+    setQName;
+    setType;
+    setURI;
+    setValue;
+  end;
+
+  Disp!!!
+  IVBMXNamespaceManager = interface(IDispatch)
+    ['{C90352F5-643C-4FBC-BB23-E996EB2D51FD}']
+    allowOverride;
+    allowOverride;
+    reset;
+    pushContext;
+    pushNodeContext;
+    popContext;
+    declarePrefix;
+    getDeclaredPrefixes;
+    getPrefixes;
+    getURI;
+    getURIFromNode;
+  end;
+
+  Disp!!!
+  IMXNamespacePrefixes = interface(IDispatch)
+    ['{C90352F4-643C-4FBC-BB23-E996EB2D51FD}']
+    item;
+    length;
+    _newEnum;
+  end;
+
+  IMXNamespaceManager = interface(IUnknown)
+    ['{C90352F6-643C-4FBC-BB23-E996EB2D51FD}']
+    putAllowOverride;
+    getAllowOverride;
+    reset;
+    pushContext;
+    pushNodeContext;
+    popContext;
+    declarePrefix;
+    getDeclaredPrefix;
+    getPrefix;
+    getURI;
   end;
 
 
