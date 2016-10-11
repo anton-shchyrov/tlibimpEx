@@ -92,6 +92,7 @@ var
   LOut: TOutFile;
 begin
   LParser := TTLBInfo.Create('msxml6.dll');
+//  LParser := TTLBInfo.Create('rsEmc.tlb');
 //  LParser := TTLBInfo.Create('test.tlb');
   try
     LOut := TOutFile.Create(LParser.UnitName + '.pas');

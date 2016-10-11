@@ -1,5 +1,10 @@
 unit MSXML2_TLB;
 
+interface
+
+uses
+  Winapi.ActiveX;
+
 const
   MSXML2MajorVersion = 6;
   MSXML2MinorVersion = 0;
@@ -98,4 +103,399 @@ const
   IID_IVBMXNamespaceManager: TGUID = '{C90352F5-643C-4FBC-BB23-E996EB2D51FD}';
   IID_IMXNamespacePrefixes: TGUID = '{C90352F4-643C-4FBC-BB23-E996EB2D51FD}';
   IID_IMXNamespaceManager: TGUID = '{C90352F6-643C-4FBC-BB23-E996EB2D51FD}';
+
+// Enumerators
+type
+  tagDOMNodeType = type TOleEnum;
+const
+  NODE_INVALID = tagDOMNodeType($00000000);
+  NODE_ELEMENT = tagDOMNodeType($00000001);
+  NODE_ATTRIBUTE = tagDOMNodeType($00000002);
+  NODE_TEXT = tagDOMNodeType($00000003);
+  NODE_CDATA_SECTION = tagDOMNodeType($00000004);
+  NODE_ENTITY_REFERENCE = tagDOMNodeType($00000005);
+  NODE_ENTITY = tagDOMNodeType($00000006);
+  NODE_PROCESSING_INSTRUCTION = tagDOMNodeType($00000007);
+  NODE_COMMENT = tagDOMNodeType($00000008);
+  NODE_DOCUMENT = tagDOMNodeType($00000009);
+  NODE_DOCUMENT_TYPE = tagDOMNodeType($0000000A);
+  NODE_DOCUMENT_FRAGMENT = tagDOMNodeType($0000000B);
+  NODE_NOTATION = tagDOMNodeType($0000000C);
+
+type
+  _SOMITEMTYPE = type TOleEnum;
+const
+  SOMITEM_SCHEMA = _SOMITEMTYPE($00001000);
+  SOMITEM_ATTRIBUTE = _SOMITEMTYPE($00001001);
+  SOMITEM_ATTRIBUTEGROUP = _SOMITEMTYPE($00001002);
+  SOMITEM_NOTATION = _SOMITEMTYPE($00001003);
+  SOMITEM_ANNOTATION = _SOMITEMTYPE($00001004);
+  SOMITEM_IDENTITYCONSTRAINT = _SOMITEMTYPE($00001100);
+  SOMITEM_KEY = _SOMITEMTYPE($00001101);
+  SOMITEM_KEYREF = _SOMITEMTYPE($00001102);
+  SOMITEM_UNIQUE = _SOMITEMTYPE($00001103);
+  SOMITEM_ANYTYPE = _SOMITEMTYPE($00002000);
+  SOMITEM_DATATYPE = _SOMITEMTYPE($00002100);
+  SOMITEM_DATATYPE_ANYTYPE = _SOMITEMTYPE($00002101);
+  SOMITEM_DATATYPE_ANYURI = _SOMITEMTYPE($00002102);
+  SOMITEM_DATATYPE_BASE64BINARY = _SOMITEMTYPE($00002103);
+  SOMITEM_DATATYPE_BOOLEAN = _SOMITEMTYPE($00002104);
+  SOMITEM_DATATYPE_BYTE = _SOMITEMTYPE($00002105);
+  SOMITEM_DATATYPE_DATE = _SOMITEMTYPE($00002106);
+  SOMITEM_DATATYPE_DATETIME = _SOMITEMTYPE($00002107);
+  SOMITEM_DATATYPE_DAY = _SOMITEMTYPE($00002108);
+  SOMITEM_DATATYPE_DECIMAL = _SOMITEMTYPE($00002109);
+  SOMITEM_DATATYPE_DOUBLE = _SOMITEMTYPE($0000210A);
+  SOMITEM_DATATYPE_DURATION = _SOMITEMTYPE($0000210B);
+  SOMITEM_DATATYPE_ENTITIES = _SOMITEMTYPE($0000210C);
+  SOMITEM_DATATYPE_ENTITY = _SOMITEMTYPE($0000210D);
+  SOMITEM_DATATYPE_FLOAT = _SOMITEMTYPE($0000210E);
+  SOMITEM_DATATYPE_HEXBINARY = _SOMITEMTYPE($0000210F);
+  SOMITEM_DATATYPE_ID = _SOMITEMTYPE($00002110);
+  SOMITEM_DATATYPE_IDREF = _SOMITEMTYPE($00002111);
+  SOMITEM_DATATYPE_IDREFS = _SOMITEMTYPE($00002112);
+  SOMITEM_DATATYPE_INT = _SOMITEMTYPE($00002113);
+  SOMITEM_DATATYPE_INTEGER = _SOMITEMTYPE($00002114);
+  SOMITEM_DATATYPE_LANGUAGE = _SOMITEMTYPE($00002115);
+  SOMITEM_DATATYPE_LONG = _SOMITEMTYPE($00002116);
+  SOMITEM_DATATYPE_MONTH = _SOMITEMTYPE($00002117);
+  SOMITEM_DATATYPE_MONTHDAY = _SOMITEMTYPE($00002118);
+  SOMITEM_DATATYPE_NAME = _SOMITEMTYPE($00002119);
+  SOMITEM_DATATYPE_NCNAME = _SOMITEMTYPE($0000211A);
+  SOMITEM_DATATYPE_NEGATIVEINTEGER = _SOMITEMTYPE($0000211B);
+  SOMITEM_DATATYPE_NMTOKEN = _SOMITEMTYPE($0000211C);
+  SOMITEM_DATATYPE_NMTOKENS = _SOMITEMTYPE($0000211D);
+  SOMITEM_DATATYPE_NONNEGATIVEINTEGER = _SOMITEMTYPE($0000211E);
+  SOMITEM_DATATYPE_NONPOSITIVEINTEGER = _SOMITEMTYPE($0000211F);
+  SOMITEM_DATATYPE_NORMALIZEDSTRING = _SOMITEMTYPE($00002120);
+  SOMITEM_DATATYPE_NOTATION = _SOMITEMTYPE($00002121);
+  SOMITEM_DATATYPE_POSITIVEINTEGER = _SOMITEMTYPE($00002122);
+  SOMITEM_DATATYPE_QNAME = _SOMITEMTYPE($00002123);
+  SOMITEM_DATATYPE_SHORT = _SOMITEMTYPE($00002124);
+  SOMITEM_DATATYPE_STRING = _SOMITEMTYPE($00002125);
+  SOMITEM_DATATYPE_TIME = _SOMITEMTYPE($00002126);
+  SOMITEM_DATATYPE_TOKEN = _SOMITEMTYPE($00002127);
+  SOMITEM_DATATYPE_UNSIGNEDBYTE = _SOMITEMTYPE($00002128);
+  SOMITEM_DATATYPE_UNSIGNEDINT = _SOMITEMTYPE($00002129);
+  SOMITEM_DATATYPE_UNSIGNEDLONG = _SOMITEMTYPE($0000212A);
+  SOMITEM_DATATYPE_UNSIGNEDSHORT = _SOMITEMTYPE($0000212B);
+  SOMITEM_DATATYPE_YEAR = _SOMITEMTYPE($0000212C);
+  SOMITEM_DATATYPE_YEARMONTH = _SOMITEMTYPE($0000212D);
+  SOMITEM_DATATYPE_ANYSIMPLETYPE = _SOMITEMTYPE($000021FF);
+  SOMITEM_SIMPLETYPE = _SOMITEMTYPE($00002200);
+  SOMITEM_COMPLEXTYPE = _SOMITEMTYPE($00002400);
+  SOMITEM_PARTICLE = _SOMITEMTYPE($00004000);
+  SOMITEM_ANY = _SOMITEMTYPE($00004001);
+  SOMITEM_ANYATTRIBUTE = _SOMITEMTYPE($00004002);
+  SOMITEM_ELEMENT = _SOMITEMTYPE($00004003);
+  SOMITEM_GROUP = _SOMITEMTYPE($00004100);
+  SOMITEM_ALL = _SOMITEMTYPE($00004101);
+  SOMITEM_CHOICE = _SOMITEMTYPE($00004102);
+  SOMITEM_SEQUENCE = _SOMITEMTYPE($00004103);
+  SOMITEM_EMPTYPARTICLE = _SOMITEMTYPE($00004104);
+  SOMITEM_NULL = _SOMITEMTYPE($00000800);
+  SOMITEM_NULL_TYPE = _SOMITEMTYPE($00002800);
+  SOMITEM_NULL_ANY = _SOMITEMTYPE($00004801);
+  SOMITEM_NULL_ANYATTRIBUTE = _SOMITEMTYPE($00004802);
+  SOMITEM_NULL_ELEMENT = _SOMITEMTYPE($00004803);
+
+type
+  _SCHEMADERIVATIONMETHOD = type TOleEnum;
+const
+  SCHEMADERIVATIONMETHOD_EMPTY = _SCHEMADERIVATIONMETHOD($00000000);
+  SCHEMADERIVATIONMETHOD_SUBSTITUTION = _SCHEMADERIVATIONMETHOD($00000001);
+  SCHEMADERIVATIONMETHOD_EXTENSION = _SCHEMADERIVATIONMETHOD($00000002);
+  SCHEMADERIVATIONMETHOD_RESTRICTION = _SCHEMADERIVATIONMETHOD($00000004);
+  SCHEMADERIVATIONMETHOD_LIST = _SCHEMADERIVATIONMETHOD($00000008);
+  SCHEMADERIVATIONMETHOD_UNION = _SCHEMADERIVATIONMETHOD($00000010);
+  SCHEMADERIVATIONMETHOD_ALL = _SCHEMADERIVATIONMETHOD($000000FF);
+  SCHEMADERIVATIONMETHOD_NONE = _SCHEMADERIVATIONMETHOD($00000100);
+
+type
+  _SCHEMATYPEVARIETY = type TOleEnum;
+const
+  SCHEMATYPEVARIETY_NONE = _SCHEMATYPEVARIETY($FFFFFFFF);
+  SCHEMATYPEVARIETY_ATOMIC = _SCHEMATYPEVARIETY($00000000);
+  SCHEMATYPEVARIETY_LIST = _SCHEMATYPEVARIETY($00000001);
+  SCHEMATYPEVARIETY_UNION = _SCHEMATYPEVARIETY($00000002);
+
+type
+  _SCHEMAWHITESPACE = type TOleEnum;
+const
+  SCHEMAWHITESPACE_NONE = _SCHEMAWHITESPACE($FFFFFFFF);
+  SCHEMAWHITESPACE_PRESERVE = _SCHEMAWHITESPACE($00000000);
+  SCHEMAWHITESPACE_REPLACE = _SCHEMAWHITESPACE($00000001);
+  SCHEMAWHITESPACE_COLLAPSE = _SCHEMAWHITESPACE($00000002);
+
+type
+  _SCHEMAPROCESSCONTENTS = type TOleEnum;
+const
+  SCHEMAPROCESSCONTENTS_NONE = _SCHEMAPROCESSCONTENTS($00000000);
+  SCHEMAPROCESSCONTENTS_SKIP = _SCHEMAPROCESSCONTENTS($00000001);
+  SCHEMAPROCESSCONTENTS_LAX = _SCHEMAPROCESSCONTENTS($00000002);
+  SCHEMAPROCESSCONTENTS_STRICT = _SCHEMAPROCESSCONTENTS($00000003);
+
+type
+  _SCHEMACONTENTTYPE = type TOleEnum;
+const
+  SCHEMACONTENTTYPE_EMPTY = _SCHEMACONTENTTYPE($00000000);
+  SCHEMACONTENTTYPE_TEXTONLY = _SCHEMACONTENTTYPE($00000001);
+  SCHEMACONTENTTYPE_ELEMENTONLY = _SCHEMACONTENTTYPE($00000002);
+  SCHEMACONTENTTYPE_MIXED = _SCHEMACONTENTTYPE($00000003);
+
+type
+  _SCHEMAUSE = type TOleEnum;
+const
+  SCHEMAUSE_OPTIONAL = _SCHEMAUSE($00000000);
+  SCHEMAUSE_PROHIBITED = _SCHEMAUSE($00000001);
+  SCHEMAUSE_REQUIRED = _SCHEMAUSE($00000002);
+
+type
+  _SERVERXMLHTTP_OPTION = type TOleEnum;
+const
+  SXH_OPTION_URL = _SERVERXMLHTTP_OPTION($FFFFFFFF);
+  SXH_OPTION_URL_CODEPAGE = _SERVERXMLHTTP_OPTION($00000000);
+  SXH_OPTION_ESCAPE_PERCENT_IN_URL = _SERVERXMLHTTP_OPTION($00000001);
+  SXH_OPTION_IGNORE_SERVER_SSL_CERT_ERROR_FLAGS = _SERVERXMLHTTP_OPTION($00000002);
+  SXH_OPTION_SELECT_CLIENT_SSL_CERT = _SERVERXMLHTTP_OPTION($00000003);
+
+type
+  _SXH_SERVER_CERT_OPTION = type TOleEnum;
+const
+  SXH_SERVER_CERT_IGNORE_UNKNOWN_CA = _SXH_SERVER_CERT_OPTION($00000100);
+  SXH_SERVER_CERT_IGNORE_WRONG_USAGE = _SXH_SERVER_CERT_OPTION($00000200);
+  SXH_SERVER_CERT_IGNORE_CERT_CN_INVALID = _SXH_SERVER_CERT_OPTION($00001000);
+  SXH_SERVER_CERT_IGNORE_CERT_DATE_INVALID = _SXH_SERVER_CERT_OPTION($00002000);
+  SXH_SERVER_CERT_IGNORE_ALL_SERVER_ERRORS = _SXH_SERVER_CERT_OPTION($00003300);
+
+type
+  _SXH_PROXY_SETTING = type TOleEnum;
+const
+  SXH_PROXY_SET_DEFAULT = _SXH_PROXY_SETTING($00000000);
+  SXH_PROXY_SET_PRECONFIG = _SXH_PROXY_SETTING($00000000);
+  SXH_PROXY_SET_DIRECT = _SXH_PROXY_SETTING($00000001);
+  SXH_PROXY_SET_PROXY = _SXH_PROXY_SETTING($00000002);
+
+type
+  _XHR_PROPERTY = type TOleEnum;
+const
+  XHR_PROP_NO_CRED_PROMPT = _XHR_PROPERTY($00000000);
+  XHR_PROP_NO_AUTH = _XHR_PROPERTY($00000001);
+  XHR_PROP_TIMEOUT = _XHR_PROPERTY($00000002);
+  XHR_PROP_NO_DEFAULT_HEADERS = _XHR_PROPERTY($00000003);
+  XHR_PROP_REPORT_REDIRECT_STATUS = _XHR_PROPERTY($00000004);
+
+type
+  // Interfaces forward declarations
+  IXMLDOMNode = interface;
+  IXMLDOMNodeDisp = dispinterface;
+  IXMLDOMNodeList = interface;
+  IXMLDOMNodeListDisp = dispinterface;
+  IXMLDOMNamedNodeMap = interface;
+  IXMLDOMNamedNodeMapDisp = dispinterface;
+  IXMLDOMDocument = interface;
+  IXMLDOMDocumentDisp = dispinterface;
+  IXMLDOMDocumentType = interface;
+  IXMLDOMDocumentTypeDisp = dispinterface;
+  IXMLDOMImplementation = interface;
+  IXMLDOMImplementationDisp = dispinterface;
+  IXMLDOMElement = interface;
+  IXMLDOMElementDisp = dispinterface;
+  IXMLDOMAttribute = interface;
+  IXMLDOMAttributeDisp = dispinterface;
+  IXMLDOMDocumentFragment = interface;
+  IXMLDOMDocumentFragmentDisp = dispinterface;
+  IXMLDOMText = interface;
+  IXMLDOMTextDisp = dispinterface;
+  IXMLDOMCharacterData = interface;
+  IXMLDOMCharacterDataDisp = dispinterface;
+  IXMLDOMComment = interface;
+  IXMLDOMCommentDisp = dispinterface;
+  IXMLDOMCDATASection = interface;
+  IXMLDOMCDATASectionDisp = dispinterface;
+  IXMLDOMProcessingInstruction = interface;
+  IXMLDOMProcessingInstructionDisp = dispinterface;
+  IXMLDOMEntityReference = interface;
+  IXMLDOMEntityReferenceDisp = dispinterface;
+  IXMLDOMParseError = interface;
+  IXMLDOMParseErrorDisp = dispinterface;
+  IXMLDOMNotation = interface;
+  IXMLDOMNotationDisp = dispinterface;
+  IXMLDOMEntity = interface;
+  IXMLDOMEntityDisp = dispinterface;
+  IXMLDOMParseError2 = interface;
+  IXMLDOMParseError2Disp = dispinterface;
+  IXMLDOMParseErrorCollection = interface;
+  IXMLDOMParseErrorCollectionDisp = dispinterface;
+  IXTLRuntime = interface;
+  IXTLRuntimeDisp = dispinterface;
+  ISAXXMLReader = interface;
+  ISAXEntityResolver = interface;
+  ISAXContentHandler = interface;
+  ISAXLocator = interface;
+  ISAXAttributes = interface;
+  ISAXDTDHandler = interface;
+  ISAXErrorHandler = interface;
+  ISAXXMLFilter = interface;
+  IVBSAXXMLFilter = interface;
+  IVBSAXXMLFilterDisp = dispinterface;
+  IVBSAXXMLReader = interface;
+  IVBSAXXMLReaderDisp = dispinterface;
+  IVBSAXEntityResolver = interface;
+  IVBSAXEntityResolverDisp = dispinterface;
+  IVBSAXContentHandler = interface;
+  IVBSAXContentHandlerDisp = dispinterface;
+  IVBSAXLocator = interface;
+  IVBSAXLocatorDisp = dispinterface;
+  IVBSAXAttributes = interface;
+  IVBSAXAttributesDisp = dispinterface;
+  IVBSAXDTDHandler = interface;
+  IVBSAXDTDHandlerDisp = dispinterface;
+  IVBSAXErrorHandler = interface;
+  IVBSAXErrorHandlerDisp = dispinterface;
+  IMXReaderControl = interface;
+  IMXReaderControlDisp = dispinterface;
+  IMXSchemaDeclHandler = interface;
+  IMXSchemaDeclHandlerDisp = dispinterface;
+  ISchemaElement = interface;
+  ISchemaElementDisp = dispinterface;
+  ISchemaParticle = interface;
+  ISchemaParticleDisp = dispinterface;
+  ISchemaItem = interface;
+  ISchemaItemDisp = dispinterface;
+  ISchema = interface;
+  ISchemaDisp = dispinterface;
+  ISchemaItemCollection = interface;
+  ISchemaItemCollectionDisp = dispinterface;
+  ISchemaStringCollection = interface;
+  ISchemaStringCollectionDisp = dispinterface;
+  ISchemaType = interface;
+  ISchemaTypeDisp = dispinterface;
+  ISchemaComplexType = interface;
+  ISchemaComplexTypeDisp = dispinterface;
+  ISchemaAny = interface;
+  ISchemaAnyDisp = dispinterface;
+  ISchemaModelGroup = interface;
+  ISchemaModelGroupDisp = dispinterface;
+  IMXXMLFilter = interface;
+  IMXXMLFilterDisp = dispinterface;
+  ISchemaAttribute = interface;
+  ISchemaAttributeDisp = dispinterface;
+  ISchemaAttributeGroup = interface;
+  ISchemaAttributeGroupDisp = dispinterface;
+  ISchemaIdentityConstraint = interface;
+  ISchemaIdentityConstraintDisp = dispinterface;
+  ISchemaNotation = interface;
+  ISchemaNotationDisp = dispinterface;
+  IXMLDOMSelection = interface;
+  IXMLDOMSelectionDisp = dispinterface;
+  XMLDOMDocumentEvents = dispinterface;
+  IXMLDOMDocument3 = interface;
+  IXMLDOMDocument3Disp = dispinterface;
+  IXMLDOMDocument2 = interface;
+  IXMLDOMDocument2Disp = dispinterface;
+  IXMLDOMSchemaCollection = interface;
+  IXMLDOMSchemaCollectionDisp = dispinterface;
+  IXMLDOMSchemaCollection2 = interface;
+  IXMLDOMSchemaCollection2Disp = dispinterface;
+  IXSLTemplate = interface;
+  IXSLTemplateDisp = dispinterface;
+  IXSLProcessor = interface;
+  IXSLProcessorDisp = dispinterface;
+  IXMLHTTPRequest = interface;
+  IXMLHTTPRequestDisp = dispinterface;
+  IXMLHTTPRequest2 = interface;
+  IXMLHTTPRequest2Callback = interface;
+  ISequentialStream = interface;
+  IServerXMLHTTPRequest2 = interface;
+  IServerXMLHTTPRequest2Disp = dispinterface;
+  IServerXMLHTTPRequest = interface;
+  IServerXMLHTTPRequestDisp = dispinterface;
+  IMXWriter = interface;
+  IMXWriterDisp = dispinterface;
+  ISAXDeclHandler = interface;
+  ISAXLexicalHandler = interface;
+  IVBSAXDeclHandler = interface;
+  IVBSAXDeclHandlerDisp = dispinterface;
+  IVBSAXLexicalHandler = interface;
+  IVBSAXLexicalHandlerDisp = dispinterface;
+  IMXAttributes = interface;
+  IMXAttributesDisp = dispinterface;
+  IVBMXNamespaceManager = interface;
+  IVBMXNamespaceManagerDisp = dispinterface;
+  IMXNamespacePrefixes = interface;
+  IMXNamespacePrefixesDisp = dispinterface;
+  IMXNamespaceManager = interface;
+
+type
+  // CoClasses as default interface
+  DOMDocument60 = IXMLDOMDocument3;
+  FreeThreadedDOMDocument60 = IXMLDOMDocument3;
+  XMLSchemaCache60 = IXMLDOMSchemaCollection2;
+  XSLTemplate60 = IXSLTemplate;
+  XMLHTTP60 = IXMLHTTPRequest;
+  FreeThreadedXMLHTTP60 = IXMLHTTPRequest2;
+  ServerXMLHTTP60 = IServerXMLHTTPRequest2;
+  SAXXMLReader60 = IVBSAXXMLReader;
+  MXXMLWriter60 = IMXWriter;
+  MXHTMLWriter60 = IMXWriter;
+  SAXAttributes60 = IMXAttributes;
+  MXNamespaceManager60 = IVBMXNamespaceManager;
+
+type
+  // Aliaces
+  DOMNodeType = tagDOMNodeType;
+  SOMITEMTYPE = _SOMITEMTYPE;
+  SCHEMADERIVATIONMETHOD = _SCHEMADERIVATIONMETHOD;
+  SCHEMATYPEVARIETY = _SCHEMATYPEVARIETY;
+  SCHEMAWHITESPACE = _SCHEMAWHITESPACE;
+  SCHEMAPROCESSCONTENTS = _SCHEMAPROCESSCONTENTS;
+  SCHEMACONTENTTYPE = _SCHEMACONTENTTYPE;
+  SCHEMAUSE = _SCHEMAUSE;
+  SERVERXMLHTTP_OPTION = _SERVERXMLHTTP_OPTION;
+  SXH_SERVER_CERT_OPTION = _SXH_SERVER_CERT_OPTION;
+  SXH_PROXY_SETTING = _SXH_PROXY_SETTING;
+  XHR_PROPERTY = _XHR_PROPERTY;
+
+type
+  // Records
+  __msxml6_ReferenceRemainingTypes__ = record
+    __tagDomNodeType__: tagDOMNodeType;
+    __domNodeType__: DOMNodeType;
+    __serverXmlHttpOptionEnum__: _SERVERXMLHTTP_OPTION;
+    __serverXmlHttpOption__: SERVERXMLHTTP_OPTION;
+    __serverCertOptionEnum__: _SXH_SERVER_CERT_OPTION;
+    __serverCertOption__: SXH_SERVER_CERT_OPTION;
+    __proxySettingEnum__: _SXH_PROXY_SETTING;
+    __proxySetting__: SXH_PROXY_SETTING;
+    __somItemTypeEnum__: _SOMITEMTYPE;
+    __somItemType__: SOMITEMTYPE;
+    __schemaUseEnum__: _SCHEMAUSE;
+    __schemaUse__: SCHEMAUSE;
+    __schemaDerivationMethodEnum__: _SCHEMADERIVATIONMETHOD;
+    __schemaDerivationMethod__: SCHEMADERIVATIONMETHOD;
+    __schemaContentTypeEnum__: _SCHEMACONTENTTYPE;
+    __schemaContentType__: SCHEMACONTENTTYPE;
+    __schemaProcessContentsEnum__: _SCHEMAPROCESSCONTENTS;
+    __schemaProcessContents__: SCHEMAPROCESSCONTENTS;
+    __schemaWhitespaceEnum__: _SCHEMAWHITESPACE;
+    __schemaWhitespace__: SCHEMAWHITESPACE;
+    __schemaTypeVarietyEnum__: _SCHEMATYPEVARIETY;
+    __schemaTypeVariety__: SCHEMATYPEVARIETY;
+  end;
+
+  tagXHR_COOKIE = record
+    pwszUrl: PWideChar;
+    pwszName: PWideChar;
+    pwszValue: PWideChar;
+    pwszP3PPolicy: PWideChar;
+    ftExpires: _FILETIME;
+    dwFlags: Cardinal;
+  end;
+
+  _FILETIME = record
+    dwLowDateTime: Cardinal;
+    dwHighDateTime: Cardinal;
+  end;
+
 
