@@ -1,5 +1,7 @@
 program tlibimpEx;
 
+{$APPTYPE CONSOLE}
+
 uses
 //  FastMM4,
   System.SysUtils,
@@ -87,13 +89,61 @@ begin
   end;
 end;
 
+procedure ParseElemDesc(const ADesc: TTypeDesc);
+begin
+  Write('ParseElemDesc: ');
+  case ADesc.vt of
+    VT_USERDEFINED: Writeln('hreftype: ', ADesc.hreftype);
+    VT_PTR: begin
+      Writeln('Pointer');
+      ParseElemDesc(ADesc.ptdesc^);
+    end;
+  else
+    Writeln(ADesc.vt);
+  end;
+end;
+
+procedure Test;
+var
+  LLib: ITypeLib;
+  LInfo: ITypeInfo;
+  LStr: WideString;
+  LFuncDesc: PFuncDesc;
+  LNames: array[0..1] of WideString;
+  Li, LCnt: Integer;
+begin
+  OleCheck(LoadTypeLibEx('test.tlb', REGKIND_NONE, LLib));
+  OleCheck(LLib.GetTypeInfo(0, LInfo));
+  OleCheck(LInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
+  Writeln('Interface: ', LStr);
+  SysFreeString(PChar(LStr));
+  OleCheck(LInfo.GetFuncDesc(0, LFuncDesc));
+  try
+    OleCheck(LInfo.GetDocumentation(LFuncDesc^.memid, @LStr, nil, nil, nil));
+    Writeln('Method: ', LStr);
+    SysFreeString(PChar(LStr));
+    Writeln('ParamCount: ', LFuncDesc^.cParams);
+    LInfo.GetNames(LFuncDesc^.memid, @LNames[0], 2, LCnt);
+    for Li := 0 to LCnt - 1 do
+      Writeln('Name', Li, ': ', LNames[Li]);
+    for Li := 0 to LFuncDesc^.cParams - 1 do
+      ParseElemDesc(LFuncDesc^.lprgelemdescParam^[Li].tdesc);
+  finally
+    LInfo.ReleaseFuncDesc(LFuncDesc);
+  end;
+end;
+
 var
   LParser: TTLBInfo;
   LOut: TOutFile;
 begin
-  LParser := TTLBInfo.Create('msxml6.dll');
+  Test;
+  readln;
+  exit;
+//  LParser := TTLBInfo.Create('msxml6.dll');
+//  LParser := TTLBInfo.Create('msxml2my.tlb');
 //  LParser := TTLBInfo.Create('rsEmc.tlb');
-//  LParser := TTLBInfo.Create('test.tlb');
+  LParser := TTLBInfo.Create('test.tlb');
   try
     LOut := TOutFile.Create(LParser.UnitName + '.pas');
     try

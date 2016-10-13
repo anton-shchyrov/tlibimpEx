@@ -1,0 +1,8 @@
+Interface: ITest
+Method: Owner
+ParamCount: 1
+Name0: Owner
+Name1: AOut
+ParseElemDesc: Pointer
+ParseElemDesc: Pointer
+ParseElemDesc: hreftype: 0

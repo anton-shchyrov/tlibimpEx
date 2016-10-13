@@ -17,7 +17,7 @@ type
   public
     constructor Create(const AName: string);
     procedure Print(AOut: TOutFile); virtual; abstract;
-    class function GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType): string;
+    procedure RequireUnits(AUnitManager: TUnitManager); virtual;
   end;
 
   TTLBMember = class(TIntfItem)
@@ -37,13 +37,14 @@ type
 
   TVariable = class(TTypeMember)
   strict private
-    FType_: string;
+    FType: TPasTypeInfo;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
-  TMethodArg = class(TVariable)
+  TMethodArg = class(TIntfItem)
   strict private
     const
       CFlagIn = $01;
@@ -51,18 +52,36 @@ type
       CFlagRetVal = $04;
       CFlagRef = $08;
   strict private
+    FType: TPasTypeInfo;
     FFlag: Byte;
+  public
+    constructor Create(const ATypeInfo: ITypeInfo; const AName: string;
+      const ADesc: TElemDesc);
+    procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
+    function ToString: string; override;
   end;
 
   TIntfMethod = class(TTypeMember)
   strict private
-    FRetType: string;
-    FCallingConv: TCallConv;
+    type
+      TCallingConv = (ccRegister, ccPascal, ccCdecl, ccStdcall, ccSafecall);
+    const
+      CCallinvConvNames: array[TCallingConv] of string = (
+        'register', 'pascal', 'cdecl', 'stdcall', 'safecall'
+      );
+  strict private
+    FRetType: TPasTypeInfo;
     FArgs: TObjectList<TMethodArg>;
+    FCallingConv: TCallingConv;
+    FInvoke: TInvokeKind;
+  strict private
+    function DecodeCallingConv(ACallingConv: TCallConv): TCallingConv;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
   TGUIDMember = class(TTLBMember)
@@ -105,10 +124,13 @@ type
   public
     procedure Print(AOut: TOutFile); override;
     procedure PrintForward(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
   TDispInterface = class(TInterface)
   strict private
+    class function GetIsDisp(AFlags: Word): Boolean; overload;
+    function GetIsDisp: Boolean; overload;
     function GetDispName: string;
   strict protected
     function GetIIDPrefix: string; override;
@@ -171,17 +193,19 @@ type
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
   TAlias = class(TTLBMember)
   strict private
-    FAlias: string;
+    FAlias: TPasTypeInfo;
     FHRef: HRefType;
   strict protected
     procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
     procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
   public
     procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
   TTLBInfo = class(TIntfItem)
@@ -199,7 +223,6 @@ type
     function GetUnitName: string;
   strict private
     procedure Parse(const ATypeLib: ITypeLib);
-    procedure RequireUnits(AUnitManager: TUnitManager);
     procedure PrintHeaderConst(AOut: TOutFile);
     procedure PrintClassIDs(AOut: TOutFile);
     procedure PrintIIDs(AOut: TOutFile);
@@ -213,6 +236,7 @@ type
     constructor Create(const AFileName: string);
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
+    procedure RequireUnits(AUnitManager: TUnitManager); override;
   public
     property UnitName: string read GetUnitName;
   end;
@@ -233,64 +257,128 @@ type
       CConst = 'const';
   end;
 
-procedure TypeDescToTypeStr(const ATypeDesc: TTypeDesc; out AHRef: HRefType;
-  out ATypeStr: string);
+procedure __TypeDescToPasType(const ATypeInfo: ITypeInfo;
+const ATypeDesc: TTypeDesc; out AHRef: HRefType;
+  var APasType: TPasTypeInfo);
+var
+  LRes: HRESULT;
+  LType: ITypeInfo;
+  LStr: WideString;
 begin
+  if (ATypeDesc.hreftype <> 0) and (ATypeInfo <> nil) then begin
+    LRes := ATypeInfo.GetRefTypeInfo(ATypeDesc.hreftype, LType);
+    if LRes = S_OK then
+      LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil);
+  end;
   AHRef := 0;
   case ATypeDesc.vt of
-    VT_EMPTY: ATypeStr := '!!!UNKNOWN Type VT_EMPTY!!!';
-    VT_NULL: ATypeStr := '!!!UNKNOWN Type VT_NULL!!!';
-    VT_I2: ATypeStr := 'SmallInt';
-    VT_I4: ATypeStr := 'Integer';
-    VT_R4: ATypeStr := 'Single';
-    VT_R8: ATypeStr := 'Double';
-    VT_CY: ATypeStr := 'Currency';
-    VT_DATE: ATypeStr := 'TDateTime';
-    VT_BSTR: ATypeStr := 'WideString';
-    VT_DISPATCH: ATypeStr := 'IDispatch';
-    VT_ERROR: ATypeStr := 'SCODE';
-    VT_BOOL: ATypeStr := 'WordBool';
-    VT_VARIANT: ATypeStr := 'OleVariant';
-    VT_UNKNOWN: ATypeStr := 'IUnknown';
-    VT_DECIMAL: ATypeStr := '!!!UNKNOWN Type VT_DECIMAL!!!';
-    VT_I1: ATypeStr := 'ShortInt';
-    VT_UI1: ATypeStr := 'Byte';
-    VT_UI2: ATypeStr := 'Word';
-    VT_UI4: ATypeStr := 'Cardinal';
-    VT_I8: ATypeStr := 'Int64';
-    VT_UI8: ATypeStr := 'UInt64';
-    VT_INT: ATypeStr := 'SYSINT';
-    VT_UINT: ATypeStr := 'SYSUINT';
-    VT_VOID: ATypeStr := 'Pointer';
-    VT_HRESULT: ATypeStr := 'HRESULT';
-    VT_PTR: ATypeStr := 'Pointer';
-    VT_SAFEARRAY: ATypeStr := '!!!UNKNOWN Type VT_SAFEARRAY!!!';
-    VT_CARRAY: ATypeStr := '!!!UNKNOWN Type VT_CARRAY!!!';
+    VT_EMPTY: APasType.Name := '!!!UNKNOWN Type VT_EMPTY!!!';
+    VT_NULL: APasType.Name := '!!!UNKNOWN Type VT_NULL!!!';
+    VT_I2: APasType.Name := 'SmallInt';
+    VT_I4: APasType.Name := 'Integer';
+    VT_R4: APasType.Name := 'Single';
+    VT_R8: APasType.Name := 'Double';
+    VT_CY: APasType.Name := 'Currency';
+    VT_DATE: APasType.Name := 'TDateTime';
+    VT_BSTR: APasType.Name := 'WideString';
+    VT_DISPATCH: APasType.Name := 'IDispatch';
+    VT_ERROR: begin
+      APasType.Name := 'SCODE';
+      APasType.StdUnit := suActiveX;
+    end;
+    VT_BOOL: APasType.Name := 'WordBool';
+    VT_VARIANT: APasType.Name := 'OleVariant';
+    VT_UNKNOWN: APasType.Name := 'IUnknown';
+    VT_DECIMAL: APasType.Name := '!!!UNKNOWN Type VT_DECIMAL!!!';
+    VT_I1: APasType.Name := 'ShortInt';
+    VT_UI1: APasType.Name := 'Byte';
+    VT_UI2: APasType.Name := 'Word';
+    VT_UI4: APasType.Name := 'Cardinal';
+    VT_I8: APasType.Name := 'Int64';
+    VT_UI8: APasType.Name := 'UInt64';
+    VT_INT: begin
+      APasType.Name := 'SYSINT';
+      APasType.StdUnit := suActiveX;
+    end;
+    VT_UINT: begin
+      APasType.Name := 'SYSUINT';
+      APasType.StdUnit := suActiveX;
+    end;
+    VT_VOID: APasType.Name := 'VOID';
+    VT_HRESULT: APasType.Name := 'HRESULT';
+    VT_PTR: begin
+      Inc(APasType.Ref);
+      __TypeDescToPasType(ATypeInfo, ATypeDesc.ptdesc^, AHRef, APasType);
+    end;
+    VT_SAFEARRAY: APasType.Name := '!!!UNKNOWN Type VT_SAFEARRAY!!!';
+    VT_CARRAY: APasType.Name := '!!!UNKNOWN Type VT_CARRAY!!!';
     VT_USERDEFINED: begin
       AHRef := ATypeDesc.hreftype;
       if AHRef = 0 then
-        ATypeStr := '!!!UNKNOWN HRefType!!!'
+        APasType.Name := '!!!UNKNOWN HRefType!!!'
       else
-        ATypeStr := '';
+        APasType.Name := '';
     end;
-    VT_LPSTR: ATypeStr := 'PAnsiChar';
-    VT_LPWSTR: ATypeStr := 'PWideChar';
-    VT_RECORD: ATypeStr := '!!!UNKNOWN Type VT_RECORD!!!';
-    VT_INT_PTR: ATypeStr := 'SYSINT';
-    VT_UINT_PTR: ATypeStr := 'SYSUINT';
-    VT_FILETIME: ATypeStr := 'FILETIME';
-    VT_BLOB: ATypeStr := '!!!UNKNOWN Type VT_BLOB!!!';
-    VT_STREAM: ATypeStr := '!!!UNKNOWN Type VT_STREAM!!!';
-    VT_STORAGE: ATypeStr := '!!!UNKNOWN Type VT_STORAGE!!!';
-    VT_STREAMED_OBJECT: ATypeStr := '!!!UNKNOWN Type VT_STREAMED_OBJECT!!!';
-    VT_STORED_OBJECT: ATypeStr := '!!!UNKNOWN Type VT_STORED_OBJECT!!!';
-    VT_BLOB_OBJECT: ATypeStr := '!!!UNKNOWN Type VT_BLOB_OBJECT!!!';
-    VT_CF: ATypeStr := '!!!UNKNOWN Type VT_CF!!!';
-    VT_CLSID: ATypeStr := '!!!UNKNOWN Type VT_CLSID!!!';
-//    VT_VERSIONED_STREAM: ATypeStr := '!!!UNKNOWN Type VT_VERSIONED_STREAM!!!';
+    VT_LPSTR: APasType.Name := 'PAnsiChar';
+    VT_LPWSTR: APasType.Name := 'PWideChar';
+    VT_RECORD: APasType.Name := '!!!UNKNOWN Type VT_RECORD!!!';
+    VT_INT_PTR: begin
+      APasType.Name := 'LPARAM';
+      APasType.StdUnit := suWindows;
+    end;
+    VT_UINT_PTR: begin
+      APasType.Name := 'WPARAM';
+      APasType.StdUnit := suWindows;
+    end;
+    VT_FILETIME: begin
+      APasType.Name := 'FILETIME';
+      APasType.StdUnit := suWindows;
+    end;
+    VT_BLOB: APasType.Name := '!!!UNKNOWN Type VT_BLOB!!!';
+    VT_STREAM: APasType.Name := '!!!UNKNOWN Type VT_STREAM!!!';
+    VT_STORAGE: APasType.Name := '!!!UNKNOWN Type VT_STORAGE!!!';
+    VT_STREAMED_OBJECT: APasType.Name := '!!!UNKNOWN Type VT_STREAMED_OBJECT!!!';
+    VT_STORED_OBJECT: APasType.Name := '!!!UNKNOWN Type VT_STORED_OBJECT!!!';
+    VT_BLOB_OBJECT: APasType.Name := '!!!UNKNOWN Type VT_BLOB_OBJECT!!!';
+    VT_CF: APasType.Name := '!!!UNKNOWN Type VT_CF!!!';
+    VT_CLSID: APasType.Name := '!!!UNKNOWN Type VT_CLSID!!!';
+//    VT_VERSIONED_STREAM: APasType.Name := '!!!UNKNOWN Type VT_VERSIONED_STREAM!!!';
   else
-    ATypeStr := Format('!!!UNKNOWN Type desc. VT: %.4x!!!', [ATypeDesc.vt]);
+    APasType.Name := Format('!!!UNKNOWN Type desc. VT: %.4x!!!', [ATypeDesc.vt]);
   end;
+end;
+
+procedure TypeDescToPasType(const ATypeInfo: ITypeInfo;
+  const ATypeDesc: TTypeDesc; out AHRef: HRefType;
+  out APasType: TPasTypeInfo);
+begin
+  APasType.Ref := 0;
+  APasType.StdUnit := suSystem;
+  APasType.CustomUnit := '';
+  __TypeDescToPasType(ATypeInfo, ATypeDesc, AHRef, APasType);
+end;
+
+function GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType): TPasTypeInfo;
+var
+  LType: ITypeInfo;
+  LStr: WideString;
+begin
+  OleCheck(ATypeInfo.GetRefTypeInfo(AHRef, LType));
+  OleCheck(LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
+  Result.Name := LStr;
+  SysFreeString(PChar(LStr));
+  Result.Ref := 0;
+  Result.StdUnit := suSystem;
+  Result.CustomUnit := '';
+end;
+
+function ElemDescToTypeStr(const ATypeInfo: ITypeInfo; const ADesc: TElemDesc): TPasTypeInfo;
+var
+  LHref: HRefType;
+begin
+  TypeDescToPasType(ATypeInfo, ADesc.tdesc, LHref, Result);
+  if LHref <> 0 then
+    Result := GetHRefName(ATypeInfo, LHref);
 end;
 
 { TIntfItem }
@@ -301,16 +389,9 @@ begin
   FName := AName;
 end;
 
-class function TIntfItem.GetHRefName(const ATypeInfo: ITypeInfo;
-  AHRef: HRefType): string;
-var
-  LType: ITypeInfo;
-  LStr: WideString;
+procedure TIntfItem.RequireUnits(AUnitManager: TUnitManager);
 begin
-  OleCheck(ATypeInfo.GetRefTypeInfo(AHRef, LType));
-  OleCheck(LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
-  Result := LStr;
-  SysFreeString(PChar(LStr));
+  // Abstract
 end;
 
 { TTLBMember }
@@ -376,9 +457,7 @@ var
 begin
   OleCheck(ATypeInfo.GetVarDesc(AIdx, LVarDesc));
   try
-    TypeDescToTypeStr(LVarDesc^.elemdescVar.tdesc, LHref, FType_);
-    if LHref <> 0 then
-      FType_ := GetHRefName(ATypeInfo, LHref);
+    FType := ElemDescToTypeStr(ATypeInfo, LVarDesc^.elemdescVar);
     inherited Create(ATypeInfo, LVarDesc^.memid);
   finally
     ATypeInfo.ReleaseVarDesc(LVarDesc);
@@ -387,7 +466,55 @@ end;
 
 procedure TVariable.Print(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s: %s;', [Name, FType_]);
+  AOut.WriteFmt('%s: %s;', [Name, FType.Name]);
+end;
+
+procedure TVariable.RequireUnits(AUnitManager: TUnitManager);
+begin
+  inherited RequireUnits(AUnitManager);
+  AUnitManager.AddPasType(FType);
+end;
+
+{ TMethodArg }
+
+constructor TMethodArg.Create(const ATypeInfo: ITypeInfo; const AName: string;
+  const ADesc: TElemDesc);
+begin
+  inherited Create(AName);
+  FType := ElemDescToTypeStr(ATypeInfo, ADesc);
+  if ADesc.tdesc.vt = VT_PTR then
+    FFlag := CFlagRef;
+  if ADesc.paramdesc.wParamFlags and PARAMFLAG_FIN = PARAMFLAG_FIN then
+    FFlag := FFlag or CFlagIn;
+  if ADesc.paramdesc.wParamFlags and PARAMFLAG_FOUT = PARAMFLAG_FOUT then
+    FFlag := FFlag or CFlagOut;
+  if ADesc.paramdesc.wParamFlags and PARAMFLAG_FRETVAL = PARAMFLAG_FRETVAL then
+    FFlag := FFlag or CFlagRetVal;
+end;
+
+procedure TMethodArg.Print(AOut: TOutFile);
+begin
+  AOut.Write(ToString);
+end;
+
+procedure TMethodArg.RequireUnits(AUnitManager: TUnitManager);
+begin
+  inherited RequireUnits(AUnitManager);
+  AUnitManager.AddPasType(FType);
+end;
+
+function TMethodArg.ToString: string;
+var
+  LPrfx: string;
+begin
+  if FFlag and CFlagOut = CFlagOut then begin
+    if FFlag and CFlagIn = CFlagIn then
+      LPrfx := 'var '
+    else
+      LPrfx := 'out ';
+  end else
+    LPrfx := '';
+  Result := Format('%s%s: %s', [LPrfx, Name, FType.Name]);
 end;
 
 { TIntfMethod }
@@ -395,14 +522,28 @@ end;
 constructor TIntfMethod.Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
 var
   LDesc: PFuncDesc;
+  LHref: HRefType;
+  Li: Integer;
+  LAttr: PTypeAttr;
+  LParamNames: array of WideString;
+  LCnt: Integer;
 begin
+  FArgs := TObjectList<TMethodArg>.Create(True);
   OleCheck(ATypeInfo.GetFuncDesc(AIdx, LDesc));
   try
     inherited Create(ATypeInfo, LDesc^.memid);
+    FRetType := ElemDescToTypeStr(ATypeInfo, LDesc^.elemdescFunc);
+    FCallingConv := DecodeCallingConv(LDesc^.callconv);
+    FInvoke := LDesc^.invkind;
+    if LDesc^.cParams > 0 then begin
+      SetLength(LParamNames, LDesc^.cParams + 1);
+      OleCheck(ATypeInfo.GetNames(LDesc^.memid, @LParamNames[0], LDesc^.cParams + 1, LCnt));
+      for Li := 0 to LDesc^.cParams - 1 do
+        FArgs.Add(TMethodArg.Create(ATypeInfo, LParamNames[Li + 1], LDesc^.lprgelemdescParam^[Li]));
+    end;
   finally
     ATypeInfo.ReleaseFuncDesc(LDesc);
   end;
-  FArgs := TObjectList<TMethodArg>.Create(True);
 end;
 
 destructor TIntfMethod.Destroy;
@@ -411,9 +552,72 @@ begin
   inherited Destroy;
 end;
 
-procedure TIntfMethod.Print(AOut: TOutFile);
+function TIntfMethod.DecodeCallingConv(ACallingConv: TCallConv): TCallingConv;
 begin
-  AOut.WriteFmt('%s;', [Name]);
+  case ACallingConv of
+    CC_SAFECALL: Result := ccSafecall;
+    CC_CDECL, CC_MPWCDECL: Result := ccCdecl;
+    CC_PASCAL, CC_MACPASCAL, CC_MPWPASCAL: Result := ccPascal;
+    CC_STDCALL: Result := ccStdcall;
+    CC_FPFASTCALL: Result := ccRegister;
+    CC_SYSCALL: Result := ccCdecl;
+  else
+    Result := ccCdecl;
+  end;
+end;
+
+procedure TIntfMethod.Print(AOut: TOutFile);
+const
+  CDelim = ', ';
+var
+  LPrfx: string;
+  LCallConv: string;
+  Li: Integer;
+  LStr: string;
+  LArgStr: string;
+  LIsIdent: Boolean;
+  LB: TStringBuilder;
+begin
+  case FInvoke of
+    INVOKE_PROPERTYGET: LPrfx := 'Get_';
+    INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF: LPrfx := 'Set_';
+  else
+    LPrfx := '';
+  end;
+
+  if FCallingConv <> ccRegister then
+    LCallConv := Format(' %s;', [CCallinvConvNames[FCallingConv]])
+  else
+    LCallConv := '';
+
+  LIsIdent := False;
+  LStr := Format('function %s%s(', [LPrfx, Name]);
+  for Li := 0 to FArgs.Count - 1 do begin
+    LArgStr := FArgs[Li].ToString;
+    if (Length(LStr) + Length(LArgStr) + Length(CDelim) >= 76) and (LStr <> '') then begin
+      AOut.Write(TrimRight(LStr));
+      LStr := '';
+      if not LIsIdent then begin
+        AOut.IncIdent;
+        LIsIdent := True;
+      end;
+    end;
+    LStr := LStr + LArgStr + CDelim;
+  end;
+  SetLength(LStr, Length(LStr) - Length(CDelim));
+  AOut.WriteFmt('%s): %s;%s', [LStr, FRetType.Name, LCallConv]);
+  if LIsIdent then
+    AOut.DecIdent;
+end;
+
+procedure TIntfMethod.RequireUnits(AUnitManager: TUnitManager);
+var
+  Li: Integer;
+begin
+  inherited RequireUnits(AUnitManager);
+  AUnitManager.AddPasType(FRetType);
+  for Li := 0 to FArgs.Count - 1 do
+    FArgs[Li].RequireUnits(AUnitManager);
 end;
 
 { TGUIDMember }
@@ -499,31 +703,57 @@ begin
   AOut.WriteFmt('%s = interface;', [Name]);
 end;
 
+procedure TInterface.RequireUnits(AUnitManager: TUnitManager);
+var
+  Li: Integer;
+begin
+  inherited RequireUnits(AUnitManager);
+  for Li := 0 to FMethods.Count - 1 do
+    FMethods[Li].RequireUnits(AUnitManager);
+end;
+
 { TDispInterface }
 
 constructor TDispInterface.Create(const ATypeInfo: ITypeInfo);
 var
+  LAttr: PTypeAttr;
   LHref: HRefType;
   LType: ITypeInfo;
 begin
-  if ATypeInfo.GetRefTypeOfImplType(-1, LHref) = S_OK then
-    OleCheck(ATypeInfo.GetRefTypeInfo(LHref, LType))
-  else
-    LType := ATypeInfo;
+  OleCheck(ATypeInfo.GetTypeAttr(LAttr));
+  try
+    if GetIsDisp(LAttr^.wTypeFlags) then begin
+      OleCheck(ATypeInfo.GetRefTypeOfImplType(-1, LHref));
+      OleCheck(ATypeInfo.GetRefTypeInfo(LHref, LType));
+    end else
+      LType := ATypeInfo;
+  finally
+    ATypeInfo.ReleaseTypeAttr(LAttr);
+  end;
   inherited Create(LType);
+end;
+
+class function TDispInterface.GetIsDisp(AFlags: Word): Boolean;
+begin
+  Result := AFlags and TYPEFLAG_FDUAL = TYPEFLAG_FDUAL
+end;
+
+function TDispInterface.GetIsDisp: Boolean;
+begin
+  Result := GetIsDisp(Flags);
 end;
 
 function TDispInterface.GetDispName: string;
 begin
   Result := Name;
-  if Flags and TYPEFLAG_FDUAL = TYPEFLAG_FDUAL then
+  if GetIsDisp then
     Result := Result + 'Disp';
 end;
 
 function TDispInterface.GetIIDPrefix: string;
 begin
   Result := inherited GetIIDPrefix;
-  if Flags and TYPEFLAG_FDUAL = 0 then
+  if not GetIsDisp then
     Result := 'D' + Result;
 end;
 
@@ -535,7 +765,7 @@ end;
 
 procedure TDispInterface.PrintForward(AOut: TOutFile);
 begin
-  if Flags and TYPEFLAG_FDUAL = TYPEFLAG_FDUAL then
+  if GetIsDisp then
     inherited PrintForward(AOut);
   AOut.WriteFmt('%s = dispinterface;', [GetDispName]);
 end;
@@ -735,6 +965,15 @@ begin
   AOut.EmptyLine;
 end;
 
+procedure TRecord.RequireUnits(AUnitManager: TUnitManager);
+var
+  Li: Integer;
+begin
+  inherited RequireUnits(AUnitManager);
+  for Li := 0 to FFields.Count - 1 do
+    FFields[Li].RequireUnits(AUnitManager);
+end;
+
 { TAlias }
 
 procedure TAlias.ParseTypeInfo(const ATypeInfo: ITypeInfo);
@@ -747,12 +986,18 @@ end;
 procedure TAlias.ParseTypeAttr(const ATypeAttr: TTypeAttr);
 begin
   inherited ParseTypeAttr(ATypeAttr);
-  TypeDescToTypeStr(ATypeAttr.tdescAlias, FHRef, FAlias);
+  TypeDescToPasType(nil, ATypeAttr.tdescAlias, FHRef, FAlias);
 end;
 
 procedure TAlias.Print(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s = type %s;', [Name, FAlias]);
+  AOut.WriteFmt('%s = type %s;', [Name, FAlias.Name]);
+end;
+
+procedure TAlias.RequireUnits(AUnitManager: TUnitManager);
+begin
+  inherited RequireUnits(AUnitManager);
+  AUnitManager.AddPasType(FAlias);
 end;
 
 { TTLBInfo }
@@ -818,20 +1063,6 @@ begin
       TKIND_UNION:;
     end;
   end;
-end;
-
-procedure TTLBInfo.RequireUnits(AUnitManager: TUnitManager);
-var
-  Li: Integer;
-begin
-  for Li := 0 to FEnums.Count - 1 do
-    FEnums[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FRecords.Count - 1 do
-    FRecords[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FInterfaces.Count - 1 do
-    FInterfaces[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FCoClasses.Count - 1 do
-    FCoClasses[Li].RequireUnits(AUnitManager);
 end;
 
 procedure TTLBInfo.PrintHeaderConst(AOut: TOutFile);
@@ -1001,6 +1232,22 @@ begin
   PrintAliaces(AOut);
   PrintRecords(AOut);
   PrintIntf(AOut);
+end;
+
+procedure TTLBInfo.RequireUnits(AUnitManager: TUnitManager);
+var
+  Li: Integer;
+begin
+  for Li := 0 to FEnums.Count - 1 do
+    FEnums[Li].RequireUnits(AUnitManager);
+  for Li := 0 to FRecords.Count - 1 do
+    FRecords[Li].RequireUnits(AUnitManager);
+  for Li := 0 to FInterfaces.Count - 1 do
+    FInterfaces[Li].RequireUnits(AUnitManager);
+  for Li := 0 to FCoClasses.Count - 1 do
+    FCoClasses[Li].RequireUnits(AUnitManager);
+  for Li := 0 to FAliases.Count - 1 do
+    FAliases[Li].RequireUnits(AUnitManager);
 end;
 
 end.

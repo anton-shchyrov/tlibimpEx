@@ -29,10 +29,16 @@ type
     property Level[AIdx: Integer]: string read GetLevel;
   end;
 
+  TStdUnits = (suSystem, suCustom, suActiveX, suWindows);
+
+  TPasTypeInfo = record
+    Name: string;
+    Ref: Integer;
+    StdUnit: TStdUnits;
+    CustomUnit: string;
+  end;
+
   TUnitManager = class
-  public
-    type
-      TStdUnits = (suActiveX);
   strict private
     type
       TUnitName = record
@@ -41,7 +47,10 @@ type
       end;
     const
       CStdUnits: array[TStdUnits] of TUnitName = (
-        (Name: 'ActiveX'; NS: 'Winapi')
+        (Name: 'System'; NS: ''),
+        (Name: ''; NS: ''),
+        (Name: 'ActiveX'; NS: 'Winapi'),
+        (Name: 'Windows'; NS: 'Winapi')
       );
   strict private
     FUnits: TDictionary<string, Integer>;
@@ -51,6 +60,7 @@ type
     destructor Destroy; override;
     procedure AddStdUnit(AUnit: TStdUnits);
     procedure AddCustomUnit(const AUnit: string);
+    procedure AddPasType(const AType: TPasTypeInfo);
     procedure Print(AOut: TOutFile);
   end;
 
@@ -131,19 +141,28 @@ var
   LStr: string;
   LUnit: TUnitName;
 begin
-  LUnit := CStdUnits[AUnit];
-  if FUseNS and (LUnit.NS <> '') then
-    LStr := Format('%s.%s', [LUnit.NS, LUnit.Name])
-  else
-    LStr := LUnit.Name;
-  AddCustomUnit(LStr);
+  if AUnit > suCustom then begin
+    LUnit := CStdUnits[AUnit];
+    if FUseNS and (LUnit.NS <> '') then
+      LStr := Format('%s.%s', [LUnit.NS, LUnit.Name])
+    else
+      LStr := LUnit.Name;
+    AddCustomUnit(LStr);
+  end;
 end;
 
 procedure TUnitManager.AddCustomUnit(const AUnit: string);
 begin
-TComparer<Byte>.Construct(nil);
   if not FUnits.ContainsKey(AUnit) then
     FUnits.Add(AUnit, FUnits.Count);
+end;
+
+procedure TUnitManager.AddPasType(const AType: TPasTypeInfo);
+begin
+  if AType.StdUnit <> suCustom then
+    AddStdUnit(AType.StdUnit)
+  else
+    AddCustomUnit(AType.CustomUnit);
 end;
 
 procedure TUnitManager.Print(AOut: TOutFile);

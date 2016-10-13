@@ -1,0 +1,52 @@
+[
+  uuid(6766CD0E-744E-4EEF-AFD4-A6F8C1761EA0)
+
+]
+library test
+{
+
+  importlib("stdole2.tlb");
+
+/*  [uuid(6075432B-1EB1-4CA2-9254-27AFA4BA558F)]
+  typedef enum tagEnum {
+    teOne = 1,
+    teTen = 10
+  } TTestEnum;
+*/  
+
+/*  [uuid(DCAD69DF-5D55-4236-A7C1-4EB5AC9FF2A3)]
+  typedef struct tagStruct {
+//    int Fld1;
+//    GUID Fld2;
+    BSTR Fld3;
+  } testStruct;
+*/
+
+  interface ITest;
+  [
+    uuid(D3F8F5B4-E9AC-487B-8397-98E2EC44450D),
+    oleautomation
+  ]
+  interface ITest: IDispatch {
+    HRESULT _stdcall Owner([out, retval] ITest ** AOut);
+  }
+
+/*  [uuid(5FB032D3-FBAF-4C53-AFF2-2445476BCE07), dual]
+  interface IrsTestDual: IDispatch {
+    [id(1)]
+    HRESULT _stdcall Info([out, retval] BSTR * AOut);
+  }
+
+  [uuid(C479589F-2226-45C8-8499-2DE1AA25C851)]
+  dispinterface IrsTestDisp {
+    properties:
+    methods:
+    [id(1)]
+    HRESULT _stdcall Info([out, retval] BSTR * AOut);
+  }
+
+/*  [uuid(6A8BECCC-88A3-49FA-8BBD-B84CF49C5797)]
+  dispinterface IrsTest2 {
+    interface IrsTest;
+  }
+*/};
