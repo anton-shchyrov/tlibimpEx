@@ -34,6 +34,7 @@ type
   TPasTypeInfo = record
     Name: string;
     Ref: Integer;
+    VarType: TVarType;
     StdUnit: TStdUnits;
     CustomUnit: string;
   end;
@@ -62,6 +63,18 @@ type
     procedure AddCustomUnit(const AUnit: string);
     procedure AddPasType(const AType: TPasTypeInfo);
     procedure Print(AOut: TOutFile);
+  end;
+
+  TReservedWords = class
+  strict private
+    class var
+      FWords: TDictionary<string, Byte>;
+  strict private
+    class constructor Create;
+    class destructor Destroy;
+  public
+    class function IsReserved(const AStr: string): Boolean;
+    class function Escape(const AStr: string): string;
   end;
 
 implementation
@@ -212,6 +225,101 @@ begin
     AOut.DecIdent;
   end;
   AOut.EmptyLine;
+end;
+
+{ TReservedWords }
+
+class constructor TReservedWords.Create;
+const
+  CWords: array[0..63] of string = (
+    'and',
+    'array',
+    'as',
+    'asm',
+    'begin',
+    'case',
+    'class',
+    'const',
+    'constructor',
+    'destructor',
+    'dispinterface',
+    'div',
+    'do',
+    'downto',
+    'else',
+    'end',
+    'except',
+    'exports',
+    'file',
+    'finalization',
+    'finally',
+    'for',
+    'function',
+    'goto',
+    'if',
+    'implementation',
+    'in',
+    'inherited',
+    'initialization',
+    'inline',
+    'interface',
+    'is',
+    'label',
+    'library',
+    'mod',
+    'nil',
+    'not',
+    'object',
+    'of',
+    'or',
+    'packed',
+    'procedure',
+    'program',
+    'property',
+    'raise',
+    'record',
+    'repeat',
+    'resourcestring',
+    'set',
+    'shl',
+    'shr',
+    'string',
+    'then',
+    'threadvar',
+    'to',
+    'try',
+    'type',
+    'unit',
+    'until',
+    'uses',
+    'var',
+    'while',
+    'with',
+    'xor'
+  );
+var
+  Li: Integer;
+begin
+  FWords := TDictionary<string, Byte>.Create(Length(CWords));
+  for Li := 0 to Length(CWords) - 1 do
+    FWords.Add(CWords[Li], 0);
+end;
+
+class destructor TReservedWords.Destroy;
+begin
+  FWords.Free;
+end;
+
+class function TReservedWords.IsReserved(const AStr: string): Boolean;
+begin
+  Result := FWords.ContainsKey(AnsiLowerCase(AStr));
+end;
+
+class function TReservedWords.Escape(const AStr: string): string;
+begin
+  Result := AStr;
+  if IsReserved(AStr) then
+    Result := Result + '_';
 end;
 
 end.

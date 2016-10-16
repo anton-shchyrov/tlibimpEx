@@ -1,9 +1,8 @@
 program tlibimpEx;
 
-{$APPTYPE CONSOLE}
+{.$APPTYPE CONSOLE}
 
 uses
-//  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
@@ -103,6 +102,14 @@ begin
   end;
 end;
 
+procedure GetName(const AInfo: ITypeInfo);
+var
+  LStr: WideString;
+begin
+  OleCheck(AInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
+//  OleCheck(AInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
+end;
+
 procedure Test;
 var
   LLib: ITypeLib;
@@ -114,6 +121,11 @@ var
 begin
   OleCheck(LoadTypeLibEx('test.tlb', REGKIND_NONE, LLib));
   OleCheck(LLib.GetTypeInfo(0, LInfo));
+  for Li := 0 to Round(1E+6) do
+    GetName(LInfo);
+
+  exit;
+
   OleCheck(LInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
   Writeln('Interface: ', LStr);
   SysFreeString(PChar(LStr));
@@ -137,13 +149,14 @@ var
   LParser: TTLBInfo;
   LOut: TOutFile;
 begin
-  Test;
-  readln;
-  exit;
+//  Test;
+//  readln;
+//  exit;
+  LParser := TTLBInfo.Create('tlibimpEx.tlb');
 //  LParser := TTLBInfo.Create('msxml6.dll');
 //  LParser := TTLBInfo.Create('msxml2my.tlb');
 //  LParser := TTLBInfo.Create('rsEmc.tlb');
-  LParser := TTLBInfo.Create('test.tlb');
+//  LParser := TTLBInfo.Create('test.tlb');
   try
     LOut := TOutFile.Create(LParser.UnitName + '.pas');
     try

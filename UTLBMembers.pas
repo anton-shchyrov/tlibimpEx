@@ -23,7 +23,7 @@ type
   TTLBMember = class(TIntfItem)
   strict protected
     procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); virtual;
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); virtual;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); virtual;
   public
     constructor CreateTLB(const ATypeLib: ITypeLib; AIdx: Integer);
     constructor Create(const ATypeInfo: ITypeInfo); virtual;
@@ -50,7 +50,6 @@ type
       CFlagIn = $01;
       CFlagOut = $02;
       CFlagRetVal = $04;
-      CFlagRef = $08;
   strict private
     FType: TPasTypeInfo;
     FFlag: Byte;
@@ -60,12 +59,16 @@ type
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     function ToString: string; override;
+    function IsRetVal: Boolean;
+  public
+    property Type_: TPasTypeInfo read FType;
   end;
 
   TIntfMethod = class(TTypeMember)
   strict private
     type
       TCallingConv = (ccRegister, ccPascal, ccCdecl, ccStdcall, ccSafecall);
+      TUseSafeCall = (uscNone, uscDef, uscForced);
     const
       CCallinvConvNames: array[TCallingConv] of string = (
         'register', 'pascal', 'cdecl', 'stdcall', 'safecall'
@@ -74,9 +77,15 @@ type
     FRetType: TPasTypeInfo;
     FArgs: TObjectList<TMethodArg>;
     FCallingConv: TCallingConv;
+    FUseSafeCall: TUseSafeCall;
     FInvoke: TInvokeKind;
+    FDispID: TMemberID;
   strict private
     function DecodeCallingConv(ACallingConv: TCallConv): TCallingConv;
+    function IsRetHRes: Boolean;
+    function IsVoid(const AType: TPasTypeInfo): Boolean;
+  strict protected
+    property DispID: TMemberID read FDispID;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     destructor Destroy; override;
@@ -90,7 +99,7 @@ type
   strict protected
     property UUID: TGUID read FUUID;
   strict protected
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
     function GetIIDPrefix: string; virtual; abstract;
   public
     procedure PrintIID(AOut: TOutFile);
@@ -98,13 +107,8 @@ type
   end;
 
   TCustomInterface = class(TGUIDMember)
-  strict private
-    FFuncCount: Integer;
-  strict protected
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
   public
     property Name;
-    property FuncCount: Integer read FFuncCount;
   end;
 
   TInterface = class(TCustomInterface)
@@ -112,16 +116,19 @@ type
     FMethods: TObjectList<TIntfMethod>;
     FParent: TCustomInterface;
     FFlags: Word;
+  strict private
+    function GetForwardDecl: string;
   strict protected
     property Flags: Word read FFlags;
+  strict protected
+    function GetIIDPrefix: string; override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
+    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
+    procedure InternalPrint(AOut: TOutFile; const AHeader: string;
+      APrintDisp: Boolean);
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
-  strict protected
-    function GetIIDPrefix: string; override;
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
-  public
     procedure Print(AOut: TOutFile); override;
     procedure PrintForward(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
@@ -132,6 +139,7 @@ type
     class function GetIsDisp(AFlags: Word): Boolean; overload;
     function GetIsDisp: Boolean; overload;
     function GetDispName: string;
+    function GetForwardDecl: string;
   strict protected
     function GetIIDPrefix: string; override;
   public
@@ -143,11 +151,9 @@ type
   TCoClass = class(TGUIDMember)
   strict private
     FDefaultIntf: TCustomInterface;
-    FCountImpl: Integer;
   strict protected
     function GetIIDPrefix: string; override;
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     destructor Destroy; override;
     procedure PrintForward(AOut: TOutFile); override;
@@ -167,14 +173,12 @@ type
   TEnum = class(TTLBMember)
   strict private
     FItems: TObjectList<TEnumItem>;
-    FCount: Integer;
     FShowEnum: Boolean;
     FShowHex: Boolean;
   strict private
     procedure PrintItem(AOut: TOutFile; AItem: TEnumItem; const AFmt: string);
   strict protected
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
@@ -185,10 +189,8 @@ type
   TRecord = class(TTLBMember)
   strict private
     FFields: TObjectList<TVariable>;
-    FCount: Integer;
   strict protected
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
@@ -199,10 +201,8 @@ type
   TAlias = class(TTLBMember)
   strict private
     FAlias: TPasTypeInfo;
-    FHRef: HRefType;
   strict protected
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
-    procedure ParseTypeAttr(const ATypeAttr: TTypeAttr); override;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
@@ -257,20 +257,11 @@ type
       CConst = 'const';
   end;
 
-procedure __TypeDescToPasType(const ATypeInfo: ITypeInfo;
-const ATypeDesc: TTypeDesc; out AHRef: HRefType;
-  var APasType: TPasTypeInfo);
-var
-  LRes: HRESULT;
-  LType: ITypeInfo;
-  LStr: WideString;
+function __TypeDescToPasType(const ATypeDesc: TTypeDesc; out AHRef: HRefType;
+  var APasType: TPasTypeInfo): Boolean;
 begin
-  if (ATypeDesc.hreftype <> 0) and (ATypeInfo <> nil) then begin
-    LRes := ATypeInfo.GetRefTypeInfo(ATypeDesc.hreftype, LType);
-    if LRes = S_OK then
-      LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil);
-  end;
-  AHRef := 0;
+  Result := True;
+  APasType.VarType := ATypeDesc.vt;
   case ATypeDesc.vt of
     VT_EMPTY: APasType.Name := '!!!UNKNOWN Type VT_EMPTY!!!';
     VT_NULL: APasType.Name := '!!!UNKNOWN Type VT_NULL!!!';
@@ -308,16 +299,14 @@ begin
     VT_HRESULT: APasType.Name := 'HRESULT';
     VT_PTR: begin
       Inc(APasType.Ref);
-      __TypeDescToPasType(ATypeInfo, ATypeDesc.ptdesc^, AHRef, APasType);
+      Result := __TypeDescToPasType(ATypeDesc.ptdesc^, AHRef, APasType);
     end;
     VT_SAFEARRAY: APasType.Name := '!!!UNKNOWN Type VT_SAFEARRAY!!!';
     VT_CARRAY: APasType.Name := '!!!UNKNOWN Type VT_CARRAY!!!';
     VT_USERDEFINED: begin
       AHRef := ATypeDesc.hreftype;
-      if AHRef = 0 then
-        APasType.Name := '!!!UNKNOWN HRefType!!!'
-      else
-        APasType.Name := '';
+      APasType.Name := '';
+      Result := False;
     end;
     VT_LPSTR: APasType.Name := 'PAnsiChar';
     VT_LPWSTR: APasType.Name := 'PWideChar';
@@ -348,37 +337,61 @@ begin
   end;
 end;
 
-procedure TypeDescToPasType(const ATypeInfo: ITypeInfo;
-  const ATypeDesc: TTypeDesc; out AHRef: HRefType;
-  out APasType: TPasTypeInfo);
+function TypeDescToPasType(const ATypeDesc: TTypeDesc; out AHRef: HRefType;
+  out APasType: TPasTypeInfo): Boolean;
 begin
   APasType.Ref := 0;
   APasType.StdUnit := suSystem;
   APasType.CustomUnit := '';
-  __TypeDescToPasType(ATypeInfo, ATypeDesc, AHRef, APasType);
+  Result := __TypeDescToPasType(ATypeDesc, AHRef, APasType);
 end;
 
-function GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType): TPasTypeInfo;
-var
-  LType: ITypeInfo;
-  LStr: WideString;
-begin
-  OleCheck(ATypeInfo.GetRefTypeInfo(AHRef, LType));
-  OleCheck(LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
-  Result.Name := LStr;
-  SysFreeString(PChar(LStr));
-  Result.Ref := 0;
-  Result.StdUnit := suSystem;
-  Result.CustomUnit := '';
-end;
+procedure GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType;
+  var AType: TPasTypeInfo); forward;
 
-function ElemDescToTypeStr(const ATypeInfo: ITypeInfo; const ADesc: TElemDesc): TPasTypeInfo;
+function ElemDescToTypeStr(const ATypeInfo: ITypeInfo;
+  const ADesc: TTypeDesc): TPasTypeInfo; overload;
 var
   LHref: HRefType;
 begin
-  TypeDescToPasType(ATypeInfo, ADesc.tdesc, LHref, Result);
-  if LHref <> 0 then
-    Result := GetHRefName(ATypeInfo, LHref);
+  if not TypeDescToPasType(ADesc, LHref, Result) then
+    GetHRefName(ATypeInfo, LHref, Result);
+end;
+
+function ElemDescToTypeStr(const ATypeInfo: ITypeInfo;
+  const ADesc: TElemDesc): TPasTypeInfo; overload;
+begin
+  Result := ElemDescToTypeStr(ATypeInfo, ADesc.tdesc);
+end;
+
+procedure GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType;
+  var AType: TPasTypeInfo);
+var
+  LType: ITypeInfo;
+  LAttr: PTypeAttr;
+  LStr: WideString;
+  LPasType: TPasTypeInfo;
+begin
+  OleCheck(ATypeInfo.GetRefTypeInfo(AHRef, LType));
+  OleCheck(LType.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
+  AType.Name := TReservedWords.Escape(LStr);
+  OleCheck(LType.GetTypeAttr(LAttr));
+  try
+    case LAttr^.typekind of
+      TKIND_ENUM: AType.VarType := VT_I4;
+      TKIND_RECORD: AType.VarType := VT_RECORD;
+      TKIND_INTERFACE: AType.VarType := VT_UNKNOWN;
+      TKIND_DISPATCH: AType.VarType := VT_DISPATCH;
+      TKIND_ALIAS: begin
+        LPasType := ElemDescToTypeStr(ATypeInfo, LAttr^.tdescAlias);
+        AType.VarType := LPasType.VarType;
+      end;
+    end;
+  finally
+    LType.ReleaseTypeAttr(LAttr);
+  end;
+  if AType.VarType in [VT_UNKNOWN, VT_DISPATCH] then
+    Dec(AType.Ref);
 end;
 
 { TIntfItem }
@@ -386,7 +399,7 @@ end;
 constructor TIntfItem.Create(const AName: string);
 begin
   inherited Create;
-  FName := AName;
+  FName := TReservedWords.Escape(AName);
 end;
 
 procedure TIntfItem.RequireUnits(AUnitManager: TUnitManager);
@@ -410,7 +423,6 @@ var
 begin
   OleCheck(ATypeInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
   inherited Create(LStr);
-  SysFreeString(PChar(LStr));
   ParseTypeInfo(ATypeInfo);
 end;
 
@@ -420,13 +432,14 @@ var
 begin
   OleCheck(ATypeInfo.GetTypeAttr(LAttr));
   try
-    ParseTypeAttr(LAttr^);
+    ParseTypeAttr(ATypeInfo, LAttr^);
   finally
     ATypeInfo.ReleaseTypeAttr(LAttr);
   end;
 end;
 
-procedure TTLBMember.ParseTypeAttr(const ATypeAttr: TTypeAttr);
+procedure TTLBMember.ParseTypeAttr(const ATypeInfo: ITypeInfo;
+  const ATypeAttr: TTypeAttr);
 begin
   // Abstract
 end;
@@ -444,7 +457,6 @@ var
 begin
   ATypeInfo.GetDocumentation(AMemberID, @LStr, nil, nil, nil);
   inherited Create(LStr);
-  SysFreeString(PChar(LStr));
 end;
 
 { TVariable }
@@ -482,8 +494,6 @@ constructor TMethodArg.Create(const ATypeInfo: ITypeInfo; const AName: string;
 begin
   inherited Create(AName);
   FType := ElemDescToTypeStr(ATypeInfo, ADesc);
-  if ADesc.tdesc.vt = VT_PTR then
-    FFlag := CFlagRef;
   if ADesc.paramdesc.wParamFlags and PARAMFLAG_FIN = PARAMFLAG_FIN then
     FFlag := FFlag or CFlagIn;
   if ADesc.paramdesc.wParamFlags and PARAMFLAG_FOUT = PARAMFLAG_FOUT then
@@ -506,15 +516,33 @@ end;
 function TMethodArg.ToString: string;
 var
   LPrfx: string;
+  LRefCnt: Integer;
 begin
+  LRefCnt := FType.Ref;
   if FFlag and CFlagOut = CFlagOut then begin
+    Dec(LRefCnt);
     if FFlag and CFlagIn = CFlagIn then
       LPrfx := 'var '
     else
       LPrfx := 'out ';
-  end else
-    LPrfx := '';
+  end else begin
+    if FType.VarType in [VT_BSTR, VT_UNKNOWN, VT_DISPATCH] then
+      Inc(LRefCnt);
+    if LRefCnt > 0 then begin
+      LPrfx := 'const ';
+      Dec(LRefCnt);
+    end else
+      LPrfx := '';
+  end;
+  if LRefCnt <> 0 then
+    LPrfx := Format('{%d} %s', [LRefCnt, LPrfx]);
+
   Result := Format('%s%s: %s', [LPrfx, Name, FType.Name]);
+end;
+
+function TMethodArg.IsRetVal: Boolean;
+begin
+  Result := FFlag and CFlagRetVal = CFlagRetVal;
 end;
 
 { TIntfMethod }
@@ -532,6 +560,7 @@ begin
   OleCheck(ATypeInfo.GetFuncDesc(AIdx, LDesc));
   try
     inherited Create(ATypeInfo, LDesc^.memid);
+    FDispID := LDesc^.memid;
     FRetType := ElemDescToTypeStr(ATypeInfo, LDesc^.elemdescFunc);
     FCallingConv := DecodeCallingConv(LDesc^.callconv);
     FInvoke := LDesc^.invkind;
@@ -544,6 +573,7 @@ begin
   finally
     ATypeInfo.ReleaseFuncDesc(LDesc);
   end;
+  FUseSafeCall := uscDef;
 end;
 
 destructor TIntfMethod.Destroy;
@@ -566,46 +596,105 @@ begin
   end;
 end;
 
+function TIntfMethod.IsRetHRes: Boolean;
+begin
+  Result := (FRetType.Ref = 0) and (FRetType.VarType = VT_HRESULT);
+end;
+
+function TIntfMethod.IsVoid(const AType: TPasTypeInfo): Boolean;
+begin
+  Result := (AType.Ref = 0) and (AType.VarType = VT_VOID);
+end;
+
 procedure TIntfMethod.Print(AOut: TOutFile);
 const
-  CDelim = ', ';
+  CDelim = '; ';
 var
-  LPrfx: string;
-  LCallConv: string;
   Li: Integer;
-  LStr: string;
   LArgStr: string;
   LIsIdent: Boolean;
-  LB: TStringBuilder;
+  LUseSafeCall: Boolean;
+  LCallConv: TCallingConv;
+  LRetType: TPasTypeInfo;
+  LLastArg: TMethodArg;
+  LBuilder: TStringBuilder;
+  LArgCnt: Integer;
 begin
-  case FInvoke of
-    INVOKE_PROPERTYGET: LPrfx := 'Get_';
-    INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF: LPrfx := 'Set_';
+  case FUseSafeCall of
+    uscDef: LUseSafeCall := (FCallingConv = ccStdcall) and IsRetHRes;
+    uscForced: LUseSafeCall := IsRetHRes;
   else
-    LPrfx := '';
+    LUseSafeCall := False;
   end;
 
-  if FCallingConv <> ccRegister then
-    LCallConv := Format(' %s;', [CCallinvConvNames[FCallingConv]])
-  else
-    LCallConv := '';
-
-  LIsIdent := False;
-  LStr := Format('function %s%s(', [LPrfx, Name]);
-  for Li := 0 to FArgs.Count - 1 do begin
-    LArgStr := FArgs[Li].ToString;
-    if (Length(LStr) + Length(LArgStr) + Length(CDelim) >= 76) and (LStr <> '') then begin
-      AOut.Write(TrimRight(LStr));
-      LStr := '';
-      if not LIsIdent then begin
-        AOut.IncIdent;
-        LIsIdent := True;
-      end;
+  LLastArg := nil;
+  LRetType := FRetType;
+  LArgCnt := FArgs.Count;
+  if LUseSafeCall then begin
+    if LArgCnt > 0 then begin
+      LLastArg := FArgs.Last;
+      if LLastArg.IsRetVal then begin
+        LRetType := LLastArg.Type_;
+        Dec(LArgCnt);
+      end else
+        LLastArg := nil;
     end;
-    LStr := LStr + LArgStr + CDelim;
+    LCallConv := ccSafecall;
+  end else
+    LCallConv := FCallingConv;
+
+  LBuilder := TStringBuilder.Create;
+  try
+    if (LLastArg <> nil) or (not LUseSafeCall and not IsVoid(FRetType)) then
+      LBuilder.Append('function ')
+    else begin
+      LBuilder.Append('procedure ');
+      LRetType.Ref := 0;
+      LRetType.VarType := VT_VOID;
+    end;
+
+    case FInvoke of
+      INVOKE_PROPERTYGET: LBuilder.Append('Get_');
+      INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF: LBuilder.Append('Set_');
+    end;
+
+    LBuilder.Append(Name);
+    LIsIdent := False;
+    if LArgCnt > 0 then begin
+      LBuilder.Append('(');
+      for Li := 0 to LArgCnt - 1 do begin
+        LArgStr := FArgs[Li].ToString;
+        if (LBuilder.Length + Length(LArgStr) + Length(CDelim) >= 76) and (LBuilder.Length <> 0) then begin
+          AOut.Write(TrimRight(LBuilder.ToString));
+          LBuilder.Clear;
+          if not LIsIdent then begin
+            AOut.IncIdent;
+            LIsIdent := True;
+          end;
+        end;
+        LBuilder.Append(LArgStr);
+        LBuilder.Append(CDelim);
+      end;
+      LBuilder.Remove(LBuilder.Length - Length(CDelim), Length(CDelim));
+      LBuilder.Append(')');
+    end;
+    if not IsVoid(LRetType) then begin
+      LBuilder.Append(': ');
+      LBuilder.Append(LRetType.Name);
+    end;
+    LBuilder.Append(';');
+    if FCallingConv <> ccRegister then begin
+      LBuilder.Append(' ');
+      if FUseSafeCall <> uscForced then
+        LBuilder.Append(CCallinvConvNames[LCallConv])
+      else
+        LBuilder.AppendFormat('dispid %d', [FDispID]);
+      LBuilder.Append(';');
+    end;
+    AOut.Write(LBuilder.ToString);
+  finally
+    LBuilder.Free;
   end;
-  SetLength(LStr, Length(LStr) - Length(CDelim));
-  AOut.WriteFmt('%s): %s;%s', [LStr, FRetType.Name, LCallConv]);
   if LIsIdent then
     AOut.DecIdent;
 end;
@@ -622,23 +711,15 @@ end;
 
 { TGUIDMember }
 
-procedure TGUIDMember.ParseTypeAttr(const ATypeAttr: TTypeAttr);
+procedure TGUIDMember.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
 begin
-  inherited ParseTypeAttr(ATypeAttr);
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
   FUUID := ATypeAttr.guid;
 end;
 
 procedure TGUIDMember.PrintIID(AOut: TOutFile);
 begin
   AOut.WriteFmt('%s_%s: TGUID = ''%s'';', [GetIIDPrefix, Name, GUIDToString(FUUID)]);
-end;
-
-{ TCustomInterface }
-
-procedure TCustomInterface.ParseTypeAttr(const ATypeAttr: TTypeAttr);
-begin
-  inherited ParseTypeAttr(ATypeAttr);
-  FFuncCount := ATypeAttr.cFuncs;
 end;
 
 { TInterface }
@@ -656,20 +737,28 @@ begin
   inherited Destroy;
 end;
 
+function TInterface.GetForwardDecl: string;
+begin
+  Result := Name + ' = interface';
+end;
+
 function TInterface.GetIIDPrefix: string;
 begin
   Result := 'IID';
 end;
 
-procedure TInterface.ParseTypeAttr(const ATypeAttr: TTypeAttr);
+procedure TInterface.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
+var
+  Li: Integer;
 begin
-  inherited ParseTypeAttr(ATypeAttr);
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
   FFlags := ATypeAttr.wTypeFlags;
+  for Li := 0 to ATypeAttr.cFuncs - 1 do
+    FMethods.Add(TIntfMethod.Create(ATypeInfo, Li));
 end;
 
 procedure TInterface.ParseTypeInfo(const ATypeInfo: ITypeInfo);
 var
-  Li: Integer;
   LRef: HRefType;
   LInfo: ITypeInfo;
 begin
@@ -677,15 +766,14 @@ begin
   OleCheck(ATypeInfo.GetRefTypeOfImplType(0, LRef));
   OleCheck(ATypeInfo.GetRefTypeInfo(LRef, LInfo));
   FParent := TCustomInterface.Create(LInfo);
-  for Li := 0 to FuncCount - 1 do
-    FMethods.Add(TIntfMethod.Create(ATypeInfo, Li));
 end;
 
-procedure TInterface.Print(AOut: TOutFile);
+procedure TInterface.InternalPrint(AOut: TOutFile; const AHeader: string;
+  APrintDisp: Boolean);
 var
   Li: Integer;
 begin
-  AOut.WriteFmt('%s = interface(%s)', [Name, FParent.Name]);
+  AOut.Write(AHeader);
   AOut.IncIdent;
   try
     AOut.WriteFmt('[''%s'']', [GUIDToString(UUID)]);
@@ -698,9 +786,17 @@ begin
   AOut.EmptyLine;
 end;
 
+procedure TInterface.Print(AOut: TOutFile);
+var
+  LHeader: string;
+begin
+  LHeader := Format('%s(%s)', [GetForwardDecl, FParent.Name]);
+  InternalPrint(AOut, LHeader, False);
+end;
+
 procedure TInterface.PrintForward(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s = interface;', [Name]);
+  AOut.Write(GetForwardDecl + ';');
 end;
 
 procedure TInterface.RequireUnits(AUnitManager: TUnitManager);
@@ -750,6 +846,11 @@ begin
     Result := Result + 'Disp';
 end;
 
+function TDispInterface.GetForwardDecl: string;
+begin
+  Result :=Format('%s = dispinterface', [GetDispName]);
+end;
+
 function TDispInterface.GetIIDPrefix: string;
 begin
   Result := inherited GetIIDPrefix;
@@ -759,15 +860,16 @@ end;
 
 procedure TDispInterface.Print(AOut: TOutFile);
 begin
-  AOut.Write('Disp!!!');
-  inherited Print(AOut);
+  if GetIsDisp then
+    inherited Print(AOut);
+  InternalPrint(AOut, GetForwardDecl, True);
 end;
 
 procedure TDispInterface.PrintForward(AOut: TOutFile);
 begin
   if GetIsDisp then
     inherited PrintForward(AOut);
-  AOut.WriteFmt('%s = dispinterface;', [GetDispName]);
+  AOut.Write(GetForwardDecl + ';');
 end;
 
 { TCoClass }
@@ -783,21 +885,15 @@ begin
   Result := 'CLASS';
 end;
 
-procedure TCoClass.ParseTypeAttr(const ATypeAttr: TTypeAttr);
-begin
-  inherited ParseTypeAttr(ATypeAttr);
-  FCountImpl := ATypeAttr.cImplTypes;
-end;
-
-procedure TCoClass.ParseTypeInfo(const ATypeInfo: ITypeInfo);
+procedure TCoClass.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
 var
   Li: Integer;
   LFlag: Integer;
   LRefType: HRefType;
   LInfo: ITypeInfo;
 begin
-  inherited ParseTypeInfo(ATypeInfo);
-  for Li := 0 to FCountImpl - 1 do begin
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
+  for Li := 0 to ATypeAttr.cImplTypes - 1 do begin
     OleCheck(ATypeInfo.GetImplTypeFlags(Li, LFlag));
     if LFlag and IMPLTYPEFLAG_FDEFAULT = IMPLTYPEFLAG_FDEFAULT then begin
       OleCheck(ATypeInfo.GetRefTypeOfImplType(Li, LRefType));
@@ -857,19 +953,13 @@ begin
   AItem.Print(AOut);
 end;
 
-procedure TEnum.ParseTypeInfo(const ATypeInfo: ITypeInfo);
+procedure TEnum.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
 var
   Li: Integer;
 begin
-  inherited ParseTypeInfo(ATypeInfo);
-  for Li := 0 to FCount - 1 do
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
+  for Li := 0 to ATypeAttr.cVars - 1 do
     FItems.Add(TEnumItem.Create(ATypeInfo, Li));
-end;
-
-procedure TEnum.ParseTypeAttr(const ATypeAttr: TTypeAttr);
-begin
-  inherited ParseTypeAttr(ATypeAttr);
-  FCount := ATypeAttr.cVars;
 end;
 
 procedure TEnum.Print(AOut: TOutFile);
@@ -934,18 +1024,12 @@ begin
   inherited Destroy;
 end;
 
-procedure TRecord.ParseTypeAttr(const ATypeAttr: TTypeAttr);
-begin
-  inherited ParseTypeAttr(ATypeAttr);
-  FCount := ATypeAttr.cVars;
-end;
-
-procedure TRecord.ParseTypeInfo(const ATypeInfo: ITypeInfo);
+procedure TRecord.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
 var
   Li: Integer;
 begin
-  inherited ParseTypeInfo(ATypeInfo);
-  for Li := 0 to FCount - 1 do
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
+  for Li := 0 to ATypeAttr.cVars - 1 do
     FFields.Add(TVariable.Create(ATypeInfo, Li));
 end;
 
@@ -976,17 +1060,10 @@ end;
 
 { TAlias }
 
-procedure TAlias.ParseTypeInfo(const ATypeInfo: ITypeInfo);
+procedure TAlias.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
 begin
-  inherited ParseTypeInfo(ATypeInfo);
-  if FHRef <> 0 then
-    FAlias := GetHRefName(ATypeInfo, FHRef);
-end;
-
-procedure TAlias.ParseTypeAttr(const ATypeAttr: TTypeAttr);
-begin
-  inherited ParseTypeAttr(ATypeAttr);
-  TypeDescToPasType(nil, ATypeAttr.tdescAlias, FHRef, FAlias);
+  inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
+  FAlias := ElemDescToTypeStr(ATypeInfo, ATypeAttr.tdescAlias);
 end;
 
 procedure TAlias.Print(AOut: TOutFile);
@@ -1010,7 +1087,6 @@ begin
   OleCheck(LoadTypeLibEx(PChar(AFileName), REGKIND_NONE, LTlb));
   OleCheck(LTlb.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
   inherited Create(LStr);
-  SysFreeString(PChar(LStr));
   FUnits := TUnitManager.Create(True);
   FEnums := TObjectList<TEnum>.Create(True);
   FRecords := TObjectList<TRecord>.Create(True);
@@ -1180,7 +1256,6 @@ begin
       AOut.Write('// Records');
       for Li := 0 to FRecords.Count - 1 do
         FRecords[Li].Print(AOut);
-      AOut.EmptyLine;
     finally
       AOut.DecIdent;
     end;
