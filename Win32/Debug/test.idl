@@ -12,23 +12,43 @@ library test
     teOne = 1,
     teTen = 10
   } TTestEnum;
-*/  
-
-/*  [uuid(DCAD69DF-5D55-4236-A7C1-4EB5AC9FF2A3)]
-  typedef struct tagStruct {
-//    int Fld1;
-//    GUID Fld2;
-    BSTR Fld3;
-  } testStruct;
 */
 
-  interface ITest;
+  [uuid(DCAD69DF-5D55-4236-A7C1-4EB5AC9FF2A3)]
+  typedef BSTR myStr;
+
   [
     uuid(D3F8F5B4-E9AC-487B-8397-98E2EC44450D),
-    oleautomation
+    oleautomation,
+    dual
   ]
   interface ITest: IDispatch {
-    HRESULT _stdcall Owner([out, retval] ITest ** AOut);
+    long _stdcall Set([in] IUnknown * AVal);
+    HRESULT _stdcall Get([out] IUnknown ** AOut);
+    HRESULT _cdecl Owner([in] ITest * AOut);
+    HRESULT _stdcall SetStr([out] long * B, [in] BSTR AVal);
+    HRESULT _stdcall SetStr1([in] myStr AVal);
+    HRESULT _stdcall Set0(BSTR AVal);
+    HRESULT _cdecl Get0([out, retval] long * AVal);
+    HRESULT _stdcall GetStr0([out] myStr AVal);
+  }
+
+  [
+    uuid(8B19090D-3476-42CB-9510-DC497354E1DA),
+    oleautomation,
+    dual
+  ]
+  interface ITestProp: IDispatch {
+    long _stdcall Set([in] IUnknown * AVal);
+    [propget]
+    HRESULT _stdcall Get([out] IUnknown ** AOut);
+    [propput]
+    HRESULT _cdecl Owner([in] ITest * AOut);
+    HRESULT _stdcall Set0(BSTR AVal);
+    [propget]
+    HRESULT _cdecl Get0([out, retval] long * AVal);
+    [propput]
+    HRESULT _stdcall Get0([in] long AVal);
   }
 
 /*  [uuid(5FB032D3-FBAF-4C53-AFF2-2445476BCE07), dual]

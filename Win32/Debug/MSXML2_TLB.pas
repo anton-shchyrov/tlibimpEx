@@ -284,10 +284,6 @@ const
   XHR_PROP_TIMEOUT = _XHR_PROPERTY($00000002);
   XHR_PROP_NO_DEFAULT_HEADERS = _XHR_PROPERTY($00000003);
   XHR_PROP_REPORT_REDIRECT_STATUS = _XHR_PROPERTY($00000004);
-  XHR_PROP_NO_CACHE = _XHR_PROPERTY($00000005);
-  XHR_PROP_EXTENDED_ERROR = _XHR_PROPERTY($00000006);
-  XHR_PROP_QUERY_STRING_UTF8 = _XHR_PROPERTY($00000007);
-  XHR_PROP_IGNORE_CERT_ERRORS = _XHR_PROPERTY($00000008);
 
 type
   // Interfaces forward declarations
@@ -504,1013 +500,1770 @@ type
 
 type
   // Interfaces
-  Disp!!!
   IXMLDOMNode = interface(IDispatch)
     ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
-    function Get_nodeName(out name: WideString): HRESULT; stdcall;
-    function Get_nodeValue(out value: OleVariant): HRESULT; stdcall;
-    function Set_nodeValue(value: OleVariant): HRESULT; stdcall;
-    function Get_nodeType(out type_: DOMNodeType): HRESULT; stdcall;
-    function Get_parentNode(out parent: IXMLDOMNode): HRESULT; stdcall;
-    function Get_childNodes(out childList: IXMLDOMNodeList): HRESULT; stdcall;
-    function Get_firstChild(out firstChild: IXMLDOMNode): HRESULT; stdcall;
-    function Get_lastChild(out lastChild: IXMLDOMNode): HRESULT; stdcall;
-    function Get_previousSibling(out previousSibling: IXMLDOMNode): HRESULT; stdcall;
-    function Get_nextSibling(out nextSibling: IXMLDOMNode): HRESULT; stdcall;
-    function Get_attributes(out attributeMap: IXMLDOMNamedNodeMap): HRESULT; stdcall;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant;
-      out outNewChild: IXMLDOMNode): HRESULT; stdcall;
+    function Get_nodeName: WideString; safecall;
+    function Get_nodeValue: OleVariant; safecall;
+    procedure Set_nodeValue(value: OleVariant); safecall;
+    function Get_nodeType: DOMNodeType; safecall;
+    function Get_parentNode: IXMLDOMNode; safecall;
+    function Get_childNodes: IXMLDOMNodeList; safecall;
+    function Get_firstChild: IXMLDOMNode; safecall;
+    function Get_lastChild: IXMLDOMNode; safecall;
+    function Get_previousSibling: IXMLDOMNode; safecall;
+    function Get_nextSibling: IXMLDOMNode; safecall;
+    function Get_attributes: IXMLDOMNamedNodeMap; safecall;
+    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; safecall;
     function replaceChild(const newChild: IXMLDOMNode;
-      const oldChild: IXMLDOMNode; out outOldChild: IXMLDOMNode): HRESULT; stdcall;
-    function removeChild(const childNode: IXMLDOMNode;
-      out oldChild: IXMLDOMNode): HRESULT; stdcall;
-    function appendChild(const newChild: IXMLDOMNode;
-      out outNewChild: IXMLDOMNode): HRESULT; stdcall;
-    function hasChildNodes(out hasChild: WordBool): HRESULT; stdcall;
-    function Get_ownerDocument(out XMLDOMDocument: IXMLDOMDocument): HRESULT; stdcall;
-    function cloneNode(deep: WordBool; out cloneRoot: IXMLDOMNode): HRESULT; stdcall;
-    function Get_nodeTypeString(out nodeType: WideString): HRESULT; stdcall;
-    function Get_text(out text: WideString): HRESULT; stdcall;
-    function Set_text(const text: WideString): HRESULT; stdcall;
-    function Get_specified(out isSpecified: WordBool): HRESULT; stdcall;
-    function Get_definition(out definitionNode: IXMLDOMNode): HRESULT; stdcall;
-    function Get_nodeTypedValue(out typedValue: OleVariant): HRESULT; stdcall;
-    function Set_nodeTypedValue(typedValue: OleVariant): HRESULT; stdcall;
-    function Get_dataType(out dataTypeName: OleVariant): HRESULT; stdcall;
-    function Set_dataType(const dataTypeName: WideString): HRESULT; stdcall;
-    function Get_xml(out xmlString: WideString): HRESULT; stdcall;
-    function transformNode(const stylesheet: IXMLDOMNode;
-      out xmlString: WideString): HRESULT; stdcall;
-    function selectNodes(const queryString: WideString;
-      out resultList: IXMLDOMNodeList): HRESULT; stdcall;
-    function selectSingleNode(const queryString: WideString;
-      out resultNode: IXMLDOMNode): HRESULT; stdcall;
-    function Get_parsed(out isParsed: WordBool): HRESULT; stdcall;
-    function Get_namespaceURI(out namespaceURI: WideString): HRESULT; stdcall;
-    function Get_prefix(out prefixString: WideString): HRESULT; stdcall;
-    function Get_baseName(out nameString: WideString): HRESULT; stdcall;
-    function transformNodeToObject(const stylesheet: IXMLDOMNode;
-      outputObject: OleVariant): HRESULT; stdcall;
+      const oldChild: IXMLDOMNode): IXMLDOMNode; safecall;
+    function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; safecall;
+    function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; safecall;
+    function hasChildNodes: WordBool; safecall;
+    function Get_ownerDocument: IXMLDOMDocument; safecall;
+    function cloneNode(deep: WordBool): IXMLDOMNode; safecall;
+    function Get_nodeTypeString: WideString; safecall;
+    function Get_text: WideString; safecall;
+    procedure Set_text(const text: WideString); safecall;
+    function Get_specified: WordBool; safecall;
+    function Get_definition: IXMLDOMNode; safecall;
+    function Get_nodeTypedValue: OleVariant; safecall;
+    procedure Set_nodeTypedValue(typedValue: OleVariant); safecall;
+    function Get_dataType: OleVariant; safecall;
+    procedure Set_dataType(const dataTypeName: WideString); safecall;
+    function Get_xml: WideString; safecall;
+    function transformNode(const stylesheet: IXMLDOMNode): WideString; safecall;
+    function selectNodes(const queryString: WideString): IXMLDOMNodeList; safecall;
+    function selectSingleNode(const queryString: WideString): IXMLDOMNode; safecall;
+    function Get_parsed: WordBool; safecall;
+    function Get_namespaceURI: WideString; safecall;
+    function Get_prefix: WideString; safecall;
+    function Get_baseName: WideString; safecall;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode;
+      outputObject: OleVariant); safecall;
+    property nodeName: WideString read Get_nodeName;
+    property nodeValue: OleVariant read Get_nodeValue write Set_nodeValue;
+    property nodeType: DOMNodeType read Get_nodeType;
+    property parentNode: IXMLDOMNode read Get_parentNode;
+    property childNodes: IXMLDOMNodeList read Get_childNodes;
+    property firstChild: IXMLDOMNode read Get_firstChild;
+    property lastChild: IXMLDOMNode read Get_lastChild;
+    property previousSibling: IXMLDOMNode read Get_previousSibling;
+    property nextSibling: IXMLDOMNode read Get_nextSibling;
+    property attributes: IXMLDOMNamedNodeMap read Get_attributes;
+    property ownerDocument: IXMLDOMDocument read Get_ownerDocument;
+    property nodeTypeString: WideString read Get_nodeTypeString;
+    property text: WideString read Get_text write Set_text;
+    property specified: WordBool read Get_specified;
+    property definition: IXMLDOMNode read Get_definition;
+    property nodeTypedValue: OleVariant read Get_nodeTypedValue write Set_nodeTypedValue;
+    property dataType: OleVariant read Get_dataType write Set_dataType;
+    property xml: WideString read Get_xml;
+    property parsed: WordBool read Get_parsed;
+    property namespaceURI: WideString read Get_namespaceURI;
+    property prefix: WideString read Get_prefix;
+    property baseName: WideString read Get_baseName;
   end;
 
-  Disp!!!
+  IXMLDOMNodeDisp = dispinterface
+    ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
+    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function replaceChild(const newChild: IXMLDOMNode;
+      const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
+    function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
+    function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
+    function hasChildNodes: WordBool; dispid 17;
+    function cloneNode(deep: WordBool): IXMLDOMNode; dispid 19;
+    function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
+    function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
+    function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode;
+      outputObject: OleVariant); dispid 35;
+    property nodeName: WideString readonly dispid 2;
+    property nodeValue: OleVariant dispid 3;
+    property nodeType: DOMNodeType readonly dispid 4;
+    property parentNode: IXMLDOMNode readonly dispid 6;
+    property childNodes: IXMLDOMNodeList readonly dispid 7;
+    property firstChild: IXMLDOMNode readonly dispid 8;
+    property lastChild: IXMLDOMNode readonly dispid 9;
+    property previousSibling: IXMLDOMNode readonly dispid 10;
+    property nextSibling: IXMLDOMNode readonly dispid 11;
+    property attributes: IXMLDOMNamedNodeMap readonly dispid 12;
+    property ownerDocument: IXMLDOMDocument readonly dispid 18;
+    property nodeTypeString: WideString readonly dispid 21;
+    property text: WideString dispid 24;
+    property specified: WordBool readonly dispid 22;
+    property definition: IXMLDOMNode readonly dispid 23;
+    property nodeTypedValue: OleVariant dispid 25;
+    property dataType: OleVariant dispid 26;
+    property xml: WideString readonly dispid 27;
+    property parsed: WordBool readonly dispid 31;
+    property namespaceURI: WideString readonly dispid 32;
+    property prefix: WideString readonly dispid 33;
+    property baseName: WideString readonly dispid 34;
+  end;
+
   IXMLDOMNodeList = interface(IDispatch)
     ['{2933BF82-7B36-11D2-B20E-00C04F983E60}']
-    function Get_item(index: Integer; out listItem: IXMLDOMNode): HRESULT; stdcall;
-    function Get_length(out listLength: Integer): HRESULT; stdcall;
-    function nextNode(out nextItem: IXMLDOMNode): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+    function Get_item(index: Integer): IXMLDOMNode; safecall;
+    function Get_length: Integer; safecall;
+    function nextNode: IXMLDOMNode; safecall;
+    procedure reset; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: IXMLDOMNode read Get_item; default;
+    property length: Integer read Get_length;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  IXMLDOMNodeListDisp = dispinterface
+    ['{2933BF82-7B36-11D2-B20E-00C04F983E60}']
+    function nextNode: IXMLDOMNode; dispid 76;
+    procedure reset; dispid 77;
+    property item[index: Integer]: IXMLDOMNode readonly dispid 0;
+    property length: Integer readonly dispid 74;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   IXMLDOMNamedNodeMap = interface(IDispatch)
     ['{2933BF83-7B36-11D2-B20E-00C04F983E60}']
-    function getNamedItem(const name: WideString; out namedItem: IXMLDOMNode): HRESULT; stdcall;
-    function setNamedItem(const newItem: IXMLDOMNode;
-      out nameItem: IXMLDOMNode): HRESULT; stdcall;
-    function removeNamedItem(const name: WideString;
-      out namedItem: IXMLDOMNode): HRESULT; stdcall;
-    function Get_item(index: Integer; out listItem: IXMLDOMNode): HRESULT; stdcall;
-    function Get_length(out listLength: Integer): HRESULT; stdcall;
+    function getNamedItem(const name: WideString): IXMLDOMNode; safecall;
+    function setNamedItem(const newItem: IXMLDOMNode): IXMLDOMNode; safecall;
+    function removeNamedItem(const name: WideString): IXMLDOMNode; safecall;
+    function Get_item(index: Integer): IXMLDOMNode; safecall;
+    function Get_length: Integer; safecall;
     function getQualifiedItem(const baseName: WideString;
-      const namespaceURI: WideString; out qualifiedItem: IXMLDOMNode): HRESULT; stdcall;
+      const namespaceURI: WideString): IXMLDOMNode; safecall;
     function removeQualifiedItem(const baseName: WideString;
-      const namespaceURI: WideString; out qualifiedItem: IXMLDOMNode): HRESULT; stdcall;
-    function nextNode(out nextItem: IXMLDOMNode): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+      const namespaceURI: WideString): IXMLDOMNode; safecall;
+    function nextNode: IXMLDOMNode; safecall;
+    procedure reset; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: IXMLDOMNode read Get_item; default;
+    property length: Integer read Get_length;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  IXMLDOMNamedNodeMapDisp = dispinterface
+    ['{2933BF83-7B36-11D2-B20E-00C04F983E60}']
+    function getNamedItem(const name: WideString): IXMLDOMNode; dispid 83;
+    function setNamedItem(const newItem: IXMLDOMNode): IXMLDOMNode; dispid 84;
+    function removeNamedItem(const name: WideString): IXMLDOMNode; dispid 85;
+    function getQualifiedItem(const baseName: WideString;
+      const namespaceURI: WideString): IXMLDOMNode; dispid 87;
+    function removeQualifiedItem(const baseName: WideString;
+      const namespaceURI: WideString): IXMLDOMNode; dispid 88;
+    function nextNode: IXMLDOMNode; dispid 89;
+    procedure reset; dispid 90;
+    property item[index: Integer]: IXMLDOMNode readonly dispid 0;
+    property length: Integer readonly dispid 74;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   IXMLDOMDocument = interface(IXMLDOMNode)
     ['{2933BF81-7B36-11D2-B20E-00C04F983E60}']
-    function Get_doctype(out documentType: IXMLDOMDocumentType): HRESULT; stdcall;
-    function Get_implementation_(out impl: IXMLDOMImplementation): HRESULT; stdcall;
-    function Get_documentElement(out DOMElement: IXMLDOMElement): HRESULT; stdcall;
-    function Set_documentElement(const DOMElement: IXMLDOMElement): HRESULT; stdcall;
-    function createElement(const tagName: WideString;
-      out element: IXMLDOMElement): HRESULT; stdcall;
-    function createDocumentFragment(out docFrag: IXMLDOMDocumentFragment): HRESULT; stdcall;
-    function createTextNode(const data: WideString; out text: IXMLDOMText): HRESULT; stdcall;
-    function createComment(const data: WideString;
-      out comment: IXMLDOMComment): HRESULT; stdcall;
-    function createCDATASection(const data: WideString;
-      out cdata: IXMLDOMCDATASection): HRESULT; stdcall;
+    function Get_doctype: IXMLDOMDocumentType; safecall;
+    function Get_implementation_: IXMLDOMImplementation; safecall;
+    function Get_documentElement: IXMLDOMElement; safecall;
+    procedure Set_documentElement(const DOMElement: IXMLDOMElement); safecall;
+    function createElement(const tagName: WideString): IXMLDOMElement; safecall;
+    function createDocumentFragment: IXMLDOMDocumentFragment; safecall;
+    function createTextNode(const data: WideString): IXMLDOMText; safecall;
+    function createComment(const data: WideString): IXMLDOMComment; safecall;
+    function createCDATASection(const data: WideString): IXMLDOMCDATASection; safecall;
     function createProcessingInstruction(const target: WideString;
-      const data: WideString; out pi: IXMLDOMProcessingInstruction): HRESULT; stdcall;
-    function createAttribute(const name: WideString;
-      out attribute: IXMLDOMAttribute): HRESULT; stdcall;
-    function createEntityReference(const name: WideString;
-      out entityRef: IXMLDOMEntityReference): HRESULT; stdcall;
-    function getElementsByTagName(const tagName: WideString;
-      out resultList: IXMLDOMNodeList): HRESULT; stdcall;
+      const data: WideString): IXMLDOMProcessingInstruction; safecall;
+    function createAttribute(const name: WideString): IXMLDOMAttribute; safecall;
+    function createEntityReference(const name: WideString): IXMLDOMEntityReference; safecall;
+    function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; safecall;
     function createNode(type_: OleVariant; const name: WideString;
-      const namespaceURI: WideString; out node: IXMLDOMNode): HRESULT; stdcall;
-    function nodeFromID(const idString: WideString; out node: IXMLDOMNode): HRESULT; stdcall;
-    function load(xmlSource: OleVariant; out isSuccessful: WordBool): HRESULT; stdcall;
-    function Get_readyState(out value: Integer): HRESULT; stdcall;
-    function Get_parseError(out errorObj: IXMLDOMParseError): HRESULT; stdcall;
-    function Get_url(out urlString: WideString): HRESULT; stdcall;
-    function Get_async(out isAsync: WordBool): HRESULT; stdcall;
-    function Set_async(isAsync: WordBool): HRESULT; stdcall;
-    function abor): HRESULT; stdcall;
-    function loadXML(const bstrXML: WideString; out isSuccessful: WordBool): HRESULT; stdcall;
-    function save(destination: OleVariant): HRESULT; stdcall;
-    function Get_validateOnParse(out isValidating: WordBool): HRESULT; stdcall;
-    function Set_validateOnParse(isValidating: WordBool): HRESULT; stdcall;
-    function Get_resolveExternals(out isResolving: WordBool): HRESULT; stdcall;
-    function Set_resolveExternals(isResolving: WordBool): HRESULT; stdcall;
-    function Get_preserveWhiteSpace(out isPreserving: WordBool): HRESULT; stdcall;
-    function Set_preserveWhiteSpace(isPreserving: WordBool): HRESULT; stdcall;
-    function Set_onreadystatechange(: OleVariant): HRESULT; stdcall;
-    function Set_ondataavailable(: OleVariant): HRESULT; stdcall;
-    function Set_ontransformnode(: OleVariant): HRESULT; stdcall;
+      const namespaceURI: WideString): IXMLDOMNode; safecall;
+    function nodeFromID(const idString: WideString): IXMLDOMNode; safecall;
+    function load(xmlSource: OleVariant): WordBool; safecall;
+    function Get_readyState: Integer; safecall;
+    function Get_parseError: IXMLDOMParseError; safecall;
+    function Get_url: WideString; safecall;
+    function Get_async: WordBool; safecall;
+    procedure Set_async(isAsync: WordBool); safecall;
+    procedure abort; safecall;
+    function loadXML(const bstrXML: WideString): WordBool; safecall;
+    procedure save(destination: OleVariant); safecall;
+    function Get_validateOnParse: WordBool; safecall;
+    procedure Set_validateOnParse(isValidating: WordBool); safecall;
+    function Get_resolveExternals: WordBool; safecall;
+    procedure Set_resolveExternals(isResolving: WordBool); safecall;
+    function Get_preserveWhiteSpace: WordBool; safecall;
+    procedure Set_preserveWhiteSpace(isPreserving: WordBool); safecall;
+    procedure Set_onreadystatechange(Param1: OleVariant); safecall;
+    procedure Set_ondataavailable(Param1: OleVariant); safecall;
+    procedure Set_ontransformnode(Param1: OleVariant); safecall;
+    property doctype: IXMLDOMDocumentType read Get_doctype;
+    property implementation_: IXMLDOMImplementation read Get_implementation_;
+    property documentElement: IXMLDOMElement read Get_documentElement write Set_documentElement;
+    property readyState: Integer read Get_readyState;
+    property parseError: IXMLDOMParseError read Get_parseError;
+    property url: WideString read Get_url;
+    property async: WordBool read Get_async write Set_async;
+    property validateOnParse: WordBool read Get_validateOnParse write Set_validateOnParse;
+    property resolveExternals: WordBool read Get_resolveExternals write Set_resolveExternals;
+    property preserveWhiteSpace: WordBool read Get_preserveWhiteSpace write Set_preserveWhiteSpace;
+    property onreadystatechange: OleVariant write Set_onreadystatechange;
+    property ondataavailable: OleVariant write Set_ondataavailable;
+    property ontransformnode: OleVariant write Set_ontransformnode;
   end;
 
-  Disp!!!
+  IXMLDOMDocumentDisp = dispinterface
+    ['{2933BF81-7B36-11D2-B20E-00C04F983E60}']
+    function createElement(const tagName: WideString): IXMLDOMElement; dispid 41;
+    function createDocumentFragment: IXMLDOMDocumentFragment; dispid 42;
+    function createTextNode(const data: WideString): IXMLDOMText; dispid 43;
+    function createComment(const data: WideString): IXMLDOMComment; dispid 44;
+    function createCDATASection(const data: WideString): IXMLDOMCDATASection; dispid 45;
+    function createProcessingInstruction(const target: WideString;
+      const data: WideString): IXMLDOMProcessingInstruction; dispid 46;
+    function createAttribute(const name: WideString): IXMLDOMAttribute; dispid 47;
+    function createEntityReference(const name: WideString): IXMLDOMEntityReference; dispid 49;
+    function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 50;
+    function createNode(type_: OleVariant; const name: WideString;
+      const namespaceURI: WideString): IXMLDOMNode; dispid 54;
+    function nodeFromID(const idString: WideString): IXMLDOMNode; dispid 56;
+    function load(xmlSource: OleVariant): WordBool; dispid 58;
+    procedure abort; dispid 62;
+    function loadXML(const bstrXML: WideString): WordBool; dispid 63;
+    procedure save(destination: OleVariant); dispid 64;
+    property doctype: IXMLDOMDocumentType readonly dispid 38;
+    property implementation_: IXMLDOMImplementation readonly dispid 39;
+    property documentElement: IXMLDOMElement dispid 40;
+    property readyState: Integer readonly dispid -525;
+    property parseError: IXMLDOMParseError readonly dispid 59;
+    property url: WideString readonly dispid 60;
+    property async: WordBool dispid 61;
+    property validateOnParse: WordBool dispid 65;
+    property resolveExternals: WordBool dispid 66;
+    property preserveWhiteSpace: WordBool dispid 67;
+    property onreadystatechange: OleVariant writeonly dispid 68;
+    property ondataavailable: OleVariant writeonly dispid 69;
+    property ontransformnode: OleVariant writeonly dispid 70;
+  end;
+
   IXMLDOMDocumentType = interface(IXMLDOMNode)
     ['{2933BF8B-7B36-11D2-B20E-00C04F983E60}']
-    function Get_name(out rootName: WideString): HRESULT; stdcall;
-    function Get_entities(out entityMap: IXMLDOMNamedNodeMap): HRESULT; stdcall;
-    function Get_notations(out notationMap: IXMLDOMNamedNodeMap): HRESULT; stdcall;
+    function Get_name: WideString; safecall;
+    function Get_entities: IXMLDOMNamedNodeMap; safecall;
+    function Get_notations: IXMLDOMNamedNodeMap; safecall;
+    property name: WideString read Get_name;
+    property entities: IXMLDOMNamedNodeMap read Get_entities;
+    property notations: IXMLDOMNamedNodeMap read Get_notations;
   end;
 
-  Disp!!!
+  IXMLDOMDocumentTypeDisp = dispinterface
+    ['{2933BF8B-7B36-11D2-B20E-00C04F983E60}']
+    property name: WideString readonly dispid 131;
+    property entities: IXMLDOMNamedNodeMap readonly dispid 132;
+    property notations: IXMLDOMNamedNodeMap readonly dispid 133;
+  end;
+
   IXMLDOMImplementation = interface(IDispatch)
     ['{2933BF8F-7B36-11D2-B20E-00C04F983E60}']
-    function hasFeature(const feature: WideString; const version: WideString;
-      out hasFeature: WordBool): HRESULT; stdcall;
+    function hasFeature(const feature: WideString; const version: WideString): WordBool; safecall;
   end;
 
-  Disp!!!
+  IXMLDOMImplementationDisp = dispinterface
+    ['{2933BF8F-7B36-11D2-B20E-00C04F983E60}']
+    function hasFeature(const feature: WideString; const version: WideString): WordBool; dispid 145;
+  end;
+
   IXMLDOMElement = interface(IXMLDOMNode)
     ['{2933BF86-7B36-11D2-B20E-00C04F983E60}']
-    function Get_tagName(out tagName: WideString): HRESULT; stdcall;
-    function getAttribute(const name: WideString; out value: OleVariant): HRESULT; stdcall;
-    function setAttribute(const name: WideString; value: OleVariant): HRESULT; stdcall;
-    function removeAttribute(const name: WideString): HRESULT; stdcall;
-    function getAttributeNode(const name: WideString;
-      out attributeNode: IXMLDOMAttribute): HRESULT; stdcall;
-    function setAttributeNode(const DOMAttribute: IXMLDOMAttribute;
-      out attributeNode: IXMLDOMAttribute): HRESULT; stdcall;
-    function removeAttributeNode(const DOMAttribute: IXMLDOMAttribute;
-      out attributeNode: IXMLDOMAttribute): HRESULT; stdcall;
-    function getElementsByTagName(const tagName: WideString;
-      out resultList: IXMLDOMNodeList): HRESULT; stdcall;
-    function normaliz): HRESULT; stdcall;
+    function Get_tagName: WideString; safecall;
+    function getAttribute(const name: WideString): OleVariant; safecall;
+    procedure setAttribute(const name: WideString; value: OleVariant); safecall;
+    procedure removeAttribute(const name: WideString); safecall;
+    function getAttributeNode(const name: WideString): IXMLDOMAttribute; safecall;
+    function setAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; safecall;
+    function removeAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; safecall;
+    function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; safecall;
+    procedure normalize; safecall;
+    property tagName: WideString read Get_tagName;
   end;
 
-  Disp!!!
+  IXMLDOMElementDisp = dispinterface
+    ['{2933BF86-7B36-11D2-B20E-00C04F983E60}']
+    function getAttribute(const name: WideString): OleVariant; dispid 99;
+    procedure setAttribute(const name: WideString; value: OleVariant); dispid 100;
+    procedure removeAttribute(const name: WideString); dispid 101;
+    function getAttributeNode(const name: WideString): IXMLDOMAttribute; dispid 102;
+    function setAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; dispid 103;
+    function removeAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; dispid 104;
+    function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 105;
+    procedure normalize; dispid 106;
+    property tagName: WideString readonly dispid 97;
+  end;
+
   IXMLDOMAttribute = interface(IXMLDOMNode)
     ['{2933BF85-7B36-11D2-B20E-00C04F983E60}']
-    function Get_name(out attributeName: WideString): HRESULT; stdcall;
-    function Get_value(out attributeValue: OleVariant): HRESULT; stdcall;
-    function Set_value(attributeValue: OleVariant): HRESULT; stdcall;
+    function Get_name: WideString; safecall;
+    function Get_value: OleVariant; safecall;
+    procedure Set_value(attributeValue: OleVariant); safecall;
+    property name: WideString read Get_name;
+    property value: OleVariant read Get_value write Set_value;
   end;
 
-  Disp!!!
+  IXMLDOMAttributeDisp = dispinterface
+    ['{2933BF85-7B36-11D2-B20E-00C04F983E60}']
+    property name: WideString readonly dispid 118;
+    property value: OleVariant dispid 120;
+  end;
+
   IXMLDOMDocumentFragment = interface(IXMLDOMNode)
     ['{3EFAA413-272F-11D2-836F-0000F87A7782}']
   end;
 
-  Disp!!!
+  IXMLDOMDocumentFragmentDisp = dispinterface
+    ['{3EFAA413-272F-11D2-836F-0000F87A7782}']
+  end;
+
   IXMLDOMText = interface(IXMLDOMCharacterData)
     ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
-    function splitText(offset: Integer; out rightHandTextNode: IXMLDOMText): HRESULT; stdcall;
+    function splitText(offset: Integer): IXMLDOMText; safecall;
   end;
 
-  Disp!!!
+  IXMLDOMTextDisp = dispinterface
+    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
+    function splitText(offset: Integer): IXMLDOMText; dispid 123;
+  end;
+
   IXMLDOMCharacterData = interface(IXMLDOMNode)
     ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
-    function Get_data(out data: WideString): HRESULT; stdcall;
-    function Set_data(const data: WideString): HRESULT; stdcall;
-    function Get_length(out dataLength: Integer): HRESULT; stdcall;
-    function substringData(offset: Integer; count: Integer;
-      out data: WideString): HRESULT; stdcall;
-    function appendData(const data: WideString): HRESULT; stdcall;
-    function insertData(offset: Integer; const data: WideString): HRESULT; stdcall;
-    function deleteData(offset: Integer; count: Integer): HRESULT; stdcall;
-    function replaceData(offset: Integer; count: Integer;
-      const data: WideString): HRESULT; stdcall;
+    function Get_data: WideString; safecall;
+    procedure Set_data(const data: WideString); safecall;
+    function Get_length: Integer; safecall;
+    function substringData(offset: Integer; count: Integer): WideString; safecall;
+    procedure appendData(const data: WideString); safecall;
+    procedure insertData(offset: Integer; const data: WideString); safecall;
+    procedure deleteData(offset: Integer; count: Integer); safecall;
+    procedure replaceData(offset: Integer; count: Integer;
+      const data: WideString); safecall;
+    property data: WideString read Get_data write Set_data;
+    property length: Integer read Get_length;
   end;
 
-  Disp!!!
+  IXMLDOMCharacterDataDisp = dispinterface
+    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
+    function substringData(offset: Integer; count: Integer): WideString; dispid 111;
+    procedure appendData(const data: WideString); dispid 112;
+    procedure insertData(offset: Integer; const data: WideString); dispid 113;
+    procedure deleteData(offset: Integer; count: Integer); dispid 114;
+    procedure replaceData(offset: Integer; count: Integer;
+      const data: WideString); dispid 115;
+    property data: WideString dispid 109;
+    property length: Integer readonly dispid 110;
+  end;
+
   IXMLDOMComment = interface(IXMLDOMCharacterData)
     ['{2933BF88-7B36-11D2-B20E-00C04F983E60}']
   end;
 
-  Disp!!!
+  IXMLDOMCommentDisp = dispinterface
+    ['{2933BF88-7B36-11D2-B20E-00C04F983E60}']
+  end;
+
   IXMLDOMCDATASection = interface(IXMLDOMText)
     ['{2933BF8A-7B36-11D2-B20E-00C04F983E60}']
   end;
 
-  Disp!!!
-  IXMLDOMProcessingInstruction = interface(IXMLDOMNode)
-    ['{2933BF89-7B36-11D2-B20E-00C04F983E60}']
-    function Get_target(out name: WideString): HRESULT; stdcall;
-    function Get_data(out value: WideString): HRESULT; stdcall;
-    function Set_data(const value: WideString): HRESULT; stdcall;
+  IXMLDOMCDATASectionDisp = dispinterface
+    ['{2933BF8A-7B36-11D2-B20E-00C04F983E60}']
   end;
 
-  Disp!!!
+  IXMLDOMProcessingInstruction = interface(IXMLDOMNode)
+    ['{2933BF89-7B36-11D2-B20E-00C04F983E60}']
+    function Get_target: WideString; safecall;
+    function Get_data: WideString; safecall;
+    procedure Set_data(const value: WideString); safecall;
+    property target: WideString read Get_target;
+    property data: WideString read Get_data write Set_data;
+  end;
+
+  IXMLDOMProcessingInstructionDisp = dispinterface
+    ['{2933BF89-7B36-11D2-B20E-00C04F983E60}']
+    property target: WideString readonly dispid 127;
+    property data: WideString dispid 128;
+  end;
+
   IXMLDOMEntityReference = interface(IXMLDOMNode)
     ['{2933BF8E-7B36-11D2-B20E-00C04F983E60}']
   end;
 
-  Disp!!!
+  IXMLDOMEntityReferenceDisp = dispinterface
+    ['{2933BF8E-7B36-11D2-B20E-00C04F983E60}']
+  end;
+
   IXMLDOMParseError = interface(IDispatch)
     ['{3EFAA426-272F-11D2-836F-0000F87A7782}']
-    function Get_errorCode(out errorCode: Integer): HRESULT; stdcall;
-    function Get_url(out urlString: WideString): HRESULT; stdcall;
-    function Get_reason(out reasonString: WideString): HRESULT; stdcall;
-    function Get_srcText(out sourceString: WideString): HRESULT; stdcall;
-    function Get_line(out lineNumber: Integer): HRESULT; stdcall;
-    function Get_linepos(out linePosition: Integer): HRESULT; stdcall;
-    function Get_filepos(out filePosition: Integer): HRESULT; stdcall;
+    function Get_errorCode: Integer; safecall;
+    function Get_url: WideString; safecall;
+    function Get_reason: WideString; safecall;
+    function Get_srcText: WideString; safecall;
+    function Get_line: Integer; safecall;
+    function Get_linepos: Integer; safecall;
+    function Get_filepos: Integer; safecall;
+    property errorCode: Integer read Get_errorCode; default;
+    property url: WideString read Get_url;
+    property reason: WideString read Get_reason;
+    property srcText: WideString read Get_srcText;
+    property line: Integer read Get_line;
+    property linepos: Integer read Get_linepos;
+    property filepos: Integer read Get_filepos;
   end;
 
-  Disp!!!
+  IXMLDOMParseErrorDisp = dispinterface
+    ['{3EFAA426-272F-11D2-836F-0000F87A7782}']
+    property errorCode: Integer readonly dispid 0;
+    property url: WideString readonly dispid 179;
+    property reason: WideString readonly dispid 180;
+    property srcText: WideString readonly dispid 181;
+    property line: Integer readonly dispid 182;
+    property linepos: Integer readonly dispid 183;
+    property filepos: Integer readonly dispid 184;
+  end;
+
   IXMLDOMNotation = interface(IXMLDOMNode)
     ['{2933BF8C-7B36-11D2-B20E-00C04F983E60}']
-    function Get_publicId(out publicId: OleVariant): HRESULT; stdcall;
-    function Get_systemId(out systemId: OleVariant): HRESULT; stdcall;
+    function Get_publicId: OleVariant; safecall;
+    function Get_systemId: OleVariant; safecall;
+    property publicId: OleVariant read Get_publicId;
+    property systemId: OleVariant read Get_systemId;
   end;
 
-  Disp!!!
+  IXMLDOMNotationDisp = dispinterface
+    ['{2933BF8C-7B36-11D2-B20E-00C04F983E60}']
+    property publicId: OleVariant readonly dispid 136;
+    property systemId: OleVariant readonly dispid 137;
+  end;
+
   IXMLDOMEntity = interface(IXMLDOMNode)
     ['{2933BF8D-7B36-11D2-B20E-00C04F983E60}']
-    function Get_publicId(out publicId: OleVariant): HRESULT; stdcall;
-    function Get_systemId(out systemId: OleVariant): HRESULT; stdcall;
-    function Get_notationName(out name: WideString): HRESULT; stdcall;
+    function Get_publicId: OleVariant; safecall;
+    function Get_systemId: OleVariant; safecall;
+    function Get_notationName: WideString; safecall;
+    property publicId: OleVariant read Get_publicId;
+    property systemId: OleVariant read Get_systemId;
+    property notationName: WideString read Get_notationName;
   end;
 
-  Disp!!!
+  IXMLDOMEntityDisp = dispinterface
+    ['{2933BF8D-7B36-11D2-B20E-00C04F983E60}']
+    property publicId: OleVariant readonly dispid 140;
+    property systemId: OleVariant readonly dispid 141;
+    property notationName: WideString readonly dispid 142;
+  end;
+
   IXMLDOMParseError2 = interface(IXMLDOMParseError)
     ['{3EFAA428-272F-11D2-836F-0000F87A7782}']
-    function Get_errorXPath(out xpathexpr: WideString): HRESULT; stdcall;
-    function Get_allErrors(out allErrors: IXMLDOMParseErrorCollection): HRESULT; stdcall;
-    function errorParameters(index: Integer; out param: WideString): HRESULT; stdcall;
-    function Get_errorParametersCount(out count: Integer): HRESULT; stdcall;
+    function Get_errorXPath: WideString; safecall;
+    function Get_allErrors: IXMLDOMParseErrorCollection; safecall;
+    function errorParameters(index: Integer): WideString; safecall;
+    function Get_errorParametersCount: Integer; safecall;
+    property errorXPath: WideString read Get_errorXPath;
+    property allErrors: IXMLDOMParseErrorCollection read Get_allErrors;
+    property errorParametersCount: Integer read Get_errorParametersCount;
   end;
 
-  Disp!!!
+  IXMLDOMParseError2Disp = dispinterface
+    ['{3EFAA428-272F-11D2-836F-0000F87A7782}']
+    function errorParameters(index: Integer): WideString; dispid 188;
+    property errorXPath: WideString readonly dispid 190;
+    property allErrors: IXMLDOMParseErrorCollection readonly dispid 187;
+    property errorParametersCount: Integer readonly dispid 189;
+  end;
+
   IXMLDOMParseErrorCollection = interface(IDispatch)
     ['{3EFAA429-272F-11D2-836F-0000F87A7782}']
-    function Get_item(index: Integer; out error: IXMLDOMParseError2): HRESULT; stdcall;
-    function Get_length(out length: Integer): HRESULT; stdcall;
-    function Get_next(out error: IXMLDOMParseError2): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+    function Get_item(index: Integer): IXMLDOMParseError2; safecall;
+    function Get_length: Integer; safecall;
+    function Get_next: IXMLDOMParseError2; safecall;
+    procedure reset; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: IXMLDOMParseError2 read Get_item; default;
+    property length: Integer read Get_length;
+    property next: IXMLDOMParseError2 read Get_next;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  IXMLDOMParseErrorCollectionDisp = dispinterface
+    ['{3EFAA429-272F-11D2-836F-0000F87A7782}']
+    procedure reset; dispid 195;
+    property item[index: Integer]: IXMLDOMParseError2 readonly dispid 0;
+    property length: Integer readonly dispid 193;
+    property next: IXMLDOMParseError2 readonly dispid 194;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   IXTLRuntime = interface(IXMLDOMNode)
     ['{3EFAA425-272F-11D2-836F-0000F87A7782}']
-    function uniqueID(const pNode: IXMLDOMNode; out pID: Integer): HRESULT; stdcall;
-    function depth(const pNode: IXMLDOMNode; out pDepth: Integer): HRESULT; stdcall;
-    function childNumber(const pNode: IXMLDOMNode; out pNumber: Integer): HRESULT; stdcall;
+    function uniqueID(const pNode: IXMLDOMNode): Integer; safecall;
+    function depth(const pNode: IXMLDOMNode): Integer; safecall;
+    function childNumber(const pNode: IXMLDOMNode): Integer; safecall;
     function ancestorChildNumber(const bstrNodeName: WideString;
-      const pNode: IXMLDOMNode; out pNumber: Integer): HRESULT; stdcall;
-    function absoluteChildNumber(const pNode: IXMLDOMNode;
-      out pNumber: Integer): HRESULT; stdcall;
-    function formatIndex(lIndex: Integer; const bstrFormat: WideString;
-      out pbstrFormattedString: WideString): HRESULT; stdcall;
-    function formatNumber(dblNumber: Double; const bstrFormat: WideString;
-      out pbstrFormattedString: WideString): HRESULT; stdcall;
+      const pNode: IXMLDOMNode): Integer; safecall;
+    function absoluteChildNumber(const pNode: IXMLDOMNode): Integer; safecall;
+    function formatIndex(lIndex: Integer; const bstrFormat: WideString): WideString; safecall;
+    function formatNumber(dblNumber: Double; const bstrFormat: WideString): WideString; safecall;
     function formatDate(varDate: OleVariant; const bstrFormat: WideString;
-      varDestLocale: OleVariant; out pbstrFormattedString: WideString): HRESULT; stdcall;
+      varDestLocale: OleVariant): WideString; safecall;
     function formatTime(varTime: OleVariant; const bstrFormat: WideString;
-      varDestLocale: OleVariant; out pbstrFormattedString: WideString): HRESULT; stdcall;
+      varDestLocale: OleVariant): WideString; safecall;
+  end;
+
+  IXTLRuntimeDisp = dispinterface
+    ['{3EFAA425-272F-11D2-836F-0000F87A7782}']
+    function uniqueID(const pNode: IXMLDOMNode): Integer; dispid 187;
+    function depth(const pNode: IXMLDOMNode): Integer; dispid 188;
+    function childNumber(const pNode: IXMLDOMNode): Integer; dispid 189;
+    function ancestorChildNumber(const bstrNodeName: WideString;
+      const pNode: IXMLDOMNode): Integer; dispid 190;
+    function absoluteChildNumber(const pNode: IXMLDOMNode): Integer; dispid 191;
+    function formatIndex(lIndex: Integer; const bstrFormat: WideString): WideString; dispid 192;
+    function formatNumber(dblNumber: Double; const bstrFormat: WideString): WideString; dispid 193;
+    function formatDate(varDate: OleVariant; const bstrFormat: WideString;
+      varDestLocale: OleVariant): WideString; dispid 194;
+    function formatTime(varTime: OleVariant; const bstrFormat: WideString;
+      varDestLocale: OleVariant): WideString; dispid 195;
   end;
 
   ISAXXMLReader = interface(IUnknown)
     ['{A4F96ED0-F829-476E-81C0-CDC7BD2A0802}']
-    function getFeature(const pwchName: Word; out pvfValue: WordBool): HRESULT; stdcall;
-    function putFeature(const pwchName: Word; vfValue: WordBool): HRESULT; stdcall;
-    function getProperty(const pwchName: Word; out pvarValue: OleVariant): HRESULT; stdcall;
-    function putProperty(const pwchName: Word; varValue: OleVariant): HRESULT; stdcall;
-    function getEntityResolver(out ppResolver: ISAXEntityResolver): HRESULT; stdcall;
-    function putEntityResolver(const pResolver: ISAXEntityResolver): HRESULT; stdcall;
-    function getContentHandler(out ppHandler: ISAXContentHandler): HRESULT; stdcall;
-    function putContentHandler(const pHandler: ISAXContentHandler): HRESULT; stdcall;
-    function getDTDHandler(out ppHandler: ISAXDTDHandler): HRESULT; stdcall;
-    function putDTDHandler(const pHandler: ISAXDTDHandler): HRESULT; stdcall;
-    function getErrorHandler(out ppHandler: ISAXErrorHandler): HRESULT; stdcall;
-    function putErrorHandler(const pHandler: ISAXErrorHandler): HRESULT; stdcall;
-    function getBaseURL({1} out ppwchBaseUrl: Word): HRESULT; stdcall;
-    function putBaseURL(const pwchBaseUrl: Word): HRESULT; stdcall;
-    function getSecureBaseURL({1} out ppwchSecureBaseUrl: Word): HRESULT; stdcall;
-    function putSecureBaseURL(const pwchSecureBaseUrl: Word): HRESULT; stdcall;
-    function parse(varInput: OleVariant): HRESULT; stdcall;
-    function parseURL(const pwchUrl: Word): HRESULT; stdcall;
+    function getFeature(const pwchName: Word): WordBool; safecall;
+    procedure putFeature(const pwchName: Word; vfValue: WordBool); safecall;
+    function getProperty(const pwchName: Word): OleVariant; safecall;
+    procedure putProperty(const pwchName: Word; varValue: OleVariant); safecall;
+    function getEntityResolver: ISAXEntityResolver; safecall;
+    procedure putEntityResolver(const pResolver: ISAXEntityResolver); safecall;
+    function getContentHandler: ISAXContentHandler; safecall;
+    procedure putContentHandler(const pHandler: ISAXContentHandler); safecall;
+    function getDTDHandler: ISAXDTDHandler; safecall;
+    procedure putDTDHandler(const pHandler: ISAXDTDHandler); safecall;
+    function getErrorHandler: ISAXErrorHandler; safecall;
+    procedure putErrorHandler(const pHandler: ISAXErrorHandler); safecall;
+    function getBaseURL: Word; safecall;
+    procedure putBaseURL(const pwchBaseUrl: Word); safecall;
+    function getSecureBaseURL: Word; safecall;
+    procedure putSecureBaseURL(const pwchSecureBaseUrl: Word); safecall;
+    procedure parse(varInput: OleVariant); safecall;
+    procedure parseURL(const pwchUrl: Word); safecall;
   end;
 
   ISAXEntityResolver = interface(IUnknown)
     ['{99BCA7BD-E8C4-4D5F-A0CF-6D907901FF07}']
-    function resolveEntity(const pwchPublicId: Word; const pwchSystemId: Word;
-      out pvarInput: OleVariant): HRESULT; stdcall;
+    function resolveEntity(const pwchPublicId: Word; const pwchSystemId: Word): OleVariant; safecall;
   end;
 
   ISAXContentHandler = interface(IUnknown)
     ['{1545CDFA-9E4E-4497-A8A4-2BF7D0112C44}']
-    function putDocumentLocator(const pLocator: ISAXLocator): HRESULT; stdcall;
-    function startDocumen): HRESULT; stdcall;
-    function endDocumen): HRESULT; stdcall;
-    function startPrefixMapping(const pwchPrefix: Word; cchPrefix: SYSINT;
-      const pwchUri: Word; cchUri: SYSINT): HRESULT; stdcall;
-    function endPrefixMapping(const pwchPrefix: Word; cchPrefix: SYSINT): HRESULT; stdcall;
-    function startElement(const pwchNamespaceUri: Word;
+    procedure putDocumentLocator(const pLocator: ISAXLocator); safecall;
+    procedure startDocument; safecall;
+    procedure endDocument; safecall;
+    procedure startPrefixMapping(const pwchPrefix: Word; cchPrefix: SYSINT;
+      const pwchUri: Word; cchUri: SYSINT); safecall;
+    procedure endPrefixMapping(const pwchPrefix: Word; cchPrefix: SYSINT); safecall;
+    procedure startElement(const pwchNamespaceUri: Word;
       cchNamespaceUri: SYSINT; const pwchLocalName: Word; cchLocalName: SYSINT;
       const pwchQName: Word; cchQName: SYSINT;
-      const pAttributes: ISAXAttributes): HRESULT; stdcall;
-    function endElement(const pwchNamespaceUri: Word; cchNamespaceUri: SYSINT;
-      const pwchLocalName: Word; cchLocalName: SYSINT; const pwchQName: Word;
-      cchQName: SYSINT): HRESULT; stdcall;
-    function characters(const pwchChars: Word; cchChars: SYSINT): HRESULT; stdcall;
-    function ignorableWhitespace(const pwchChars: Word; cchChars: SYSINT): HRESULT; stdcall;
-    function processingInstruction(const pwchTarget: Word; cchTarget: SYSINT;
-      const pwchData: Word; cchData: SYSINT): HRESULT; stdcall;
-    function skippedEntity(const pwchName: Word; cchName: SYSINT): HRESULT; stdcall;
+      const pAttributes: ISAXAttributes); safecall;
+    procedure endElement(const pwchNamespaceUri: Word;
+      cchNamespaceUri: SYSINT; const pwchLocalName: Word; cchLocalName: SYSINT;
+      const pwchQName: Word; cchQName: SYSINT); safecall;
+    procedure characters(const pwchChars: Word; cchChars: SYSINT); safecall;
+    procedure ignorableWhitespace(const pwchChars: Word; cchChars: SYSINT); safecall;
+    procedure processingInstruction(const pwchTarget: Word; cchTarget: SYSINT;
+      const pwchData: Word; cchData: SYSINT); safecall;
+    procedure skippedEntity(const pwchName: Word; cchName: SYSINT); safecall;
   end;
 
   ISAXLocator = interface(IUnknown)
     ['{9B7E472A-0DE4-4640-BFF3-84D38A051C31}']
-    function getColumnNumber(out pnColumn: SYSINT): HRESULT; stdcall;
-    function getLineNumber(out pnLine: SYSINT): HRESULT; stdcall;
-    function getPublicId({1} out ppwchPublicId: Word): HRESULT; stdcall;
-    function getSystemId({1} out ppwchSystemId: Word): HRESULT; stdcall;
+    function getColumnNumber: SYSINT; safecall;
+    function getLineNumber: SYSINT; safecall;
+    function getPublicId: Word; safecall;
+    function getSystemId: Word; safecall;
   end;
 
   ISAXAttributes = interface(IUnknown)
     ['{F078ABE1-45D2-4832-91EA-4466CE2F25C9}']
-    function getLength(out pnLength: SYSINT): HRESULT; stdcall;
-    function getURI(nIndex: SYSINT; {1} out ppwchUri: Word;
-      out pcchUri: SYSINT): HRESULT; stdcall;
-    function getLocalName(nIndex: SYSINT; {1} out ppwchLocalName: Word;
-      out pcchLocalName: SYSINT): HRESULT; stdcall;
-    function getQName(nIndex: SYSINT; {1} out ppwchQName: Word;
-      out pcchQName: SYSINT): HRESULT; stdcall;
-    function getName(nIndex: SYSINT; {1} out ppwchUri: Word;
+    function getLength: SYSINT; safecall;
+    procedure getURI(nIndex: SYSINT; {1} out ppwchUri: Word;
+      out pcchUri: SYSINT); safecall;
+    procedure getLocalName(nIndex: SYSINT; {1} out ppwchLocalName: Word;
+      out pcchLocalName: SYSINT); safecall;
+    procedure getQName(nIndex: SYSINT; {1} out ppwchQName: Word;
+      out pcchQName: SYSINT); safecall;
+    procedure getName(nIndex: SYSINT; {1} out ppwchUri: Word;
       out pcchUri: SYSINT; {1} out ppwchLocalName: Word;
       out pcchLocalName: SYSINT; {1} out ppwchQName: Word;
-      out pcchQName: SYSINT): HRESULT; stdcall;
+      out pcchQName: SYSINT); safecall;
     function getIndexFromName(const pwchUri: Word; cchUri: SYSINT;
-      const pwchLocalName: Word; cchLocalName: SYSINT; out pnIndex: SYSINT): HRESULT; stdcall;
-    function getIndexFromQName(const pwchQName: Word; cchQName: SYSINT;
-      out pnIndex: SYSINT): HRESULT; stdcall;
-    function getType(nIndex: SYSINT; {1} out ppwchType: Word;
-      out pcchType: SYSINT): HRESULT; stdcall;
-    function getTypeFromName(const pwchUri: Word; cchUri: SYSINT;
+      const pwchLocalName: Word; cchLocalName: SYSINT): SYSINT; safecall;
+    function getIndexFromQName(const pwchQName: Word; cchQName: SYSINT): SYSINT; safecall;
+    procedure getType(nIndex: SYSINT; {1} out ppwchType: Word;
+      out pcchType: SYSINT); safecall;
+    procedure getTypeFromName(const pwchUri: Word; cchUri: SYSINT;
       const pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchType: Word;
-      out pcchType: SYSINT): HRESULT; stdcall;
-    function getTypeFromQName(const pwchQName: Word; cchQName: SYSINT;
-      {1} out ppwchType: Word; out pcchType: SYSINT): HRESULT; stdcall;
-    function getValue(nIndex: SYSINT; {1} out ppwchValue: Word;
-      out pcchValue: SYSINT): HRESULT; stdcall;
-    function getValueFromName(const pwchUri: Word; cchUri: SYSINT;
+      out pcchType: SYSINT); safecall;
+    procedure getTypeFromQName(const pwchQName: Word; cchQName: SYSINT;
+      {1} out ppwchType: Word; out pcchType: SYSINT); safecall;
+    procedure getValue(nIndex: SYSINT; {1} out ppwchValue: Word;
+      out pcchValue: SYSINT); safecall;
+    procedure getValueFromName(const pwchUri: Word; cchUri: SYSINT;
       const pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchValue: Word;
-      out pcchValue: SYSINT): HRESULT; stdcall;
-    function getValueFromQName(const pwchQName: Word; cchQName: SYSINT;
-      {1} out ppwchValue: Word; out pcchValue: SYSINT): HRESULT; stdcall;
+      out pcchValue: SYSINT); safecall;
+    procedure getValueFromQName(const pwchQName: Word; cchQName: SYSINT;
+      {1} out ppwchValue: Word; out pcchValue: SYSINT); safecall;
   end;
 
   ISAXDTDHandler = interface(IUnknown)
     ['{E15C1BAF-AFB3-4D60-8C36-19A8C45DEFED}']
-    function notationDecl(const pwchName: Word; cchName: SYSINT;
+    procedure notationDecl(const pwchName: Word; cchName: SYSINT;
       const pwchPublicId: Word; cchPublicId: SYSINT; const pwchSystemId: Word;
-      cchSystemId: SYSINT): HRESULT; stdcall;
-    function unparsedEntityDecl(const pwchName: Word; cchName: SYSINT;
+      cchSystemId: SYSINT); safecall;
+    procedure unparsedEntityDecl(const pwchName: Word; cchName: SYSINT;
       const pwchPublicId: Word; cchPublicId: SYSINT; const pwchSystemId: Word;
       cchSystemId: SYSINT; const pwchNotationName: Word;
-      cchNotationName: SYSINT): HRESULT; stdcall;
+      cchNotationName: SYSINT); safecall;
   end;
 
   ISAXErrorHandler = interface(IUnknown)
     ['{A60511C4-CCF5-479E-98A3-DC8DC545B7D0}']
-    function error(const pLocator: ISAXLocator; const pwchErrorMessage: Word;
-      hrErrorCode: HRESULT): HRESULT; stdcall;
-    function fatalError(const pLocator: ISAXLocator;
-      const pwchErrorMessage: Word; hrErrorCode: HRESULT): HRESULT; stdcall;
-    function ignorableWarning(const pLocator: ISAXLocator;
-      const pwchErrorMessage: Word; hrErrorCode: HRESULT): HRESULT; stdcall;
+    procedure error(const pLocator: ISAXLocator; const pwchErrorMessage: Word;
+      hrErrorCode: HRESULT); safecall;
+    procedure fatalError(const pLocator: ISAXLocator;
+      const pwchErrorMessage: Word; hrErrorCode: HRESULT); safecall;
+    procedure ignorableWarning(const pLocator: ISAXLocator;
+      const pwchErrorMessage: Word; hrErrorCode: HRESULT); safecall;
   end;
 
   ISAXXMLFilter = interface(ISAXXMLReader)
     ['{70409222-CA09-4475-ACB8-40312FE8D145}']
-    function getParent(out ppReader: ISAXXMLReader): HRESULT; stdcall;
-    function putParent(const pReader: ISAXXMLReader): HRESULT; stdcall;
+    function getParent: ISAXXMLReader; safecall;
+    procedure putParent(const pReader: ISAXXMLReader); safecall;
   end;
 
-  Disp!!!
   IVBSAXXMLFilter = interface(IDispatch)
     ['{1299EB1B-5B88-433E-82DE-82CA75AD4E04}']
-    function Get_parent(out oReader: IVBSAXXMLReader): HRESULT; stdcall;
-    function Set_parent(const oReader: IVBSAXXMLReader): HRESULT; stdcall;
+    function Get_parent: IVBSAXXMLReader; safecall;
+    procedure Set_parent(const oReader: IVBSAXXMLReader); safecall;
+    property parent: IVBSAXXMLReader read Get_parent write Set_parent;
   end;
 
-  Disp!!!
+  IVBSAXXMLFilterDisp = dispinterface
+    ['{1299EB1B-5B88-433E-82DE-82CA75AD4E04}']
+    property parent: IVBSAXXMLReader dispid 1309;
+  end;
+
   IVBSAXXMLReader = interface(IDispatch)
     ['{8C033CAA-6CD6-4F73-B728-4531AF74945F}']
-    function getFeature(const strName: WideString; out fValue: WordBool): HRESULT; stdcall;
-    function putFeature(const strName: WideString; fValue: WordBool): HRESULT; stdcall;
-    function getProperty(const strName: WideString; out varValue: OleVariant): HRESULT; stdcall;
-    function putProperty(const strName: WideString; varValue: OleVariant): HRESULT; stdcall;
-    function Get_entityResolver(out oResolver: IVBSAXEntityResolver): HRESULT; stdcall;
-    function Set_entityResolver(const oResolver: IVBSAXEntityResolver): HRESULT; stdcall;
-    function Get_contentHandler(out oHandler: IVBSAXContentHandler): HRESULT; stdcall;
-    function Set_contentHandler(const oHandler: IVBSAXContentHandler): HRESULT; stdcall;
-    function Get_dtdHandler(out oHandler: IVBSAXDTDHandler): HRESULT; stdcall;
-    function Set_dtdHandler(const oHandler: IVBSAXDTDHandler): HRESULT; stdcall;
-    function Get_errorHandler(out oHandler: IVBSAXErrorHandler): HRESULT; stdcall;
-    function Set_errorHandler(const oHandler: IVBSAXErrorHandler): HRESULT; stdcall;
-    function Get_baseURL(out strBaseURL: WideString): HRESULT; stdcall;
-    function Set_baseURL(const strBaseURL: WideString): HRESULT; stdcall;
-    function Get_secureBaseURL(out strSecureBaseURL: WideString): HRESULT; stdcall;
-    function Set_secureBaseURL(const strSecureBaseURL: WideString): HRESULT; stdcall;
-    function parse(varInput: OleVariant): HRESULT; stdcall;
-    function parseURL(const strURL: WideString): HRESULT; stdcall;
+    function getFeature(const strName: WideString): WordBool; safecall;
+    procedure putFeature(const strName: WideString; fValue: WordBool); safecall;
+    function getProperty(const strName: WideString): OleVariant; safecall;
+    procedure putProperty(const strName: WideString; varValue: OleVariant); safecall;
+    function Get_entityResolver: IVBSAXEntityResolver; safecall;
+    procedure Set_entityResolver(const oResolver: IVBSAXEntityResolver); safecall;
+    function Get_contentHandler: IVBSAXContentHandler; safecall;
+    procedure Set_contentHandler(const oHandler: IVBSAXContentHandler); safecall;
+    function Get_dtdHandler: IVBSAXDTDHandler; safecall;
+    procedure Set_dtdHandler(const oHandler: IVBSAXDTDHandler); safecall;
+    function Get_errorHandler: IVBSAXErrorHandler; safecall;
+    procedure Set_errorHandler(const oHandler: IVBSAXErrorHandler); safecall;
+    function Get_baseURL: WideString; safecall;
+    procedure Set_baseURL(const strBaseURL: WideString); safecall;
+    function Get_secureBaseURL: WideString; safecall;
+    procedure Set_secureBaseURL(const strSecureBaseURL: WideString); safecall;
+    procedure parse(varInput: OleVariant); safecall;
+    procedure parseURL(const strURL: WideString); safecall;
+    property entityResolver: IVBSAXEntityResolver read Get_entityResolver write Set_entityResolver;
+    property contentHandler: IVBSAXContentHandler read Get_contentHandler write Set_contentHandler;
+    property dtdHandler: IVBSAXDTDHandler read Get_dtdHandler write Set_dtdHandler;
+    property errorHandler: IVBSAXErrorHandler read Get_errorHandler write Set_errorHandler;
+    property baseURL: WideString read Get_baseURL write Set_baseURL;
+    property secureBaseURL: WideString read Get_secureBaseURL write Set_secureBaseURL;
   end;
 
-  Disp!!!
+  IVBSAXXMLReaderDisp = dispinterface
+    ['{8C033CAA-6CD6-4F73-B728-4531AF74945F}']
+    function getFeature(const strName: WideString): WordBool; dispid 1282;
+    procedure putFeature(const strName: WideString; fValue: WordBool); dispid 1283;
+    function getProperty(const strName: WideString): OleVariant; dispid 1284;
+    procedure putProperty(const strName: WideString; varValue: OleVariant); dispid 1285;
+    procedure parse(varInput: OleVariant); dispid 1292;
+    procedure parseURL(const strURL: WideString); dispid 1293;
+    property entityResolver: IVBSAXEntityResolver dispid 1286;
+    property contentHandler: IVBSAXContentHandler dispid 1287;
+    property dtdHandler: IVBSAXDTDHandler dispid 1288;
+    property errorHandler: IVBSAXErrorHandler dispid 1289;
+    property baseURL: WideString dispid 1290;
+    property secureBaseURL: WideString dispid 1291;
+  end;
+
   IVBSAXEntityResolver = interface(IDispatch)
     ['{0C05D096-F45B-4ACA-AD1A-AA0BC25518DC}']
     function resolveEntity(var strPublicId: WideString;
-      var strSystemId: WideString; out varInput: OleVariant): HRESULT; stdcall;
+      var strSystemId: WideString): OleVariant; safecall;
   end;
 
-  Disp!!!
+  IVBSAXEntityResolverDisp = dispinterface
+    ['{0C05D096-F45B-4ACA-AD1A-AA0BC25518DC}']
+    function resolveEntity(var strPublicId: WideString;
+      var strSystemId: WideString): OleVariant; dispid 1319;
+  end;
+
   IVBSAXContentHandler = interface(IDispatch)
     ['{2ED7290A-4DD5-4B46-BB26-4E4155E77FAA}']
-    function Set_documentLocator(const : IVBSAXLocator): HRESULT; stdcall;
-    function startDocumen): HRESULT; stdcall;
-    function endDocumen): HRESULT; stdcall;
-    function startPrefixMapping(var strPrefix: WideString;
-      var strURI: WideString): HRESULT; stdcall;
-    function endPrefixMapping(var strPrefix: WideString): HRESULT; stdcall;
-    function startElement(var strNamespaceURI: WideString;
+    procedure Set_documentLocator(const Param1: IVBSAXLocator); safecall;
+    procedure startDocument; safecall;
+    procedure endDocument; safecall;
+    procedure startPrefixMapping(var strPrefix: WideString;
+      var strURI: WideString); safecall;
+    procedure endPrefixMapping(var strPrefix: WideString); safecall;
+    procedure startElement(var strNamespaceURI: WideString;
       var strLocalName: WideString; var strQName: WideString;
-      const oAttributes: IVBSAXAttributes): HRESULT; stdcall;
-    function endElement(var strNamespaceURI: WideString;
-      var strLocalName: WideString; var strQName: WideString): HRESULT; stdcall;
-    function characters(var strChars: WideString): HRESULT; stdcall;
-    function ignorableWhitespace(var strChars: WideString): HRESULT; stdcall;
-    function processingInstruction(var strTarget: WideString;
-      var strData: WideString): HRESULT; stdcall;
-    function skippedEntity(var strName: WideString): HRESULT; stdcall;
+      const oAttributes: IVBSAXAttributes); safecall;
+    procedure endElement(var strNamespaceURI: WideString;
+      var strLocalName: WideString; var strQName: WideString); safecall;
+    procedure characters(var strChars: WideString); safecall;
+    procedure ignorableWhitespace(var strChars: WideString); safecall;
+    procedure processingInstruction(var strTarget: WideString;
+      var strData: WideString); safecall;
+    procedure skippedEntity(var strName: WideString); safecall;
+    property documentLocator: IVBSAXLocator write Set_documentLocator;
   end;
 
-  Disp!!!
+  IVBSAXContentHandlerDisp = dispinterface
+    ['{2ED7290A-4DD5-4B46-BB26-4E4155E77FAA}']
+    procedure startDocument; dispid 1323;
+    procedure endDocument; dispid 1324;
+    procedure startPrefixMapping(var strPrefix: WideString;
+      var strURI: WideString); dispid 1325;
+    procedure endPrefixMapping(var strPrefix: WideString); dispid 1326;
+    procedure startElement(var strNamespaceURI: WideString;
+      var strLocalName: WideString; var strQName: WideString;
+      const oAttributes: IVBSAXAttributes); dispid 1327;
+    procedure endElement(var strNamespaceURI: WideString;
+      var strLocalName: WideString; var strQName: WideString); dispid 1328;
+    procedure characters(var strChars: WideString); dispid 1329;
+    procedure ignorableWhitespace(var strChars: WideString); dispid 1330;
+    procedure processingInstruction(var strTarget: WideString;
+      var strData: WideString); dispid 1331;
+    procedure skippedEntity(var strName: WideString); dispid 1332;
+    property documentLocator: IVBSAXLocator writeonly dispid 1322;
+  end;
+
   IVBSAXLocator = interface(IDispatch)
     ['{796E7AC5-5AA2-4EFF-ACAD-3FAAF01A3288}']
-    function Get_columnNumber(out nColumn: SYSINT): HRESULT; stdcall;
-    function Get_lineNumber(out nLine: SYSINT): HRESULT; stdcall;
-    function Get_publicId(out strPublicId: WideString): HRESULT; stdcall;
-    function Get_systemId(out strSystemId: WideString): HRESULT; stdcall;
+    function Get_columnNumber: SYSINT; safecall;
+    function Get_lineNumber: SYSINT; safecall;
+    function Get_publicId: WideString; safecall;
+    function Get_systemId: WideString; safecall;
+    property columnNumber: SYSINT read Get_columnNumber;
+    property lineNumber: SYSINT read Get_lineNumber;
+    property publicId: WideString read Get_publicId;
+    property systemId: WideString read Get_systemId;
   end;
 
-  Disp!!!
+  IVBSAXLocatorDisp = dispinterface
+    ['{796E7AC5-5AA2-4EFF-ACAD-3FAAF01A3288}']
+    property columnNumber: SYSINT readonly dispid 1313;
+    property lineNumber: SYSINT readonly dispid 1314;
+    property publicId: WideString readonly dispid 1315;
+    property systemId: WideString readonly dispid 1316;
+  end;
+
   IVBSAXAttributes = interface(IDispatch)
     ['{10DC0586-132B-4CAC-8BB3-DB00AC8B7EE0}']
-    function Get_length(out nLength: SYSINT): HRESULT; stdcall;
-    function getURI(nIndex: SYSINT; out strURI: WideString): HRESULT; stdcall;
-    function getLocalName(nIndex: SYSINT; out strLocalName: WideString): HRESULT; stdcall;
-    function getQName(nIndex: SYSINT; out strQName: WideString): HRESULT; stdcall;
+    function Get_length: SYSINT; safecall;
+    function getURI(nIndex: SYSINT): WideString; safecall;
+    function getLocalName(nIndex: SYSINT): WideString; safecall;
+    function getQName(nIndex: SYSINT): WideString; safecall;
     function getIndexFromName(const strURI: WideString;
-      const strLocalName: WideString; out nIndex: SYSINT): HRESULT; stdcall;
-    function getIndexFromQName(const strQName: WideString; out nIndex: SYSINT): HRESULT; stdcall;
-    function getType(nIndex: SYSINT; out strType: WideString): HRESULT; stdcall;
+      const strLocalName: WideString): SYSINT; safecall;
+    function getIndexFromQName(const strQName: WideString): SYSINT; safecall;
+    function getType(nIndex: SYSINT): WideString; safecall;
     function getTypeFromName(const strURI: WideString;
-      const strLocalName: WideString; out strType: WideString): HRESULT; stdcall;
-    function getTypeFromQName(const strQName: WideString;
-      out strType: WideString): HRESULT; stdcall;
-    function getValue(nIndex: SYSINT; out strValue: WideString): HRESULT; stdcall;
+      const strLocalName: WideString): WideString; safecall;
+    function getTypeFromQName(const strQName: WideString): WideString; safecall;
+    function getValue(nIndex: SYSINT): WideString; safecall;
     function getValueFromName(const strURI: WideString;
-      const strLocalName: WideString; out strValue: WideString): HRESULT; stdcall;
-    function getValueFromQName(const strQName: WideString;
-      out strValue: WideString): HRESULT; stdcall;
+      const strLocalName: WideString): WideString; safecall;
+    function getValueFromQName(const strQName: WideString): WideString; safecall;
+    property length: SYSINT read Get_length;
   end;
 
-  Disp!!!
+  IVBSAXAttributesDisp = dispinterface
+    ['{10DC0586-132B-4CAC-8BB3-DB00AC8B7EE0}']
+    function getURI(nIndex: SYSINT): WideString; dispid 1345;
+    function getLocalName(nIndex: SYSINT): WideString; dispid 1346;
+    function getQName(nIndex: SYSINT): WideString; dispid 1347;
+    function getIndexFromName(const strURI: WideString;
+      const strLocalName: WideString): SYSINT; dispid 1348;
+    function getIndexFromQName(const strQName: WideString): SYSINT; dispid 1349;
+    function getType(nIndex: SYSINT): WideString; dispid 1350;
+    function getTypeFromName(const strURI: WideString;
+      const strLocalName: WideString): WideString; dispid 1351;
+    function getTypeFromQName(const strQName: WideString): WideString; dispid 1352;
+    function getValue(nIndex: SYSINT): WideString; dispid 1353;
+    function getValueFromName(const strURI: WideString;
+      const strLocalName: WideString): WideString; dispid 1354;
+    function getValueFromQName(const strQName: WideString): WideString; dispid 1355;
+    property length: SYSINT readonly dispid 1344;
+  end;
+
   IVBSAXDTDHandler = interface(IDispatch)
     ['{24FB3297-302D-4620-BA39-3A732D850558}']
-    function notationDecl(var strName: WideString;
-      var strPublicId: WideString; var strSystemId: WideString): HRESULT; stdcall;
-    function unparsedEntityDecl(var strName: WideString;
+    procedure notationDecl(var strName: WideString;
+      var strPublicId: WideString; var strSystemId: WideString); safecall;
+    procedure unparsedEntityDecl(var strName: WideString;
       var strPublicId: WideString; var strSystemId: WideString;
-      var strNotationName: WideString): HRESULT; stdcall;
+      var strNotationName: WideString); safecall;
   end;
 
-  Disp!!!
+  IVBSAXDTDHandlerDisp = dispinterface
+    ['{24FB3297-302D-4620-BA39-3A732D850558}']
+    procedure notationDecl(var strName: WideString;
+      var strPublicId: WideString; var strSystemId: WideString); dispid 1335;
+    procedure unparsedEntityDecl(var strName: WideString;
+      var strPublicId: WideString; var strSystemId: WideString;
+      var strNotationName: WideString); dispid 1336;
+  end;
+
   IVBSAXErrorHandler = interface(IDispatch)
     ['{D963D3FE-173C-4862-9095-B92F66995F52}']
-    function error(const oLocator: IVBSAXLocator;
-      var strErrorMessage: WideString; nErrorCode: Integer): HRESULT; stdcall;
-    function fatalError(const oLocator: IVBSAXLocator;
-      var strErrorMessage: WideString; nErrorCode: Integer): HRESULT; stdcall;
-    function ignorableWarning(const oLocator: IVBSAXLocator;
-      var strErrorMessage: WideString; nErrorCode: Integer): HRESULT; stdcall;
+    procedure error(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); safecall;
+    procedure fatalError(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); safecall;
+    procedure ignorableWarning(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); safecall;
   end;
 
-  Disp!!!
+  IVBSAXErrorHandlerDisp = dispinterface
+    ['{D963D3FE-173C-4862-9095-B92F66995F52}']
+    procedure error(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); dispid 1339;
+    procedure fatalError(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); dispid 1340;
+    procedure ignorableWarning(const oLocator: IVBSAXLocator;
+      var strErrorMessage: WideString; nErrorCode: Integer); dispid 1341;
+  end;
+
   IMXReaderControl = interface(IDispatch)
     ['{808F4E35-8D5A-4FBE-8466-33A41279ED30}']
-    function abor): HRESULT; stdcall;
-    function resum): HRESULT; stdcall;
-    function suspen): HRESULT; stdcall;
+    procedure abort; safecall;
+    procedure resume; safecall;
+    procedure suspend; safecall;
   end;
 
-  Disp!!!
+  IMXReaderControlDisp = dispinterface
+    ['{808F4E35-8D5A-4FBE-8466-33A41279ED30}']
+    procedure abort; dispid 1398;
+    procedure resume; dispid 1399;
+    procedure suspend; dispid 1400;
+  end;
+
   IMXSchemaDeclHandler = interface(IDispatch)
     ['{FA4BB38C-FAF9-4CCA-9302-D1DD0FE520DB}']
-    function schemaElementDecl(const oSchemaElement: ISchemaElement): HRESULT; stdcall;
+    procedure schemaElementDecl(const oSchemaElement: ISchemaElement); safecall;
   end;
 
-  Disp!!!
+  IMXSchemaDeclHandlerDisp = dispinterface
+    ['{FA4BB38C-FAF9-4CCA-9302-D1DD0FE520DB}']
+    procedure schemaElementDecl(const oSchemaElement: ISchemaElement); dispid 1403;
+  end;
+
   ISchemaElement = interface(ISchemaParticle)
     ['{50EA08B7-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_type_(out type_: ISchemaType): HRESULT; stdcall;
-    function Get_scope(out scope: ISchemaComplexType): HRESULT; stdcall;
-    function Get_defaultValue(out defaultValue: WideString): HRESULT; stdcall;
-    function Get_fixedValue(out fixedValue: WideString): HRESULT; stdcall;
-    function Get_isNillable(out nillable: WordBool): HRESULT; stdcall;
-    function Get_identityConstraints(out constraints: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_substitutionGroup(out element: ISchemaElement): HRESULT; stdcall;
-    function Get_substitutionGroupExclusions(
-      out exclusions: SCHEMADERIVATIONMETHOD): HRESULT; stdcall;
-    function Get_disallowedSubstitutions(
-      out disallowed: SCHEMADERIVATIONMETHOD): HRESULT; stdcall;
-    function Get_isAbstract(out abstract: WordBool): HRESULT; stdcall;
-    function Get_isReference(out reference: WordBool): HRESULT; stdcall;
+    function Get_type_: ISchemaType; safecall;
+    function Get_scope: ISchemaComplexType; safecall;
+    function Get_defaultValue: WideString; safecall;
+    function Get_fixedValue: WideString; safecall;
+    function Get_isNillable: WordBool; safecall;
+    function Get_identityConstraints: ISchemaItemCollection; safecall;
+    function Get_substitutionGroup: ISchemaElement; safecall;
+    function Get_substitutionGroupExclusions: SCHEMADERIVATIONMETHOD; safecall;
+    function Get_disallowedSubstitutions: SCHEMADERIVATIONMETHOD; safecall;
+    function Get_isAbstract: WordBool; safecall;
+    function Get_isReference: WordBool; safecall;
+    property type_: ISchemaType read Get_type_;
+    property scope: ISchemaComplexType read Get_scope;
+    property defaultValue: WideString read Get_defaultValue;
+    property fixedValue: WideString read Get_fixedValue;
+    property isNillable: WordBool read Get_isNillable;
+    property identityConstraints: ISchemaItemCollection read Get_identityConstraints;
+    property substitutionGroup: ISchemaElement read Get_substitutionGroup;
+    property substitutionGroupExclusions: SCHEMADERIVATIONMETHOD read Get_substitutionGroupExclusions;
+    property disallowedSubstitutions: SCHEMADERIVATIONMETHOD read Get_disallowedSubstitutions;
+    property isAbstract: WordBool read Get_isAbstract;
+    property isReference: WordBool read Get_isReference;
   end;
 
-  Disp!!!
+  ISchemaElementDisp = dispinterface
+    ['{50EA08B7-DD1B-4664-9A50-C2F40F4BD79A}']
+    property type_: ISchemaType readonly dispid 1476;
+    property scope: ISchemaComplexType readonly dispid 1469;
+    property defaultValue: WideString readonly dispid 1431;
+    property fixedValue: WideString readonly dispid 1438;
+    property isNillable: WordBool readonly dispid 1443;
+    property identityConstraints: ISchemaItemCollection readonly dispid 1441;
+    property substitutionGroup: ISchemaElement readonly dispid 1471;
+    property substitutionGroupExclusions: SCHEMADERIVATIONMETHOD readonly dispid 1472;
+    property disallowedSubstitutions: SCHEMADERIVATIONMETHOD readonly dispid 1433;
+    property isAbstract: WordBool readonly dispid 1442;
+    property isReference: WordBool readonly dispid 1444;
+  end;
+
   ISchemaParticle = interface(ISchemaItem)
     ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_minOccurs(out minOccurs: OleVariant): HRESULT; stdcall;
-    function Get_maxOccurs(out maxOccurs: OleVariant): HRESULT; stdcall;
+    function Get_minOccurs: OleVariant; safecall;
+    function Get_maxOccurs: OleVariant; safecall;
+    property minOccurs: OleVariant read Get_minOccurs;
+    property maxOccurs: OleVariant read Get_maxOccurs;
   end;
 
-  Disp!!!
+  ISchemaParticleDisp = dispinterface
+    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
+    property minOccurs: OleVariant readonly dispid 1455;
+    property maxOccurs: OleVariant readonly dispid 1451;
+  end;
+
   ISchemaItem = interface(IDispatch)
     ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_name(out name: WideString): HRESULT; stdcall;
-    function Get_namespaceURI(out namespaceURI: WideString): HRESULT; stdcall;
-    function Get_schema(out schema: ISchema): HRESULT; stdcall;
-    function Get_id(out id: WideString): HRESULT; stdcall;
-    function Get_itemType(out itemType: SOMITEMTYPE): HRESULT; stdcall;
-    function Get_unhandledAttributes(out attributes: IVBSAXAttributes): HRESULT; stdcall;
-    function writeAnnotation(const annotationSink: IUnknown;
-      out isWritten: WordBool): HRESULT; stdcall;
+    function Get_name: WideString; safecall;
+    function Get_namespaceURI: WideString; safecall;
+    function Get_schema: ISchema; safecall;
+    function Get_id: WideString; safecall;
+    function Get_itemType: SOMITEMTYPE; safecall;
+    function Get_unhandledAttributes: IVBSAXAttributes; safecall;
+    function writeAnnotation(const annotationSink: IUnknown): WordBool; safecall;
+    property name: WideString read Get_name;
+    property namespaceURI: WideString read Get_namespaceURI;
+    property schema: ISchema read Get_schema;
+    property id: WideString read Get_id;
+    property itemType: SOMITEMTYPE read Get_itemType;
+    property unhandledAttributes: IVBSAXAttributes read Get_unhandledAttributes;
   end;
 
-  Disp!!!
+  ISchemaItemDisp = dispinterface
+    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
+    function writeAnnotation(const annotationSink: IUnknown): WordBool; dispid 1483;
+    property name: WideString readonly dispid 1457;
+    property namespaceURI: WideString readonly dispid 1459;
+    property schema: ISchema readonly dispid 1467;
+    property id: WideString readonly dispid 1440;
+    property itemType: SOMITEMTYPE readonly dispid 1446;
+    property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
+  end;
+
   ISchema = interface(ISchemaItem)
     ['{50EA08B4-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_targetNamespace(out targetNamespace: WideString): HRESULT; stdcall;
-    function Get_version(out version: WideString): HRESULT; stdcall;
-    function Get_types(out types: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_elements(out elements: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_attributes(out attributes: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_attributeGroups(out attributeGroups: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_modelGroups(out modelGroups: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_notations(out notations: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_schemaLocations(out schemaLocations: ISchemaStringCollection): HRESULT; stdcall;
+    function Get_targetNamespace: WideString; safecall;
+    function Get_version: WideString; safecall;
+    function Get_types: ISchemaItemCollection; safecall;
+    function Get_elements: ISchemaItemCollection; safecall;
+    function Get_attributes: ISchemaItemCollection; safecall;
+    function Get_attributeGroups: ISchemaItemCollection; safecall;
+    function Get_modelGroups: ISchemaItemCollection; safecall;
+    function Get_notations: ISchemaItemCollection; safecall;
+    function Get_schemaLocations: ISchemaStringCollection; safecall;
+    property targetNamespace: WideString read Get_targetNamespace;
+    property version: WideString read Get_version;
+    property types: ISchemaItemCollection read Get_types;
+    property elements: ISchemaItemCollection read Get_elements;
+    property attributes: ISchemaItemCollection read Get_attributes;
+    property attributeGroups: ISchemaItemCollection read Get_attributeGroups;
+    property modelGroups: ISchemaItemCollection read Get_modelGroups;
+    property notations: ISchemaItemCollection read Get_notations;
+    property schemaLocations: ISchemaStringCollection read Get_schemaLocations;
   end;
 
-  Disp!!!
+  ISchemaDisp = dispinterface
+    ['{50EA08B4-DD1B-4664-9A50-C2F40F4BD79A}']
+    property targetNamespace: WideString readonly dispid 1474;
+    property version: WideString readonly dispid 1481;
+    property types: ISchemaItemCollection readonly dispid 1477;
+    property elements: ISchemaItemCollection readonly dispid 1434;
+    property attributes: ISchemaItemCollection readonly dispid 1427;
+    property attributeGroups: ISchemaItemCollection readonly dispid 1426;
+    property modelGroups: ISchemaItemCollection readonly dispid 1456;
+    property notations: ISchemaItemCollection readonly dispid 1460;
+    property schemaLocations: ISchemaStringCollection readonly dispid 1468;
+  end;
+
   ISchemaItemCollection = interface(IDispatch)
     ['{50EA08B2-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_item(index: Integer; out item: ISchemaItem): HRESULT; stdcall;
-    function itemByName(const name: WideString; out item: ISchemaItem): HRESULT; stdcall;
+    function Get_item(index: Integer): ISchemaItem; safecall;
+    function itemByName(const name: WideString): ISchemaItem; safecall;
     function itemByQName(const name: WideString;
-      const namespaceURI: WideString; out item: ISchemaItem): HRESULT; stdcall;
-    function Get_length(out length: Integer): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+      const namespaceURI: WideString): ISchemaItem; safecall;
+    function Get_length: Integer; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: ISchemaItem read Get_item; default;
+    property length: Integer read Get_length;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  ISchemaItemCollectionDisp = dispinterface
+    ['{50EA08B2-DD1B-4664-9A50-C2F40F4BD79A}']
+    function itemByName(const name: WideString): ISchemaItem; dispid 1423;
+    function itemByQName(const name: WideString;
+      const namespaceURI: WideString): ISchemaItem; dispid 1424;
+    property item[index: Integer]: ISchemaItem readonly dispid 0;
+    property length: Integer readonly dispid 1447;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   ISchemaStringCollection = interface(IDispatch)
     ['{50EA08B1-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_item(index: Integer; out bstr: WideString): HRESULT; stdcall;
-    function Get_length(out length: Integer): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+    function Get_item(index: Integer): WideString; safecall;
+    function Get_length: Integer; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: WideString read Get_item; default;
+    property length: Integer read Get_length;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  ISchemaStringCollectionDisp = dispinterface
+    ['{50EA08B1-DD1B-4664-9A50-C2F40F4BD79A}']
+    property item[index: Integer]: WideString readonly dispid 0;
+    property length: Integer readonly dispid 1447;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   ISchemaType = interface(ISchemaItem)
     ['{50EA08B8-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_baseTypes(out baseTypes: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_final(out final: SCHEMADERIVATIONMETHOD): HRESULT; stdcall;
-    function Get_variety(out variety: SCHEMATYPEVARIETY): HRESULT; stdcall;
-    function Get_derivedBy(out derivedBy: SCHEMADERIVATIONMETHOD): HRESULT; stdcall;
-    function isValid(const data: WideString; out valid: WordBool): HRESULT; stdcall;
-    function Get_minExclusive(out minExclusive: WideString): HRESULT; stdcall;
-    function Get_minInclusive(out minInclusive: WideString): HRESULT; stdcall;
-    function Get_maxExclusive(out maxExclusive: WideString): HRESULT; stdcall;
-    function Get_maxInclusive(out maxInclusive: WideString): HRESULT; stdcall;
-    function Get_totalDigits(out totalDigits: OleVariant): HRESULT; stdcall;
-    function Get_fractionDigits(out fractionDigits: OleVariant): HRESULT; stdcall;
-    function Get_length(out length: OleVariant): HRESULT; stdcall;
-    function Get_minLength(out minLength: OleVariant): HRESULT; stdcall;
-    function Get_maxLength(out maxLength: OleVariant): HRESULT; stdcall;
-    function Get_enumeration(out enumeration: ISchemaStringCollection): HRESULT; stdcall;
-    function Get_whitespace(out whitespace: SCHEMAWHITESPACE): HRESULT; stdcall;
-    function Get_patterns(out patterns: ISchemaStringCollection): HRESULT; stdcall;
+    function Get_baseTypes: ISchemaItemCollection; safecall;
+    function Get_final: SCHEMADERIVATIONMETHOD; safecall;
+    function Get_variety: SCHEMATYPEVARIETY; safecall;
+    function Get_derivedBy: SCHEMADERIVATIONMETHOD; safecall;
+    function isValid(const data: WideString): WordBool; safecall;
+    function Get_minExclusive: WideString; safecall;
+    function Get_minInclusive: WideString; safecall;
+    function Get_maxExclusive: WideString; safecall;
+    function Get_maxInclusive: WideString; safecall;
+    function Get_totalDigits: OleVariant; safecall;
+    function Get_fractionDigits: OleVariant; safecall;
+    function Get_length: OleVariant; safecall;
+    function Get_minLength: OleVariant; safecall;
+    function Get_maxLength: OleVariant; safecall;
+    function Get_enumeration: ISchemaStringCollection; safecall;
+    function Get_whitespace: SCHEMAWHITESPACE; safecall;
+    function Get_patterns: ISchemaStringCollection; safecall;
+    property baseTypes: ISchemaItemCollection read Get_baseTypes;
+    property final: SCHEMADERIVATIONMETHOD read Get_final;
+    property variety: SCHEMATYPEVARIETY read Get_variety;
+    property derivedBy: SCHEMADERIVATIONMETHOD read Get_derivedBy;
+    property minExclusive: WideString read Get_minExclusive;
+    property minInclusive: WideString read Get_minInclusive;
+    property maxExclusive: WideString read Get_maxExclusive;
+    property maxInclusive: WideString read Get_maxInclusive;
+    property totalDigits: OleVariant read Get_totalDigits;
+    property fractionDigits: OleVariant read Get_fractionDigits;
+    property length: OleVariant read Get_length;
+    property minLength: OleVariant read Get_minLength;
+    property maxLength: OleVariant read Get_maxLength;
+    property enumeration: ISchemaStringCollection read Get_enumeration;
+    property whitespace: SCHEMAWHITESPACE read Get_whitespace;
+    property patterns: ISchemaStringCollection read Get_patterns;
   end;
 
-  Disp!!!
+  ISchemaTypeDisp = dispinterface
+    ['{50EA08B8-DD1B-4664-9A50-C2F40F4BD79A}']
+    function isValid(const data: WideString): WordBool; dispid 1445;
+    property baseTypes: ISchemaItemCollection readonly dispid 1428;
+    property final: SCHEMADERIVATIONMETHOD readonly dispid 1437;
+    property variety: SCHEMATYPEVARIETY readonly dispid 1480;
+    property derivedBy: SCHEMADERIVATIONMETHOD readonly dispid 1432;
+    property minExclusive: WideString readonly dispid 1452;
+    property minInclusive: WideString readonly dispid 1453;
+    property maxExclusive: WideString readonly dispid 1448;
+    property maxInclusive: WideString readonly dispid 1449;
+    property totalDigits: OleVariant readonly dispid 1475;
+    property fractionDigits: OleVariant readonly dispid 1439;
+    property length: OleVariant readonly dispid 1447;
+    property minLength: OleVariant readonly dispid 1454;
+    property maxLength: OleVariant readonly dispid 1450;
+    property enumeration: ISchemaStringCollection readonly dispid 1435;
+    property whitespace: SCHEMAWHITESPACE readonly dispid 1482;
+    property patterns: ISchemaStringCollection readonly dispid 1462;
+  end;
+
   ISchemaComplexType = interface(ISchemaType)
     ['{50EA08B9-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_isAbstract(out abstract: WordBool): HRESULT; stdcall;
-    function Get_anyAttribute(out anyAttribute: ISchemaAny): HRESULT; stdcall;
-    function Get_attributes(out attributes: ISchemaItemCollection): HRESULT; stdcall;
-    function Get_contentType(out contentType: SCHEMACONTENTTYPE): HRESULT; stdcall;
-    function Get_contentModel(out contentModel: ISchemaModelGroup): HRESULT; stdcall;
-    function Get_prohibitedSubstitutions(
-      out prohibited: SCHEMADERIVATIONMETHOD): HRESULT; stdcall;
+    function Get_isAbstract: WordBool; safecall;
+    function Get_anyAttribute: ISchemaAny; safecall;
+    function Get_attributes: ISchemaItemCollection; safecall;
+    function Get_contentType: SCHEMACONTENTTYPE; safecall;
+    function Get_contentModel: ISchemaModelGroup; safecall;
+    function Get_prohibitedSubstitutions: SCHEMADERIVATIONMETHOD; safecall;
+    property isAbstract: WordBool read Get_isAbstract;
+    property anyAttribute: ISchemaAny read Get_anyAttribute;
+    property attributes: ISchemaItemCollection read Get_attributes;
+    property contentType: SCHEMACONTENTTYPE read Get_contentType;
+    property contentModel: ISchemaModelGroup read Get_contentModel;
+    property prohibitedSubstitutions: SCHEMADERIVATIONMETHOD read Get_prohibitedSubstitutions;
   end;
 
-  Disp!!!
+  ISchemaComplexTypeDisp = dispinterface
+    ['{50EA08B9-DD1B-4664-9A50-C2F40F4BD79A}']
+    property isAbstract: WordBool readonly dispid 1442;
+    property anyAttribute: ISchemaAny readonly dispid 1425;
+    property attributes: ISchemaItemCollection readonly dispid 1427;
+    property contentType: SCHEMACONTENTTYPE readonly dispid 1430;
+    property contentModel: ISchemaModelGroup readonly dispid 1429;
+    property prohibitedSubstitutions: SCHEMADERIVATIONMETHOD readonly dispid 1464;
+  end;
+
   ISchemaAny = interface(ISchemaParticle)
     ['{50EA08BC-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_namespaces(out namespaces: ISchemaStringCollection): HRESULT; stdcall;
-    function Get_processContents(out processContents: SCHEMAPROCESSCONTENTS): HRESULT; stdcall;
+    function Get_namespaces: ISchemaStringCollection; safecall;
+    function Get_processContents: SCHEMAPROCESSCONTENTS; safecall;
+    property namespaces: ISchemaStringCollection read Get_namespaces;
+    property processContents: SCHEMAPROCESSCONTENTS read Get_processContents;
   end;
 
-  Disp!!!
+  ISchemaAnyDisp = dispinterface
+    ['{50EA08BC-DD1B-4664-9A50-C2F40F4BD79A}']
+    property namespaces: ISchemaStringCollection readonly dispid 1458;
+    property processContents: SCHEMAPROCESSCONTENTS readonly dispid 1463;
+  end;
+
   ISchemaModelGroup = interface(ISchemaParticle)
     ['{50EA08BB-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_particles(out particles: ISchemaItemCollection): HRESULT; stdcall;
+    function Get_particles: ISchemaItemCollection; safecall;
+    property particles: ISchemaItemCollection read Get_particles;
   end;
 
-  Disp!!!
+  ISchemaModelGroupDisp = dispinterface
+    ['{50EA08BB-DD1B-4664-9A50-C2F40F4BD79A}']
+    property particles: ISchemaItemCollection readonly dispid 1461;
+  end;
+
   IMXXMLFilter = interface(IDispatch)
     ['{C90352F7-643C-4FBC-BB23-E996EB2D51FD}']
-    function getFeature(const strName: WideString; out fValue: WordBool): HRESULT; stdcall;
-    function putFeature(const strName: WideString; fValue: WordBool): HRESULT; stdcall;
-    function getProperty(const strName: WideString; out varValue: OleVariant): HRESULT; stdcall;
-    function putProperty(const strName: WideString; varValue: OleVariant): HRESULT; stdcall;
-    function Get_entityResolver(out oResolver: IUnknown): HRESULT; stdcall;
-    function Set_entityResolver(const oResolver: IUnknown): HRESULT; stdcall;
-    function Get_contentHandler(out oHandler: IUnknown): HRESULT; stdcall;
-    function Set_contentHandler(const oHandler: IUnknown): HRESULT; stdcall;
-    function Get_dtdHandler(out oHandler: IUnknown): HRESULT; stdcall;
-    function Set_dtdHandler(const oHandler: IUnknown): HRESULT; stdcall;
-    function Get_errorHandler(out oHandler: IUnknown): HRESULT; stdcall;
-    function Set_errorHandler(const oHandler: IUnknown): HRESULT; stdcall;
+    function getFeature(const strName: WideString): WordBool; safecall;
+    procedure putFeature(const strName: WideString; fValue: WordBool); safecall;
+    function getProperty(const strName: WideString): OleVariant; safecall;
+    procedure putProperty(const strName: WideString; varValue: OleVariant); safecall;
+    function Get_entityResolver: IUnknown; safecall;
+    procedure Set_entityResolver(const oResolver: IUnknown); safecall;
+    function Get_contentHandler: IUnknown; safecall;
+    procedure Set_contentHandler(const oHandler: IUnknown); safecall;
+    function Get_dtdHandler: IUnknown; safecall;
+    procedure Set_dtdHandler(const oHandler: IUnknown); safecall;
+    function Get_errorHandler: IUnknown; safecall;
+    procedure Set_errorHandler(const oHandler: IUnknown); safecall;
+    property entityResolver: IUnknown read Get_entityResolver write Set_entityResolver;
+    property contentHandler: IUnknown read Get_contentHandler write Set_contentHandler;
+    property dtdHandler: IUnknown read Get_dtdHandler write Set_dtdHandler;
+    property errorHandler: IUnknown read Get_errorHandler write Set_errorHandler;
   end;
 
-  Disp!!!
+  IMXXMLFilterDisp = dispinterface
+    ['{C90352F7-643C-4FBC-BB23-E996EB2D51FD}']
+    function getFeature(const strName: WideString): WordBool; dispid 1423;
+    procedure putFeature(const strName: WideString; fValue: WordBool); dispid 1425;
+    function getProperty(const strName: WideString): OleVariant; dispid 1424;
+    procedure putProperty(const strName: WideString; varValue: OleVariant); dispid 1426;
+    property entityResolver: IUnknown dispid 1421;
+    property contentHandler: IUnknown dispid 1419;
+    property dtdHandler: IUnknown dispid 1420;
+    property errorHandler: IUnknown dispid 1422;
+  end;
+
   ISchemaAttribute = interface(ISchemaItem)
     ['{50EA08B6-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_type_(out type_: ISchemaType): HRESULT; stdcall;
-    function Get_scope(out scope: ISchemaComplexType): HRESULT; stdcall;
-    function Get_defaultValue(out defaultValue: WideString): HRESULT; stdcall;
-    function Get_fixedValue(out fixedValue: WideString): HRESULT; stdcall;
-    function Get_use(out use: SCHEMAUSE): HRESULT; stdcall;
-    function Get_isReference(out reference: WordBool): HRESULT; stdcall;
+    function Get_type_: ISchemaType; safecall;
+    function Get_scope: ISchemaComplexType; safecall;
+    function Get_defaultValue: WideString; safecall;
+    function Get_fixedValue: WideString; safecall;
+    function Get_use: SCHEMAUSE; safecall;
+    function Get_isReference: WordBool; safecall;
+    property type_: ISchemaType read Get_type_;
+    property scope: ISchemaComplexType read Get_scope;
+    property defaultValue: WideString read Get_defaultValue;
+    property fixedValue: WideString read Get_fixedValue;
+    property use: SCHEMAUSE read Get_use;
+    property isReference: WordBool read Get_isReference;
   end;
 
-  Disp!!!
+  ISchemaAttributeDisp = dispinterface
+    ['{50EA08B6-DD1B-4664-9A50-C2F40F4BD79A}']
+    property type_: ISchemaType readonly dispid 1476;
+    property scope: ISchemaComplexType readonly dispid 1469;
+    property defaultValue: WideString readonly dispid 1431;
+    property fixedValue: WideString readonly dispid 1438;
+    property use: SCHEMAUSE readonly dispid 1479;
+    property isReference: WordBool readonly dispid 1444;
+  end;
+
   ISchemaAttributeGroup = interface(ISchemaItem)
     ['{50EA08BA-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_anyAttribute(out anyAttribute: ISchemaAny): HRESULT; stdcall;
-    function Get_attributes(out attributes: ISchemaItemCollection): HRESULT; stdcall;
+    function Get_anyAttribute: ISchemaAny; safecall;
+    function Get_attributes: ISchemaItemCollection; safecall;
+    property anyAttribute: ISchemaAny read Get_anyAttribute;
+    property attributes: ISchemaItemCollection read Get_attributes;
   end;
 
-  Disp!!!
+  ISchemaAttributeGroupDisp = dispinterface
+    ['{50EA08BA-DD1B-4664-9A50-C2F40F4BD79A}']
+    property anyAttribute: ISchemaAny readonly dispid 1425;
+    property attributes: ISchemaItemCollection readonly dispid 1427;
+  end;
+
   ISchemaIdentityConstraint = interface(ISchemaItem)
     ['{50EA08BD-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_selector(out selector: WideString): HRESULT; stdcall;
-    function Get_fields(out fields: ISchemaStringCollection): HRESULT; stdcall;
-    function Get_referencedKey(out key: ISchemaIdentityConstraint): HRESULT; stdcall;
+    function Get_selector: WideString; safecall;
+    function Get_fields: ISchemaStringCollection; safecall;
+    function Get_referencedKey: ISchemaIdentityConstraint; safecall;
+    property selector: WideString read Get_selector;
+    property fields: ISchemaStringCollection read Get_fields;
+    property referencedKey: ISchemaIdentityConstraint read Get_referencedKey;
   end;
 
-  Disp!!!
+  ISchemaIdentityConstraintDisp = dispinterface
+    ['{50EA08BD-DD1B-4664-9A50-C2F40F4BD79A}']
+    property selector: WideString readonly dispid 1470;
+    property fields: ISchemaStringCollection readonly dispid 1436;
+    property referencedKey: ISchemaIdentityConstraint readonly dispid 1466;
+  end;
+
   ISchemaNotation = interface(ISchemaItem)
     ['{50EA08BE-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_systemIdentifier(out uri: WideString): HRESULT; stdcall;
-    function Get_publicIdentifier(out uri: WideString): HRESULT; stdcall;
+    function Get_systemIdentifier: WideString; safecall;
+    function Get_publicIdentifier: WideString; safecall;
+    property systemIdentifier: WideString read Get_systemIdentifier;
+    property publicIdentifier: WideString read Get_publicIdentifier;
   end;
 
-  Disp!!!
+  ISchemaNotationDisp = dispinterface
+    ['{50EA08BE-DD1B-4664-9A50-C2F40F4BD79A}']
+    property systemIdentifier: WideString readonly dispid 1473;
+    property publicIdentifier: WideString readonly dispid 1465;
+  end;
+
   IXMLDOMSelection = interface(IXMLDOMNodeList)
     ['{AA634FC7-5888-44A7-A257-3A47150D3A0E}']
-    function Get_expr(out expression: WideString): HRESULT; stdcall;
-    function Set_expr(const expression: WideString): HRESULT; stdcall;
-    function Get_context(out ppNode: IXMLDOMNode): HRESULT; stdcall;
-    function Set_context(const ppNode: IXMLDOMNode): HRESULT; stdcall;
-    function peekNode(out ppNode: IXMLDOMNode): HRESULT; stdcall;
-    function matches(const pNode: IXMLDOMNode; out ppNode: IXMLDOMNode): HRESULT; stdcall;
-    function removeNext(out ppNode: IXMLDOMNode): HRESULT; stdcall;
-    function removeAl): HRESULT; stdcall;
-    function clone(out ppNode: IXMLDOMSelection): HRESULT; stdcall;
-    function getProperty(const name: WideString; out value: OleVariant): HRESULT; stdcall;
-    function setProperty(const name: WideString; value: OleVariant): HRESULT; stdcall;
+    function Get_expr: WideString; safecall;
+    procedure Set_expr(const expression: WideString); safecall;
+    function Get_context: IXMLDOMNode; safecall;
+    procedure Set_context(const ppNode: IXMLDOMNode); safecall;
+    function peekNode: IXMLDOMNode; safecall;
+    function matches(const pNode: IXMLDOMNode): IXMLDOMNode; safecall;
+    function removeNext: IXMLDOMNode; safecall;
+    procedure removeAll; safecall;
+    function clone: IXMLDOMSelection; safecall;
+    function getProperty(const name: WideString): OleVariant; safecall;
+    procedure setProperty(const name: WideString; value: OleVariant); safecall;
+    property expr: WideString read Get_expr write Set_expr;
+    property context: IXMLDOMNode read Get_context write Set_context;
   end;
 
-  Disp!!!
-  XMLDOMDocumentEvents = interface(IDispatch)
+  IXMLDOMSelectionDisp = dispinterface
+    ['{AA634FC7-5888-44A7-A257-3A47150D3A0E}']
+    function peekNode: IXMLDOMNode; dispid 83;
+    function matches(const pNode: IXMLDOMNode): IXMLDOMNode; dispid 84;
+    function removeNext: IXMLDOMNode; dispid 85;
+    procedure removeAll; dispid 86;
+    function clone: IXMLDOMSelection; dispid 87;
+    function getProperty(const name: WideString): OleVariant; dispid 88;
+    procedure setProperty(const name: WideString; value: OleVariant); dispid 89;
+    property expr: WideString dispid 81;
+    property context: IXMLDOMNode dispid 82;
+  end;
+
+  XMLDOMDocumentEvents = dispinterface
     ['{3EFAA427-272F-11D2-836F-0000F87A7782}']
-    function ondataavailabl): HRESULT; stdcall;
-    function onreadystatechang): HRESULT; stdcall;
+    procedure ondataavailable; dispid 198;
+    procedure onreadystatechange; dispid -609;
   end;
 
-  Disp!!!
   IXMLDOMDocument3 = interface(IXMLDOMDocument2)
     ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
-    function validateNode(const node: IXMLDOMNode;
-      out errorObj: IXMLDOMParseError): HRESULT; stdcall;
-    function importNode(const node: IXMLDOMNode; deep: WordBool;
-      out clone: IXMLDOMNode): HRESULT; stdcall;
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; safecall;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; safecall;
   end;
 
-  Disp!!!
+  IXMLDOMDocument3Disp = dispinterface
+    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; dispid 208;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; dispid 209;
+  end;
+
   IXMLDOMDocument2 = interface(IXMLDOMDocument)
     ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
-    function Get_namespaces(out namespaceCollection: IXMLDOMSchemaCollection): HRESULT; stdcall;
-    function Get_schemas(out otherCollection: OleVariant): HRESULT; stdcall;
-    function Set_schemas(otherCollection: OleVariant): HRESULT; stdcall;
-    function validate(out errorObj: IXMLDOMParseError): HRESULT; stdcall;
-    function setProperty(const name: WideString; value: OleVariant): HRESULT; stdcall;
-    function getProperty(const name: WideString; out value: OleVariant): HRESULT; stdcall;
+    function Get_namespaces: IXMLDOMSchemaCollection; safecall;
+    function Get_schemas: OleVariant; safecall;
+    procedure Set_schemas(otherCollection: OleVariant); safecall;
+    function validate: IXMLDOMParseError; safecall;
+    procedure setProperty(const name: WideString; value: OleVariant); safecall;
+    function getProperty(const name: WideString): OleVariant; safecall;
+    property namespaces: IXMLDOMSchemaCollection read Get_namespaces;
+    property schemas: OleVariant read Get_schemas write Set_schemas;
   end;
 
-  Disp!!!
+  IXMLDOMDocument2Disp = dispinterface
+    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
+    function validate: IXMLDOMParseError; dispid 203;
+    procedure setProperty(const name: WideString; value: OleVariant); dispid 204;
+    function getProperty(const name: WideString): OleVariant; dispid 205;
+    property namespaces: IXMLDOMSchemaCollection readonly dispid 201;
+    property schemas: OleVariant dispid 202;
+  end;
+
   IXMLDOMSchemaCollection = interface(IDispatch)
     ['{373984C8-B845-449B-91E7-45AC83036ADE}']
-    function add(const namespaceURI: WideString; var_: OleVariant): HRESULT; stdcall;
-    function get(const namespaceURI: WideString; out schemaNode: IXMLDOMNode): HRESULT; stdcall;
-    function remove(const namespaceURI: WideString): HRESULT; stdcall;
-    function Get_length(out length: Integer): HRESULT; stdcall;
-    function Get_namespaceURI(index: Integer; out length: WideString): HRESULT; stdcall;
-    function addCollection(const otherCollection: IXMLDOMSchemaCollection): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+    procedure add(const namespaceURI: WideString; var_: OleVariant); safecall;
+    function get(const namespaceURI: WideString): IXMLDOMNode; safecall;
+    procedure remove(const namespaceURI: WideString); safecall;
+    function Get_length: Integer; safecall;
+    function Get_namespaceURI(index: Integer): WideString; safecall;
+    procedure addCollection(const otherCollection: IXMLDOMSchemaCollection); safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property length: Integer read Get_length;
+    property namespaceURI[index: Integer]: WideString read Get_namespaceURI; default;
+    property _newEnum: IUnknown read Get__newEnum;
   end;
 
-  Disp!!!
+  IXMLDOMSchemaCollectionDisp = dispinterface
+    ['{373984C8-B845-449B-91E7-45AC83036ADE}']
+    procedure add(const namespaceURI: WideString; var_: OleVariant); dispid 3;
+    function get(const namespaceURI: WideString): IXMLDOMNode; dispid 4;
+    procedure remove(const namespaceURI: WideString); dispid 5;
+    procedure addCollection(const otherCollection: IXMLDOMSchemaCollection); dispid 8;
+    property length: Integer readonly dispid 6;
+    property namespaceURI[index: Integer]: WideString readonly dispid 0;
+    property _newEnum: IUnknown readonly dispid -4;
+  end;
+
   IXMLDOMSchemaCollection2 = interface(IXMLDOMSchemaCollection)
     ['{50EA08B0-DD1B-4664-9A50-C2F40F4BD79A}']
-    function validat): HRESULT; stdcall;
-    function Set_validateOnLoad(validateOnLoad: WordBool): HRESULT; stdcall;
-    function Get_validateOnLoad(out validateOnLoad: WordBool): HRESULT; stdcall;
-    function getSchema(const namespaceURI: WideString; out schema: ISchema): HRESULT; stdcall;
-    function getDeclaration(const node: IXMLDOMNode; out item: ISchemaItem): HRESULT; stdcall;
+    procedure validate; safecall;
+    procedure Set_validateOnLoad(validateOnLoad: WordBool); safecall;
+    function Get_validateOnLoad: WordBool; safecall;
+    function getSchema(const namespaceURI: WideString): ISchema; safecall;
+    function getDeclaration(const node: IXMLDOMNode): ISchemaItem; safecall;
+    property validateOnLoad: WordBool read Get_validateOnLoad write Set_validateOnLoad;
   end;
 
-  Disp!!!
+  IXMLDOMSchemaCollection2Disp = dispinterface
+    ['{50EA08B0-DD1B-4664-9A50-C2F40F4BD79A}']
+    procedure validate; dispid 1419;
+    function getSchema(const namespaceURI: WideString): ISchema; dispid 1421;
+    function getDeclaration(const node: IXMLDOMNode): ISchemaItem; dispid 1422;
+    property validateOnLoad: WordBool dispid 1420;
+  end;
+
   IXSLTemplate = interface(IDispatch)
     ['{2933BF93-7B36-11D2-B20E-00C04F983E60}']
-    function Set_stylesheet(const stylesheet: IXMLDOMNode): HRESULT; stdcall;
-    function Get_stylesheet(out stylesheet: IXMLDOMNode): HRESULT; stdcall;
-    function createProcessor(out ppProcessor: IXSLProcessor): HRESULT; stdcall;
+    procedure Set_stylesheet(const stylesheet: IXMLDOMNode); safecall;
+    function Get_stylesheet: IXMLDOMNode; safecall;
+    function createProcessor: IXSLProcessor; safecall;
+    property stylesheet: IXMLDOMNode read Get_stylesheet write Set_stylesheet;
   end;
 
-  Disp!!!
+  IXSLTemplateDisp = dispinterface
+    ['{2933BF93-7B36-11D2-B20E-00C04F983E60}']
+    function createProcessor: IXSLProcessor; dispid 3;
+    property stylesheet: IXMLDOMNode dispid 2;
+  end;
+
   IXSLProcessor = interface(IDispatch)
     ['{2933BF92-7B36-11D2-B20E-00C04F983E60}']
-    function Set_input(pVar: OleVariant): HRESULT; stdcall;
-    function Get_input(out pVar: OleVariant): HRESULT; stdcall;
-    function Get_ownerTemplate(out ppTemplate: IXSLTemplate): HRESULT; stdcall;
-    function setStartMode(const mode: WideString;
-      const namespaceURI: WideString): HRESULT; stdcall;
-    function Get_startMode(out mode: WideString): HRESULT; stdcall;
-    function Get_startModeURI(out namespaceURI: WideString): HRESULT; stdcall;
-    function Set_output(pOutput: OleVariant): HRESULT; stdcall;
-    function Get_output(out pOutput: OleVariant): HRESULT; stdcall;
-    function transform(out pDone: WordBool): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function Get_readyState(out pReadyState: Integer): HRESULT; stdcall;
-    function addParameter(const baseName: WideString; parameter: OleVariant;
-      const namespaceURI: WideString): HRESULT; stdcall;
-    function addObject(const obj: IDispatch; const namespaceURI: WideString): HRESULT; stdcall;
-    function Get_stylesheet(out stylesheet: IXMLDOMNode): HRESULT; stdcall;
+    procedure Set_input(pVar: OleVariant); safecall;
+    function Get_input: OleVariant; safecall;
+    function Get_ownerTemplate: IXSLTemplate; safecall;
+    procedure setStartMode(const mode: WideString;
+      const namespaceURI: WideString); safecall;
+    function Get_startMode: WideString; safecall;
+    function Get_startModeURI: WideString; safecall;
+    procedure Set_output(pOutput: OleVariant); safecall;
+    function Get_output: OleVariant; safecall;
+    function transform: WordBool; safecall;
+    procedure reset; safecall;
+    function Get_readyState: Integer; safecall;
+    procedure addParameter(const baseName: WideString; parameter: OleVariant;
+      const namespaceURI: WideString); safecall;
+    procedure addObject(const obj: IDispatch; const namespaceURI: WideString); safecall;
+    function Get_stylesheet: IXMLDOMNode; safecall;
+    property input: OleVariant read Get_input write Set_input;
+    property ownerTemplate: IXSLTemplate read Get_ownerTemplate;
+    property startMode: WideString read Get_startMode;
+    property startModeURI: WideString read Get_startModeURI;
+    property output: OleVariant read Get_output write Set_output;
+    property readyState: Integer read Get_readyState;
+    property stylesheet: IXMLDOMNode read Get_stylesheet;
   end;
 
-  Disp!!!
+  IXSLProcessorDisp = dispinterface
+    ['{2933BF92-7B36-11D2-B20E-00C04F983E60}']
+    procedure setStartMode(const mode: WideString;
+      const namespaceURI: WideString); dispid 4;
+    function transform: WordBool; dispid 8;
+    procedure reset; dispid 9;
+    procedure addParameter(const baseName: WideString; parameter: OleVariant;
+      const namespaceURI: WideString); dispid 11;
+    procedure addObject(const obj: IDispatch; const namespaceURI: WideString); dispid 12;
+    property input: OleVariant dispid 2;
+    property ownerTemplate: IXSLTemplate readonly dispid 3;
+    property startMode: WideString readonly dispid 5;
+    property startModeURI: WideString readonly dispid 6;
+    property output: OleVariant dispid 7;
+    property readyState: Integer readonly dispid 10;
+    property stylesheet: IXMLDOMNode readonly dispid 13;
+  end;
+
   IXMLHTTPRequest = interface(IDispatch)
     ['{ED8C108D-4349-11D2-91A4-00C04F7969E8}']
-    function open(const bstrMethod: WideString; const bstrUrl: WideString;
-      varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant): HRESULT; stdcall;
-    function setRequestHeader(const bstrHeader: WideString;
-      const bstrValue: WideString): HRESULT; stdcall;
-    function getResponseHeader(const bstrHeader: WideString;
-      out pbstrValue: WideString): HRESULT; stdcall;
-    function getAllResponseHeaders(out pbstrHeaders: WideString): HRESULT; stdcall;
-    function send(varBody: OleVariant): HRESULT; stdcall;
-    function abor): HRESULT; stdcall;
-    function Get_status(out plStatus: Integer): HRESULT; stdcall;
-    function Get_statusText(out pbstrStatus: WideString): HRESULT; stdcall;
-    function Get_responseXML(out ppBody: IDispatch): HRESULT; stdcall;
-    function Get_responseText(out pbstrBody: WideString): HRESULT; stdcall;
-    function Get_responseBody(out pvarBody: OleVariant): HRESULT; stdcall;
-    function Get_responseStream(out pvarBody: OleVariant): HRESULT; stdcall;
-    function Get_readyState(out plState: Integer): HRESULT; stdcall;
-    function Set_onreadystatechange(const : IDispatch): HRESULT; stdcall;
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString;
+      varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); safecall;
+    procedure setRequestHeader(const bstrHeader: WideString;
+      const bstrValue: WideString); safecall;
+    function getResponseHeader(const bstrHeader: WideString): WideString; safecall;
+    function getAllResponseHeaders: WideString; safecall;
+    procedure send(varBody: OleVariant); safecall;
+    procedure abort; safecall;
+    function Get_status: Integer; safecall;
+    function Get_statusText: WideString; safecall;
+    function Get_responseXML: IDispatch; safecall;
+    function Get_responseText: WideString; safecall;
+    function Get_responseBody: OleVariant; safecall;
+    function Get_responseStream: OleVariant; safecall;
+    function Get_readyState: Integer; safecall;
+    procedure Set_onreadystatechange(const Param1: IDispatch); safecall;
+    property status: Integer read Get_status;
+    property statusText: WideString read Get_statusText;
+    property responseXML: IDispatch read Get_responseXML;
+    property responseText: WideString read Get_responseText;
+    property responseBody: OleVariant read Get_responseBody;
+    property responseStream: OleVariant read Get_responseStream;
+    property readyState: Integer read Get_readyState;
+    property onreadystatechange: IDispatch write Set_onreadystatechange;
+  end;
+
+  IXMLHTTPRequestDisp = dispinterface
+    ['{ED8C108D-4349-11D2-91A4-00C04F7969E8}']
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString;
+      varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); dispid 1;
+    procedure setRequestHeader(const bstrHeader: WideString;
+      const bstrValue: WideString); dispid 2;
+    function getResponseHeader(const bstrHeader: WideString): WideString; dispid 3;
+    function getAllResponseHeaders: WideString; dispid 4;
+    procedure send(varBody: OleVariant); dispid 5;
+    procedure abort; dispid 6;
+    property status: Integer readonly dispid 7;
+    property statusText: WideString readonly dispid 8;
+    property responseXML: IDispatch readonly dispid 9;
+    property responseText: WideString readonly dispid 10;
+    property responseBody: OleVariant readonly dispid 11;
+    property responseStream: OleVariant readonly dispid 12;
+    property readyState: Integer readonly dispid 13;
+    property onreadystatechange: IDispatch writeonly dispid 14;
   end;
 
   IXMLHTTPRequest2 = interface(IUnknown)
     ['{E5D37DC0-552A-4D52-9CC0-A14D546FBD04}']
-    function open(pwszMethod: PWideChar; pwszUrl: PWideChar;
+    procedure open(pwszMethod: PWideChar; pwszUrl: PWideChar;
       const pStatusCallback: IXMLHTTPRequest2Callback; pwszUserName: PWideChar;
       pwszPassword: PWideChar; pwszProxyUserName: PWideChar;
-      pwszProxyPassword: PWideChar): HRESULT; stdcall;
-    function send(const pBody: ISequentialStream; cbBody: UInt64): HRESULT; stdcall;
-    function abor): HRESULT; stdcall;
-    function SetCookie(const pCookie: tagXHR_COOKIE;
-      out pdwCookieState: Cardinal): HRESULT; stdcall;
-    function SetCustomResponseStream(
-      const pSequentialStream: ISequentialStream): HRESULT; stdcall;
-    function setProperty(eProperty: XHR_PROPERTY; ullValue: UInt64): HRESULT; stdcall;
-    function setRequestHeader(pwszHeader: PWideChar; pwszValue: PWideChar): HRESULT; stdcall;
-    function getAllResponseHeaders(out ppwszHeaders: PWideChar): HRESULT; stdcall;
-    function GetCookie(pwszUrl: PWideChar; pwszName: PWideChar;
+      pwszProxyPassword: PWideChar); safecall;
+    procedure send(const pBody: ISequentialStream; cbBody: UInt64); safecall;
+    procedure abort; safecall;
+    procedure SetCookie(const pCookie: tagXHR_COOKIE;
+      out pdwCookieState: Cardinal); safecall;
+    procedure SetCustomResponseStream(
+      const pSequentialStream: ISequentialStream); safecall;
+    procedure setProperty(eProperty: XHR_PROPERTY; ullValue: UInt64); safecall;
+    procedure setRequestHeader(pwszHeader: PWideChar; pwszValue: PWideChar); safecall;
+    procedure getAllResponseHeaders(out ppwszHeaders: PWideChar); safecall;
+    procedure GetCookie(pwszUrl: PWideChar; pwszName: PWideChar;
       dwFlags: Cardinal; out pcCookies: Cardinal;
-      {1} out ppCookies: tagXHR_COOKIE): HRESULT; stdcall;
-    function getResponseHeader(pwszHeader: PWideChar;
-      out ppwszValue: PWideChar): HRESULT; stdcall;
+      {1} out ppCookies: tagXHR_COOKIE); safecall;
+    procedure getResponseHeader(pwszHeader: PWideChar;
+      out ppwszValue: PWideChar); safecall;
   end;
 
   IXMLHTTPRequest2Callback = interface(IUnknown)
     ['{A44A9299-E321-40DE-8866-341B41669162}']
-    function OnRedirect(const pXHR: IXMLHTTPRequest2;
-      pwszRedirectUrl: PWideChar): HRESULT; stdcall;
-    function OnHeadersAvailable(const pXHR: IXMLHTTPRequest2;
-      dwStatus: Cardinal; pwszStatus: PWideChar): HRESULT; stdcall;
-    function ondataavailable(const pXHR: IXMLHTTPRequest2;
-      const pResponseStream: ISequentialStream): HRESULT; stdcall;
-    function OnResponseReceived(const pXHR: IXMLHTTPRequest2;
-      const pResponseStream: ISequentialStream): HRESULT; stdcall;
-    function OnError(const pXHR: IXMLHTTPRequest2; hrError: HRESULT): HRESULT; stdcall;
+    procedure OnRedirect(const pXHR: IXMLHTTPRequest2;
+      pwszRedirectUrl: PWideChar); safecall;
+    procedure OnHeadersAvailable(const pXHR: IXMLHTTPRequest2;
+      dwStatus: Cardinal; pwszStatus: PWideChar); safecall;
+    procedure ondataavailable(const pXHR: IXMLHTTPRequest2;
+      const pResponseStream: ISequentialStream); safecall;
+    procedure OnResponseReceived(const pXHR: IXMLHTTPRequest2;
+      const pResponseStream: ISequentialStream); safecall;
+    procedure OnError(const pXHR: IXMLHTTPRequest2; hrError: HRESULT); safecall;
   end;
 
   ISequentialStream = interface(IUnknown)
     ['{0C733A30-2A1C-11CE-ADE5-00AA0044773D}']
-    function RemoteRead(out pv: Byte; cb: Cardinal; out pcbRead: Cardinal): HRESULT; stdcall;
-    function RemoteWrite(const pv: Byte; cb: Cardinal;
-      out pcbWritten: Cardinal): HRESULT; stdcall;
+    procedure RemoteRead(out pv: Byte; cb: Cardinal; out pcbRead: Cardinal); safecall;
+    procedure RemoteWrite(const pv: Byte; cb: Cardinal;
+      out pcbWritten: Cardinal); safecall;
   end;
 
-  Disp!!!
   IServerXMLHTTPRequest2 = interface(IServerXMLHTTPRequest)
     ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
-    function setProxy(proxySetting: SXH_PROXY_SETTING;
-      varProxyServer: OleVariant; varBypassList: OleVariant): HRESULT; stdcall;
-    function setProxyCredentials(const bstrUserName: WideString;
-      const bstrPassword: WideString): HRESULT; stdcall;
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING;
+      varProxyServer: OleVariant; varBypassList: OleVariant); safecall;
+    procedure setProxyCredentials(const bstrUserName: WideString;
+      const bstrPassword: WideString); safecall;
   end;
 
-  Disp!!!
+  IServerXMLHTTPRequest2Disp = dispinterface
+    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING;
+      varProxyServer: OleVariant; varBypassList: OleVariant); dispid 19;
+    procedure setProxyCredentials(const bstrUserName: WideString;
+      const bstrPassword: WideString); dispid 20;
+  end;
+
   IServerXMLHTTPRequest = interface(IXMLHTTPRequest)
     ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
-    function setTimeouts(resolveTimeout: Integer; connectTimeout: Integer;
-      sendTimeout: Integer; receiveTimeout: Integer): HRESULT; stdcall;
-    function waitForResponse(timeoutInSeconds: OleVariant;
-      out isSuccessful: WordBool): HRESULT; stdcall;
-    function getOption(option: SERVERXMLHTTP_OPTION; out value: OleVariant): HRESULT; stdcall;
-    function setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant): HRESULT; stdcall;
+    procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer;
+      sendTimeout: Integer; receiveTimeout: Integer); safecall;
+    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; safecall;
+    function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; safecall;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); safecall;
   end;
 
-  Disp!!!
+  IServerXMLHTTPRequestDisp = dispinterface
+    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
+    procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer;
+      sendTimeout: Integer; receiveTimeout: Integer); dispid 15;
+    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; dispid 16;
+    function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; dispid 17;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); dispid 18;
+  end;
+
   IMXWriter = interface(IDispatch)
     ['{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}']
-    function Set_output(varDestination: OleVariant): HRESULT; stdcall;
-    function Get_output(out varDestination: OleVariant): HRESULT; stdcall;
-    function Set_encoding(const strEncoding: WideString): HRESULT; stdcall;
-    function Get_encoding(out strEncoding: WideString): HRESULT; stdcall;
-    function Set_byteOrderMark(fWriteByteOrderMark: WordBool): HRESULT; stdcall;
-    function Get_byteOrderMark(out fWriteByteOrderMark: WordBool): HRESULT; stdcall;
-    function Set_indent(fIndentMode: WordBool): HRESULT; stdcall;
-    function Get_indent(out fIndentMode: WordBool): HRESULT; stdcall;
-    function Set_standalone(fValue: WordBool): HRESULT; stdcall;
-    function Get_standalone(out fValue: WordBool): HRESULT; stdcall;
-    function Set_omitXMLDeclaration(fValue: WordBool): HRESULT; stdcall;
-    function Get_omitXMLDeclaration(out fValue: WordBool): HRESULT; stdcall;
-    function Set_version(const strVersion: WideString): HRESULT; stdcall;
-    function Get_version(out strVersion: WideString): HRESULT; stdcall;
-    function Set_disableOutputEscaping(fValue: WordBool): HRESULT; stdcall;
-    function Get_disableOutputEscaping(out fValue: WordBool): HRESULT; stdcall;
-    function flus): HRESULT; stdcall;
+    procedure Set_output(varDestination: OleVariant); safecall;
+    function Get_output: OleVariant; safecall;
+    procedure Set_encoding(const strEncoding: WideString); safecall;
+    function Get_encoding: WideString; safecall;
+    procedure Set_byteOrderMark(fWriteByteOrderMark: WordBool); safecall;
+    function Get_byteOrderMark: WordBool; safecall;
+    procedure Set_indent(fIndentMode: WordBool); safecall;
+    function Get_indent: WordBool; safecall;
+    procedure Set_standalone(fValue: WordBool); safecall;
+    function Get_standalone: WordBool; safecall;
+    procedure Set_omitXMLDeclaration(fValue: WordBool); safecall;
+    function Get_omitXMLDeclaration: WordBool; safecall;
+    procedure Set_version(const strVersion: WideString); safecall;
+    function Get_version: WideString; safecall;
+    procedure Set_disableOutputEscaping(fValue: WordBool); safecall;
+    function Get_disableOutputEscaping: WordBool; safecall;
+    procedure flush; safecall;
+    property output: OleVariant read Get_output write Set_output;
+    property encoding: WideString read Get_encoding write Set_encoding;
+    property byteOrderMark: WordBool read Get_byteOrderMark write Set_byteOrderMark;
+    property indent: WordBool read Get_indent write Set_indent;
+    property standalone: WordBool read Get_standalone write Set_standalone;
+    property omitXMLDeclaration: WordBool read Get_omitXMLDeclaration write Set_omitXMLDeclaration;
+    property version: WideString read Get_version write Set_version;
+    property disableOutputEscaping: WordBool read Get_disableOutputEscaping write Set_disableOutputEscaping;
+  end;
+
+  IMXWriterDisp = dispinterface
+    ['{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}']
+    procedure flush; dispid 1394;
+    property output: OleVariant dispid 1385;
+    property encoding: WideString dispid 1387;
+    property byteOrderMark: WordBool dispid 1388;
+    property indent: WordBool dispid 1389;
+    property standalone: WordBool dispid 1390;
+    property omitXMLDeclaration: WordBool dispid 1391;
+    property version: WideString dispid 1392;
+    property disableOutputEscaping: WordBool dispid 1393;
   end;
 
   ISAXDeclHandler = interface(IUnknown)
     ['{862629AC-771A-47B2-8337-4E6843C1BE90}']
-    function elementDecl(const pwchName: Word; cchName: SYSINT;
-      const pwchModel: Word; cchModel: SYSINT): HRESULT; stdcall;
-    function attributeDecl(const pwchElementName: Word;
+    procedure elementDecl(const pwchName: Word; cchName: SYSINT;
+      const pwchModel: Word; cchModel: SYSINT); safecall;
+    procedure attributeDecl(const pwchElementName: Word;
       cchElementName: SYSINT; const pwchAttributeName: Word;
       cchAttributeName: SYSINT; const pwchType: Word; cchType: SYSINT;
       const pwchValueDefault: Word; cchValueDefault: SYSINT;
-      const pwchValue: Word; cchValue: SYSINT): HRESULT; stdcall;
-    function internalEntityDecl(const pwchName: Word; cchName: SYSINT;
-      const pwchValue: Word; cchValue: SYSINT): HRESULT; stdcall;
-    function externalEntityDecl(const pwchName: Word; cchName: SYSINT;
+      const pwchValue: Word; cchValue: SYSINT); safecall;
+    procedure internalEntityDecl(const pwchName: Word; cchName: SYSINT;
+      const pwchValue: Word; cchValue: SYSINT); safecall;
+    procedure externalEntityDecl(const pwchName: Word; cchName: SYSINT;
       const pwchPublicId: Word; cchPublicId: SYSINT; const pwchSystemId: Word;
-      cchSystemId: SYSINT): HRESULT; stdcall;
+      cchSystemId: SYSINT); safecall;
   end;
 
   ISAXLexicalHandler = interface(IUnknown)
     ['{7F85D5F5-47A8-4497-BDA5-84BA04819EA6}']
-    function startDTD(const pwchName: Word; cchName: SYSINT;
+    procedure startDTD(const pwchName: Word; cchName: SYSINT;
       const pwchPublicId: Word; cchPublicId: SYSINT; const pwchSystemId: Word;
-      cchSystemId: SYSINT): HRESULT; stdcall;
-    function endDT): HRESULT; stdcall;
-    function startEntity(const pwchName: Word; cchName: SYSINT): HRESULT; stdcall;
-    function endEntity(const pwchName: Word; cchName: SYSINT): HRESULT; stdcall;
-    function startCDAT): HRESULT; stdcall;
-    function endCDAT): HRESULT; stdcall;
-    function comment(const pwchChars: Word; cchChars: SYSINT): HRESULT; stdcall;
+      cchSystemId: SYSINT); safecall;
+    procedure endDTD; safecall;
+    procedure startEntity(const pwchName: Word; cchName: SYSINT); safecall;
+    procedure endEntity(const pwchName: Word; cchName: SYSINT); safecall;
+    procedure startCDATA; safecall;
+    procedure endCDATA; safecall;
+    procedure comment(const pwchChars: Word; cchChars: SYSINT); safecall;
   end;
 
-  Disp!!!
   IVBSAXDeclHandler = interface(IDispatch)
     ['{E8917260-7579-4BE1-B5DD-7AFBFA6F077B}']
-    function elementDecl(var strName: WideString; var strModel: WideString): HRESULT; stdcall;
-    function attributeDecl(var strElementName: WideString;
+    procedure elementDecl(var strName: WideString; var strModel: WideString); safecall;
+    procedure attributeDecl(var strElementName: WideString;
       var strAttributeName: WideString; var strType: WideString;
-      var strValueDefault: WideString; var strValue: WideString): HRESULT; stdcall;
-    function internalEntityDecl(var strName: WideString;
-      var strValue: WideString): HRESULT; stdcall;
-    function externalEntityDecl(var strName: WideString;
-      var strPublicId: WideString; var strSystemId: WideString): HRESULT; stdcall;
+      var strValueDefault: WideString; var strValue: WideString); safecall;
+    procedure internalEntityDecl(var strName: WideString;
+      var strValue: WideString); safecall;
+    procedure externalEntityDecl(var strName: WideString;
+      var strPublicId: WideString; var strSystemId: WideString); safecall;
   end;
 
-  Disp!!!
+  IVBSAXDeclHandlerDisp = dispinterface
+    ['{E8917260-7579-4BE1-B5DD-7AFBFA6F077B}']
+    procedure elementDecl(var strName: WideString; var strModel: WideString); dispid 1367;
+    procedure attributeDecl(var strElementName: WideString;
+      var strAttributeName: WideString; var strType: WideString;
+      var strValueDefault: WideString; var strValue: WideString); dispid 1368;
+    procedure internalEntityDecl(var strName: WideString;
+      var strValue: WideString); dispid 1369;
+    procedure externalEntityDecl(var strName: WideString;
+      var strPublicId: WideString; var strSystemId: WideString); dispid 1370;
+  end;
+
   IVBSAXLexicalHandler = interface(IDispatch)
     ['{032AAC35-8C0E-4D9D-979F-E3B702935576}']
-    function startDTD(var strName: WideString; var strPublicId: WideString;
-      var strSystemId: WideString): HRESULT; stdcall;
-    function endDT): HRESULT; stdcall;
-    function startEntity(var strName: WideString): HRESULT; stdcall;
-    function endEntity(var strName: WideString): HRESULT; stdcall;
-    function startCDAT): HRESULT; stdcall;
-    function endCDAT): HRESULT; stdcall;
-    function comment(var strChars: WideString): HRESULT; stdcall;
+    procedure startDTD(var strName: WideString; var strPublicId: WideString;
+      var strSystemId: WideString); safecall;
+    procedure endDTD; safecall;
+    procedure startEntity(var strName: WideString); safecall;
+    procedure endEntity(var strName: WideString); safecall;
+    procedure startCDATA; safecall;
+    procedure endCDATA; safecall;
+    procedure comment(var strChars: WideString); safecall;
   end;
 
-  Disp!!!
+  IVBSAXLexicalHandlerDisp = dispinterface
+    ['{032AAC35-8C0E-4D9D-979F-E3B702935576}']
+    procedure startDTD(var strName: WideString; var strPublicId: WideString;
+      var strSystemId: WideString); dispid 1358;
+    procedure endDTD; dispid 1359;
+    procedure startEntity(var strName: WideString); dispid 1360;
+    procedure endEntity(var strName: WideString); dispid 1361;
+    procedure startCDATA; dispid 1362;
+    procedure endCDATA; dispid 1363;
+    procedure comment(var strChars: WideString); dispid 1364;
+  end;
+
   IMXAttributes = interface(IDispatch)
     ['{F10D27CC-3EC0-415C-8ED8-77AB1C5E7262}']
-    function addAttribute(const strURI: WideString;
+    procedure addAttribute(const strURI: WideString;
       const strLocalName: WideString; const strQName: WideString;
-      const strType: WideString; const strValue: WideString): HRESULT; stdcall;
-    function addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT): HRESULT; stdcall;
-    function clea): HRESULT; stdcall;
-    function removeAttribute(nIndex: SYSINT): HRESULT; stdcall;
-    function setAttribute(nIndex: SYSINT; const strURI: WideString;
+      const strType: WideString; const strValue: WideString); safecall;
+    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT); safecall;
+    procedure clear; safecall;
+    procedure removeAttribute(nIndex: SYSINT); safecall;
+    procedure setAttribute(nIndex: SYSINT; const strURI: WideString;
       const strLocalName: WideString; const strQName: WideString;
-      const strType: WideString; const strValue: WideString): HRESULT; stdcall;
-    function setAttributes(varAtts: OleVariant): HRESULT; stdcall;
-    function setLocalName(nIndex: SYSINT; const strLocalName: WideString): HRESULT; stdcall;
-    function setQName(nIndex: SYSINT; const strQName: WideString): HRESULT; stdcall;
-    function setType(nIndex: SYSINT; const strType: WideString): HRESULT; stdcall;
-    function setURI(nIndex: SYSINT; const strURI: WideString): HRESULT; stdcall;
-    function setValue(nIndex: SYSINT; const strValue: WideString): HRESULT; stdcall;
+      const strType: WideString; const strValue: WideString); safecall;
+    procedure setAttributes(varAtts: OleVariant); safecall;
+    procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString); safecall;
+    procedure setQName(nIndex: SYSINT; const strQName: WideString); safecall;
+    procedure setType(nIndex: SYSINT; const strType: WideString); safecall;
+    procedure setURI(nIndex: SYSINT; const strURI: WideString); safecall;
+    procedure setValue(nIndex: SYSINT; const strValue: WideString); safecall;
   end;
 
-  Disp!!!
+  IMXAttributesDisp = dispinterface
+    ['{F10D27CC-3EC0-415C-8ED8-77AB1C5E7262}']
+    procedure addAttribute(const strURI: WideString;
+      const strLocalName: WideString; const strQName: WideString;
+      const strType: WideString; const strValue: WideString); dispid 1373;
+    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT); dispid 1383;
+    procedure clear; dispid 1374;
+    procedure removeAttribute(nIndex: SYSINT); dispid 1375;
+    procedure setAttribute(nIndex: SYSINT; const strURI: WideString;
+      const strLocalName: WideString; const strQName: WideString;
+      const strType: WideString; const strValue: WideString); dispid 1376;
+    procedure setAttributes(varAtts: OleVariant); dispid 1377;
+    procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString); dispid 1378;
+    procedure setQName(nIndex: SYSINT; const strQName: WideString); dispid 1379;
+    procedure setType(nIndex: SYSINT; const strType: WideString); dispid 1380;
+    procedure setURI(nIndex: SYSINT; const strURI: WideString); dispid 1381;
+    procedure setValue(nIndex: SYSINT; const strValue: WideString); dispid 1382;
+  end;
+
   IVBMXNamespaceManager = interface(IDispatch)
     ['{C90352F5-643C-4FBC-BB23-E996EB2D51FD}']
-    function Set_allowOverride(fOverride: WordBool): HRESULT; stdcall;
-    function Get_allowOverride(out fOverride: WordBool): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function pushContex): HRESULT; stdcall;
-    function pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool): HRESULT; stdcall;
-    function popContex): HRESULT; stdcall;
-    function declarePrefix(const prefix: WideString;
-      const namespaceURI: WideString): HRESULT; stdcall;
-    function getDeclaredPrefixes(out prefixes: IMXNamespacePrefixes): HRESULT; stdcall;
-    function getPrefixes(const namespaceURI: WideString;
-      out prefixes: IMXNamespacePrefixes): HRESULT; stdcall;
-    function getURI(const prefix: WideString; out uri: OleVariant): HRESULT; stdcall;
+    procedure Set_allowOverride(fOverride: WordBool); safecall;
+    function Get_allowOverride: WordBool; safecall;
+    procedure reset; safecall;
+    procedure pushContext; safecall;
+    procedure pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool); safecall;
+    procedure popContext; safecall;
+    procedure declarePrefix(const prefix: WideString;
+      const namespaceURI: WideString); safecall;
+    function getDeclaredPrefixes: IMXNamespacePrefixes; safecall;
+    function getPrefixes(const namespaceURI: WideString): IMXNamespacePrefixes; safecall;
+    function getURI(const prefix: WideString): OleVariant; safecall;
     function getURIFromNode(const strPrefix: WideString;
-      const contextNode: IXMLDOMNode; out uri: OleVariant): HRESULT; stdcall;
+      const contextNode: IXMLDOMNode): OleVariant; safecall;
+    property allowOverride: WordBool read Get_allowOverride write Set_allowOverride;
   end;
 
-  Disp!!!
+  IVBMXNamespaceManagerDisp = dispinterface
+    ['{C90352F5-643C-4FBC-BB23-E996EB2D51FD}']
+    procedure reset; dispid 1407;
+    procedure pushContext; dispid 1408;
+    procedure pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool); dispid 1409;
+    procedure popContext; dispid 1410;
+    procedure declarePrefix(const prefix: WideString;
+      const namespaceURI: WideString); dispid 1411;
+    function getDeclaredPrefixes: IMXNamespacePrefixes; dispid 1412;
+    function getPrefixes(const namespaceURI: WideString): IMXNamespacePrefixes; dispid 1413;
+    function getURI(const prefix: WideString): OleVariant; dispid 1414;
+    function getURIFromNode(const strPrefix: WideString;
+      const contextNode: IXMLDOMNode): OleVariant; dispid 1415;
+    property allowOverride: WordBool dispid 1406;
+  end;
+
   IMXNamespacePrefixes = interface(IDispatch)
     ['{C90352F4-643C-4FBC-BB23-E996EB2D51FD}']
-    function Get_item(index: Integer; out prefix: WideString): HRESULT; stdcall;
-    function Get_length(out length: Integer): HRESULT; stdcall;
-    function Get__newEnum(out ppUnk: IUnknown): HRESULT; stdcall;
+    function Get_item(index: Integer): WideString; safecall;
+    function Get_length: Integer; safecall;
+    function Get__newEnum: IUnknown; safecall;
+    property item[index: Integer]: WideString read Get_item; default;
+    property length: Integer read Get_length;
+    property _newEnum: IUnknown read Get__newEnum;
+  end;
+
+  IMXNamespacePrefixesDisp = dispinterface
+    ['{C90352F4-643C-4FBC-BB23-E996EB2D51FD}']
+    property item[index: Integer]: WideString readonly dispid 0;
+    property length: Integer readonly dispid 1416;
+    property _newEnum: IUnknown readonly dispid -4;
   end;
 
   IMXNamespaceManager = interface(IUnknown)
     ['{C90352F6-643C-4FBC-BB23-E996EB2D51FD}']
-    function putAllowOverride(fOverride: WordBool): HRESULT; stdcall;
-    function getAllowOverride(out fOverride: WordBool): HRESULT; stdcall;
-    function rese): HRESULT; stdcall;
-    function pushContex): HRESULT; stdcall;
-    function pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool): HRESULT; stdcall;
-    function popContex): HRESULT; stdcall;
-    function declarePrefix(prefix: PWideChar; namespaceURI: PWideChar): HRESULT; stdcall;
-    function getDeclaredPrefix(nIndex: Integer; var pwchPrefix: Word;
-      var pcchPrefix: SYSINT): HRESULT; stdcall;
-    function getPrefix(pwszNamespaceURI: PWideChar; nIndex: Integer;
-      var pwchPrefix: Word; var pcchPrefix: SYSINT): HRESULT; stdcall;
-    function getURI(pwchPrefix: PWideChar; const pContextNode: IXMLDOMNode;
-      var pwchUri: Word; var pcchUri: SYSINT): HRESULT; stdcall;
+    procedure putAllowOverride(fOverride: WordBool); safecall;
+    function getAllowOverride: WordBool; safecall;
+    procedure reset; safecall;
+    procedure pushContext; safecall;
+    procedure pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool); safecall;
+    procedure popContext; safecall;
+    procedure declarePrefix(prefix: PWideChar; namespaceURI: PWideChar); safecall;
+    procedure getDeclaredPrefix(nIndex: Integer; var pwchPrefix: Word;
+      var pcchPrefix: SYSINT); safecall;
+    procedure getPrefix(pwszNamespaceURI: PWideChar; nIndex: Integer;
+      var pwchPrefix: Word; var pcchPrefix: SYSINT); safecall;
+    procedure getURI(pwchPrefix: PWideChar; const pContextNode: IXMLDOMNode;
+      var pwchUri: Word; var pcchUri: SYSINT); safecall;
   end;
 
 

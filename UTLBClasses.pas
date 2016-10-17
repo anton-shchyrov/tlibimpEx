@@ -34,6 +34,7 @@ type
   TPasTypeInfo = record
     Name: string;
     Ref: Integer;
+    RefBase: Integer;
     VarType: TVarType;
     StdUnit: TStdUnits;
     CustomUnit: string;

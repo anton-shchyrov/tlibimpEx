@@ -107,7 +107,6 @@ var
   LStr: WideString;
 begin
   OleCheck(AInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
-//  OleCheck(AInfo.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
 end;
 
 procedure Test;
@@ -152,8 +151,8 @@ begin
 //  Test;
 //  readln;
 //  exit;
-  LParser := TTLBInfo.Create('tlibimpEx.tlb');
-//  LParser := TTLBInfo.Create('msxml6.dll');
+//  LParser := TTLBInfo.Create('tlibimpEx.tlb');
+  LParser := TTLBInfo.Create('msxml6.dll');
 //  LParser := TTLBInfo.Create('msxml2my.tlb');
 //  LParser := TTLBInfo.Create('rsEmc.tlb');
 //  LParser := TTLBInfo.Create('test.tlb');

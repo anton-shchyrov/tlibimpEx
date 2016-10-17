@@ -4,6 +4,7 @@ interface
 
 uses
   Winapi.ActiveX,
+  System.SysUtils,
   System.Generics.Collections,
   UTLBClasses;
 
@@ -68,7 +69,8 @@ type
   strict private
     type
       TCallingConv = (ccRegister, ccPascal, ccCdecl, ccStdcall, ccSafecall);
-      TUseSafeCall = (uscNone, uscDef, uscForced);
+      TPropInfo = (piNone, piGet, piSet);
+      TBrackets = (bRound, bSquare);
     const
       CCallinvConvNames: array[TCallingConv] of string = (
         'register', 'pascal', 'cdecl', 'stdcall', 'safecall'
@@ -77,20 +79,31 @@ type
     FRetType: TPasTypeInfo;
     FArgs: TObjectList<TMethodArg>;
     FCallingConv: TCallingConv;
-    FUseSafeCall: TUseSafeCall;
-    FInvoke: TInvokeKind;
+    FUseSafeCall: Boolean;
+    FPropInfo: TPropInfo;
     FDispID: TMemberID;
+  strict private
+    function GetArgCount: Integer;
+    function GetArg(AIdx: Integer): TMethodArg;
   strict private
     function DecodeCallingConv(ACallingConv: TCallConv): TCallingConv;
     function IsRetHRes: Boolean;
     function IsVoid(const AType: TPasTypeInfo): Boolean;
-  strict protected
-    property DispID: TMemberID read FDispID;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
+    procedure PrintForDisp(AOut: TOutFile; AUseDisp: Boolean);
+    function PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder; ACnt: Integer;
+      ABrackets: TBrackets): Boolean;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+  public
+    property Name;
+    property RetType: TPasTypeInfo read FRetType;
+    property DispID: TMemberID read FDispID;
+    property PropInfo: TPropInfo read FPropInfo;
+    property ArgCount: Integer read GetArgCount;
+    property Args[AIdx: Integer]: TMethodArg read GetArg;
   end;
 
   TGUIDMember = class(TTLBMember)
@@ -113,11 +126,26 @@ type
 
   TInterface = class(TCustomInterface)
   strict private
+    type
+      TPropMember = record
+        Read: TIntfMethod;
+        Write: TIntfMethod;
+        Index: Integer;
+      end;
+      TPropList = TDictionary<TMemberID, TPropMember>;
+      TPropPair = TPair<TMemberID, TPropMember>;
+      TPropArray = TArray<TPropPair>;
+  strict private
     FMethods: TObjectList<TIntfMethod>;
     FParent: TCustomInterface;
     FFlags: Word;
   strict private
     function GetForwardDecl: string;
+    function PropListToSortedArray(AProps: TPropList): TPropArray;
+    function PrintHeaderProp(AOut: TOutFile; ABuilder: TStringBuilder;
+      const AProp: TPropMember): Boolean;
+    procedure PrintProps(AOut: TOutFile; const AProps: TPropArray);
+    procedure PrintDispProps(AOut: TOutFile; const AProps: TPropArray);
   strict protected
     property Flags: Word read FFlags;
   strict protected
@@ -244,8 +272,8 @@ type
 implementation
 
 uses
-  System.SysUtils,
-  System.Win.ComObj;
+  System.Win.ComObj,
+  System.Generics.Defaults;
 
 type
   TUnitSections = record
@@ -344,6 +372,7 @@ begin
   APasType.StdUnit := suSystem;
   APasType.CustomUnit := '';
   Result := __TypeDescToPasType(ATypeDesc, AHRef, APasType);
+  APasType.RefBase := APasType.Ref;
 end;
 
 procedure GetHRefName(const ATypeInfo: ITypeInfo; AHRef: HRefType;
@@ -385,13 +414,16 @@ begin
       TKIND_ALIAS: begin
         LPasType := ElemDescToTypeStr(ATypeInfo, LAttr^.tdescAlias);
         AType.VarType := LPasType.VarType;
+        Inc(AType.RefBase, LPasType.Ref);
       end;
     end;
   finally
     LType.ReleaseTypeAttr(LAttr);
   end;
-  if AType.VarType in [VT_UNKNOWN, VT_DISPATCH] then
+  if AType.VarType in [VT_UNKNOWN, VT_DISPATCH] then begin
     Dec(AType.Ref);
+    Dec(AType.RefBase);
+  end;
 end;
 
 { TIntfItem }
@@ -519,7 +551,7 @@ var
   LRefCnt: Integer;
 begin
   LRefCnt := FType.Ref;
-  if FFlag and CFlagOut = CFlagOut then begin
+  if (LRefCnt > 0) and (FFlag and CFlagOut = CFlagOut) then begin
     Dec(LRefCnt);
     if FFlag and CFlagIn = CFlagIn then
       LPrfx := 'var '
@@ -555,6 +587,7 @@ var
   LAttr: PTypeAttr;
   LParamNames: array of WideString;
   LCnt: Integer;
+  LPrmName: string;
 begin
   FArgs := TObjectList<TMethodArg>.Create(True);
   OleCheck(ATypeInfo.GetFuncDesc(AIdx, LDesc));
@@ -563,23 +596,43 @@ begin
     FDispID := LDesc^.memid;
     FRetType := ElemDescToTypeStr(ATypeInfo, LDesc^.elemdescFunc);
     FCallingConv := DecodeCallingConv(LDesc^.callconv);
-    FInvoke := LDesc^.invkind;
+    case LDesc^.invkind of
+      INVOKE_PROPERTYGET: FPropInfo := piGet;
+      INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF: FPropInfo := piSet;
+    else
+      FPropInfo := piNone;
+    end;
+
     if LDesc^.cParams > 0 then begin
       SetLength(LParamNames, LDesc^.cParams + 1);
       OleCheck(ATypeInfo.GetNames(LDesc^.memid, @LParamNames[0], LDesc^.cParams + 1, LCnt));
-      for Li := 0 to LDesc^.cParams - 1 do
-        FArgs.Add(TMethodArg.Create(ATypeInfo, LParamNames[Li + 1], LDesc^.lprgelemdescParam^[Li]));
+      for Li := 0 to LDesc^.cParams - 1 do begin
+        LPrmName := LParamNames[Li + 1];
+        if LPrmName = '' then
+          LPrmName := 'Param' + IntToStr(Li + 1);
+        FArgs.Add(TMethodArg.Create(ATypeInfo, LPrmName, LDesc^.lprgelemdescParam^[Li]));
+      end;
     end;
   finally
     ATypeInfo.ReleaseFuncDesc(LDesc);
   end;
-  FUseSafeCall := uscDef;
+  FUseSafeCall := True;
 end;
 
 destructor TIntfMethod.Destroy;
 begin
   FArgs.Free;
   inherited Destroy;
+end;
+
+function TIntfMethod.GetArgCount: Integer;
+begin
+  Result := FArgs.Count;
+end;
+
+function TIntfMethod.GetArg(AIdx: Integer): TMethodArg;
+begin
+  Result := FArgs[AIdx];
 end;
 
 function TIntfMethod.DecodeCallingConv(ACallingConv: TCallConv): TCallingConv;
@@ -598,20 +651,21 @@ end;
 
 function TIntfMethod.IsRetHRes: Boolean;
 begin
-  Result := (FRetType.Ref = 0) and (FRetType.VarType = VT_HRESULT);
+  Result := (FRetType.RefBase = 0) and (FRetType.VarType = VT_HRESULT);
 end;
 
 function TIntfMethod.IsVoid(const AType: TPasTypeInfo): Boolean;
 begin
-  Result := (AType.Ref = 0) and (AType.VarType = VT_VOID);
+  Result := (AType.RefBase = 0) and (AType.VarType = VT_VOID);
 end;
 
 procedure TIntfMethod.Print(AOut: TOutFile);
-const
-  CDelim = '; ';
+begin
+  PrintForDisp(AOut, False);
+end;
+
+procedure TIntfMethod.PrintForDisp(AOut: TOutFile; AUseDisp: Boolean);
 var
-  Li: Integer;
-  LArgStr: string;
   LIsIdent: Boolean;
   LUseSafeCall: Boolean;
   LCallConv: TCallingConv;
@@ -620,12 +674,12 @@ var
   LBuilder: TStringBuilder;
   LArgCnt: Integer;
 begin
-  case FUseSafeCall of
-    uscDef: LUseSafeCall := (FCallingConv = ccStdcall) and IsRetHRes;
-    uscForced: LUseSafeCall := IsRetHRes;
+  if AUseDisp then
+    LUseSafeCall := IsRetHRes
+  else if FUseSafeCall then
+    LUseSafeCall := (FCallingConv = ccStdcall) and IsRetHRes
   else
     LUseSafeCall := False;
-  end;
 
   LLastArg := nil;
   LRetType := FRetType;
@@ -653,31 +707,13 @@ begin
       LRetType.VarType := VT_VOID;
     end;
 
-    case FInvoke of
-      INVOKE_PROPERTYGET: LBuilder.Append('Get_');
-      INVOKE_PROPERTYPUT, INVOKE_PROPERTYPUTREF: LBuilder.Append('Set_');
+    case FPropInfo of
+      piGet: LBuilder.Append('Get_');
+      piSet: LBuilder.Append('Set_');
     end;
 
     LBuilder.Append(Name);
-    LIsIdent := False;
-    if LArgCnt > 0 then begin
-      LBuilder.Append('(');
-      for Li := 0 to LArgCnt - 1 do begin
-        LArgStr := FArgs[Li].ToString;
-        if (LBuilder.Length + Length(LArgStr) + Length(CDelim) >= 76) and (LBuilder.Length <> 0) then begin
-          AOut.Write(TrimRight(LBuilder.ToString));
-          LBuilder.Clear;
-          if not LIsIdent then begin
-            AOut.IncIdent;
-            LIsIdent := True;
-          end;
-        end;
-        LBuilder.Append(LArgStr);
-        LBuilder.Append(CDelim);
-      end;
-      LBuilder.Remove(LBuilder.Length - Length(CDelim), Length(CDelim));
-      LBuilder.Append(')');
-    end;
+    LIsIdent := PrintArgs(AOut, LBuilder, LArgCnt, bRound);
     if not IsVoid(LRetType) then begin
       LBuilder.Append(': ');
       LBuilder.Append(LRetType.Name);
@@ -685,10 +721,10 @@ begin
     LBuilder.Append(';');
     if FCallingConv <> ccRegister then begin
       LBuilder.Append(' ');
-      if FUseSafeCall <> uscForced then
-        LBuilder.Append(CCallinvConvNames[LCallConv])
+      if AUseDisp then
+        LBuilder.AppendFormat('dispid %d', [FDispID])
       else
-        LBuilder.AppendFormat('dispid %d', [FDispID]);
+        LBuilder.Append(CCallinvConvNames[LCallConv]);
       LBuilder.Append(';');
     end;
     AOut.Write(LBuilder.ToString);
@@ -697,6 +733,37 @@ begin
   end;
   if LIsIdent then
     AOut.DecIdent;
+end;
+
+function TIntfMethod.PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder;
+  ACnt: Integer; ABrackets: TBrackets): Boolean;
+const
+  CDelim = '; ';
+  COpenBrackets: array[TBrackets] of Char = ('(', '[');
+  CCloseBrackets: array[TBrackets] of Char = (')', ']');
+var
+  Li: Integer;
+  LArgStr: string;
+begin
+  Result := False;
+  if ACnt > 0 then begin
+    ABuilder.Append(COpenBrackets[ABrackets]);
+    for Li := 0 to ACnt - 1 do begin
+      LArgStr := FArgs[Li].ToString;
+      if (ABuilder.Length + Length(LArgStr) + Length(CDelim) >= 76) and (ABuilder.Length <> 0) then begin
+        AOut.Write(TrimRight(ABuilder.ToString));
+        ABuilder.Clear;
+        if not Result then begin
+          AOut.IncIdent;
+          Result := True;
+        end;
+      end;
+      ABuilder.Append(LArgStr);
+      ABuilder.Append(CDelim);
+    end;
+    ABuilder.Remove(ABuilder.Length - Length(CDelim), Length(CDelim));
+    ABuilder.Append(CCloseBrackets[ABrackets]);
+  end;
 end;
 
 procedure TIntfMethod.RequireUnits(AUnitManager: TUnitManager);
@@ -742,6 +809,111 @@ begin
   Result := Name + ' = interface';
 end;
 
+function TInterface.PropListToSortedArray(AProps: TPropList): TPropArray;
+var
+  LProp: TPropMember;
+  LModif: string;
+begin
+  Result := AProps.ToArray;
+  TArray.Sort<TPropPair>(Result, TComparer<TPropPair>.Construct(
+    function (const ALeft, ARight: TPropPair): Integer
+    begin
+      if ALeft.Value.Index < ARight.Value.Index then
+        Result := -1
+      else if ALeft.Value.Index = ARight.Value.Index then
+        Result := 0
+      else
+        Result := 1;
+    end
+  ));
+end;
+
+function TInterface.PrintHeaderProp(AOut: TOutFile; ABuilder: TStringBuilder;
+  const AProp: TPropMember): Boolean;
+var
+  LMethod: TIntfMethod;
+  LIsIdent: Boolean;
+  LArgCnt: Integer;
+begin
+  ABuilder.Clear;
+  if AProp.Read <> nil then
+    LMethod := AProp.Read
+  else
+    LMethod := AProp.Write;
+  ABuilder.Append('property ');
+  ABuilder.Append(LMethod.Name);
+  LArgCnt := LMethod.ArgCount;
+  Result := LMethod.PrintArgs(AOut, ABuilder, LArgCnt - 1, bSquare);
+  ABuilder.Append(': ');
+  if LArgCnt > 0 then
+    ABuilder.Append(LMethod.Args[LArgCnt - 1].Type_.Name)
+  else
+    ABuilder.Append(LMethod.RetType.Name);
+  ABuilder.Append(' ');
+end;
+
+procedure TInterface.PrintProps(AOut: TOutFile; const AProps: TPropArray);
+var
+  LBuilder: TStringBuilder;
+  Li: Integer;
+  LProp: TPropMember;
+  LIsIdent: Boolean;
+begin
+  LBuilder := TStringBuilder.Create;
+  try
+    for Li := 0 to Length(AProps) - 1 do begin
+      LProp := AProps[Li].Value;
+      LIsIdent := PrintHeaderProp(AOut, LBuilder, LProp);
+      if LProp.Read <> nil then begin
+        LBuilder.Append('read Get_');
+        LBuilder.Append(LProp.Read.Name);
+        LBuilder.Append(' ');
+      end;
+      if LProp.Write <> nil then begin
+        LBuilder.Append('write Set_');
+        LBuilder.Append(LProp.Write.Name);
+        LBuilder.Append(' ');
+      end;
+      LBuilder.Chars[LBuilder.Length - 1] := ';';
+      if AProps[Li].Key = 0 then
+        LBuilder.Append(' default;');
+      AOut.Write(LBuilder.ToString);
+      if LIsIdent then
+        AOut.DecIdent;
+    end;
+  finally
+    LBuilder.Free;
+  end;
+end;
+
+procedure TInterface.PrintDispProps(AOut: TOutFile; const AProps: TPropArray);
+var
+  LBuilder: TStringBuilder;
+  Li: Integer;
+  LProp: TPropMember;
+  LIsIdent: Boolean;
+begin
+  LBuilder := TStringBuilder.Create;
+  try
+    for Li := 0 to Length(AProps) - 1 do begin
+      LProp := AProps[Li].Value;
+      LIsIdent := PrintHeaderProp(AOut, LBuilder, LProp);
+      if LProp.Read <> nil then begin
+        if LProp.Write = nil then
+          LBuilder.Append('readonly ');
+      end else
+        LBuilder.Append('writeonly ');
+
+      LBuilder.AppendFormat('dispid %d;', [AProps[Li].Key]);
+      AOut.Write(LBuilder.ToString);
+      if LIsIdent then
+        AOut.DecIdent;
+    end;
+  finally
+    LBuilder.Free;
+  end;
+end;
+
 function TInterface.GetIIDPrefix: string;
 begin
   Result := 'IID';
@@ -772,13 +944,42 @@ procedure TInterface.InternalPrint(AOut: TOutFile; const AHeader: string;
   APrintDisp: Boolean);
 var
   Li: Integer;
+  LProps: TPropList;
+  LPropArray: TPropArray;
+  LMethod: TIntfMethod;
+  LPropMember: TPropMember;
 begin
   AOut.Write(AHeader);
   AOut.IncIdent;
   try
     AOut.WriteFmt('[''%s'']', [GUIDToString(UUID)]);
-    for Li := 0 to FMethods.Count - 1 do
-      FMethods[Li].Print(AOut);
+    LProps := TPropList.Create;
+    try
+      for Li := 0 to FMethods.Count - 1 do begin
+        LMethod := FMethods[Li];
+        if LMethod.PropInfo <> piNone then begin
+          if not LProps.TryGetValue(LMethod.DispID, LPropMember) then begin
+            LPropMember.Read := nil;
+            LPropMember.Write := nil;
+            LPropMember.Index := LProps.Count;
+          end;
+          if LMethod.PropInfo = piGet then
+            LPropMember.Read := LMethod
+          else
+            LPropMember.Write := LMethod;
+          LProps.AddOrSetValue(LMethod.DispID, LPropMember);
+        end;
+        if not APrintDisp or (LMethod.PropInfo = piNone) then
+          LMethod.PrintForDisp(AOut, APrintDisp);
+      end;
+      LPropArray := PropListToSortedArray(LProps);
+      if APrintDisp then
+        PrintDispProps(AOut, LPropArray)
+      else
+        PrintProps(AOut, LPropArray);
+    finally
+      LProps.Free;
+    end;
   finally
     AOut.DecIdent;
   end;
