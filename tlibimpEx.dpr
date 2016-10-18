@@ -3,6 +3,7 @@ program tlibimpEx;
 {.$APPTYPE CONSOLE}
 
 uses
+  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
@@ -144,20 +145,64 @@ begin
   end;
 end;
 
+type
+  TTestType = TGUID;
+const
+//  CTestVal = TTestType($FF);
+  CTestVal: TGUID = (
+    D1: 0;
+    D2: $FF;
+  );
+
+
+procedure Test_(AVal: TTestType);
+var
+  LVal: TTestType;
+begin
+  LVal := AVal;
+end;
+
+procedure TestC(const AVal: TTestType);
+var
+  LVal: TTestType;
+begin
+  LVal := AVal;
+end;
+
+procedure TestV(var AVal: TTestType);
+var
+  LVal: TTestType;
+begin
+  LVal := AVal;
+end;
+
+procedure TestAll;
+var
+  LVal: TTestType;
+begin
+  LVal := CTestVal;
+  Test_(LVal);
+  TestC(LVal);
+  TestV(LVal);
+end;
+
+const
+//  CName = 'tlibimpEx.tlb';
+//  CName = 'msxml6.dll';
+//  CName = 'msxml2my.tlb';
+//  CName = 'rsEmc.tlb';
+  CName = 'test.tlb';
+
 var
   LParser: TTLBInfo;
   LOut: TOutFile;
 begin
-//  Test;
+//  TestAll;
 //  readln;
 //  exit;
-//  LParser := TTLBInfo.Create('tlibimpEx.tlb');
-  LParser := TTLBInfo.Create('msxml6.dll');
-//  LParser := TTLBInfo.Create('msxml2my.tlb');
-//  LParser := TTLBInfo.Create('rsEmc.tlb');
-//  LParser := TTLBInfo.Create('test.tlb');
+  LParser := TTLBInfo.Create(CName);
   try
-    LOut := TOutFile.Create(LParser.UnitName + '.pas');
+    LOut := TOutFile.Create(LParser.PasUnitName + '.pas');
     try
       LParser.Print(LOut);
     finally

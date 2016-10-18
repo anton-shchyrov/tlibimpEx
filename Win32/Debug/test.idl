@@ -7,12 +7,44 @@ library test
 
   importlib("stdole2.tlb");
 
-/*  [uuid(6075432B-1EB1-4CA2-9254-27AFA4BA558F)]
-  typedef enum tagEnum {
-    teOne = 1,
-    teTen = 10
-  } TTestEnum;
-*/
+  [uuid(1D5BF34D-2B3A-4B9A-AAB7-E693BBBDDBCE)]
+  dispinterface IPureDisp {
+    properties:
+    methods:
+      [id(1)]
+      HRESULT _stdcall Disp1();
+      [id(2)]
+      HRESULT _stdcall Disp2([in] long AIdx);
+      [id(3)]
+      HRESULT _stdcall Disp3([out, retval] long * AIdx);
+  }
+
+  [uuid(6C190416-C4B8-47AD-8FB7-C5786B1A6B5C)]
+  typedef struct {
+    long Fld1;
+  } TRec;
+
+  [uuid(6FB81CFB-39D0-466A-8FB3-34F4869C31EE)]
+  interface IBase: IDispatch {
+    HRESULT _stdcall Base1([in] TRec ARec);
+    HRESULT _stdcall Base2([in] GUID AVal);
+  }
+
+  [
+    uuid(4ED7009C-0ABF-48A2-AED3-BDF3EF234281),
+    dual
+  ]
+  interface IChild: IBase {
+    HRESULT _stdcall Child();
+  }
+
+  [
+    uuid(CD7ADC1B-BF0D-4B90-865E-A37D9839E613),
+    dual
+  ]
+  interface IChild2: IChild {
+    HRESULT _stdcall Child2();
+  }
 
   [uuid(DCAD69DF-5D55-4236-A7C1-4EB5AC9FF2A3)]
   typedef BSTR myStr;
@@ -44,11 +76,22 @@ library test
     HRESULT _stdcall Get([out] IUnknown ** AOut);
     [propput]
     HRESULT _cdecl Owner([in] ITest * AOut);
-    HRESULT _stdcall Set0(BSTR AVal);
     [propget]
     HRESULT _cdecl Get0([out, retval] long * AVal);
     [propput]
     HRESULT _stdcall Get0([in] long AVal);
+    [propget]
+    long _cdecl Get1();
+    [propput]
+    void _cdecl Get1([in] long AVal);
+    [propget]
+    HRESULT _stdcall Get2([out, retval] long * AVal);
+    [propput]
+    HRESULT _stdcall Get2([in] long AVal);
+    [propget]
+    HRESULT _stdcall Get3([in] long AIdx, [out, retval] long * AVal);
+    [propput]
+    HRESULT _stdcall Get3([in] long AIdx, [in] long AVal);
   }
 
 /*  [uuid(5FB032D3-FBAF-4C53-AFF2-2445476BCE07), dual]

@@ -78,11 +78,23 @@ type
     class function Escape(const AStr: string): string;
   end;
 
+function CompareInt(const ALeft, ARight: Integer): Integer;
+
 implementation
 
 uses
   System.SysUtils,
   System.Generics.Defaults;
+
+function CompareInt(const ALeft, ARight: Integer): Integer;
+begin
+  if ALeft < ARight then
+    Result := -1
+  else if ALeft = ARight then
+    Result := 0
+  else
+    Result := 1;
+end;
 
 { TOutFile }
 
@@ -167,7 +179,7 @@ end;
 
 procedure TUnitManager.AddCustomUnit(const AUnit: string);
 begin
-  if not FUnits.ContainsKey(AUnit) then
+  if (AUnit <> '') and not FUnits.ContainsKey(AUnit) then
     FUnits.Add(AUnit, FUnits.Count);
 end;
 
@@ -198,12 +210,7 @@ begin
   TArray.Sort<TUnitPair>(LData, TComparer<TUnitPair>.Construct(
     function(const ALeft, ARight: TUnitPair): Integer
     begin
-      if ALeft.Value < ARight.Value then
-        Result := -1
-      else if ALeft.Value = ARight.Value then
-        Result := 0
-      else
-        Result := 1;
+      Result := CompareInt(ALeft.Value, ARight.Value);
     end
   ));
 

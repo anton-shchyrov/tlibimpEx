@@ -12,7 +12,7 @@ unit test_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 17.10.2016 19:15:25 from Type Library described below.
+// File generated on 18.10.2016 17:46:19 from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: D:\Anton\Sources\rsShared\TLB\test.tlb (1)
@@ -54,6 +54,10 @@ const
 
   LIBID_test: TGUID = '{6766CD0E-744E-4EEF-AFD4-A6F8C1761EA0}';
 
+  DIID_IPureDisp: TGUID = '{1D5BF34D-2B3A-4B9A-AAB7-E693BBBDDBCE}';
+  IID_IBase: TGUID = '{6FB81CFB-39D0-466A-8FB3-34F4869C31EE}';
+  IID_IChild: TGUID = '{4ED7009C-0ABF-48A2-AED3-BDF3EF234281}';
+  IID_IChild2: TGUID = '{CD7ADC1B-BF0D-4B90-865E-A37D9839E613}';
   IID_ITest: TGUID = '{D3F8F5B4-E9AC-487B-8397-98E2EC44450D}';
   IID_ITestProp: TGUID = '{8B19090D-3476-42CB-9510-DC497354E1DA}';
 type
@@ -61,6 +65,12 @@ type
 // *********************************************************************//
 // Forward declaration of types defined in TypeLibrary                    
 // *********************************************************************//
+  IPureDisp = dispinterface;
+  IBase = interface;
+  IChild = interface;
+  IChildDisp = dispinterface;
+  IChild2 = interface;
+  IChild2Disp = dispinterface;
   ITest = interface;
   ITestDisp = dispinterface;
   ITestProp = interface;
@@ -70,7 +80,79 @@ type
 // Declaration of structures, unions and aliases.                         
 // *********************************************************************//
 
+  TRec = record
+    Fld1: Integer;
+  end;
+
   myStr = WideString; 
+
+// *********************************************************************//
+// DispIntf:  IPureDisp
+// Flags:     (4096) Dispatchable
+// GUID:      {1D5BF34D-2B3A-4B9A-AAB7-E693BBBDDBCE}
+// *********************************************************************//
+  IPureDisp = dispinterface
+    ['{1D5BF34D-2B3A-4B9A-AAB7-E693BBBDDBCE}']
+    function Disp1: HResult; dispid 1;
+    function Disp2(AIdx: Integer): HResult; dispid 2;
+    function Disp3: Integer; dispid 3;
+  end;
+
+// *********************************************************************//
+// Interface: IBase
+// Flags:     (4096) Dispatchable
+// GUID:      {6FB81CFB-39D0-466A-8FB3-34F4869C31EE}
+// *********************************************************************//
+  IBase = interface(IDispatch)
+    ['{6FB81CFB-39D0-466A-8FB3-34F4869C31EE}']
+    procedure Base1(ARec: TRec); safecall;
+    procedure Base2(AVal: TGUID); safecall;
+  end;
+
+// *********************************************************************//
+// Interface: IChild
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {4ED7009C-0ABF-48A2-AED3-BDF3EF234281}
+// *********************************************************************//
+  IChild = interface(IBase)
+    ['{4ED7009C-0ABF-48A2-AED3-BDF3EF234281}']
+    procedure Child; safecall;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IChildDisp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {4ED7009C-0ABF-48A2-AED3-BDF3EF234281}
+// *********************************************************************//
+  IChildDisp = dispinterface
+    ['{4ED7009C-0ABF-48A2-AED3-BDF3EF234281}']
+    procedure Child; dispid 1610809344;
+    procedure Base1(ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743808;
+    procedure Base2(AVal: {NOT_OLEAUTO(TGUID)}OleVariant); dispid 1610743809;
+  end;
+
+// *********************************************************************//
+// Interface: IChild2
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {CD7ADC1B-BF0D-4B90-865E-A37D9839E613}
+// *********************************************************************//
+  IChild2 = interface(IChild)
+    ['{CD7ADC1B-BF0D-4B90-865E-A37D9839E613}']
+    procedure Child2; safecall;
+  end;
+
+// *********************************************************************//
+// DispIntf:  IChild2Disp
+// Flags:     (4416) Dual OleAutomation Dispatchable
+// GUID:      {CD7ADC1B-BF0D-4B90-865E-A37D9839E613}
+// *********************************************************************//
+  IChild2Disp = dispinterface
+    ['{CD7ADC1B-BF0D-4B90-865E-A37D9839E613}']
+    procedure Child2; dispid 1610874880;
+    procedure Child; dispid 1610809344;
+    procedure Base1(ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743808;
+    procedure Base2(AVal: {NOT_OLEAUTO(TGUID)}OleVariant); dispid 1610743809;
+  end;
 
 // *********************************************************************//
 // Interface: ITest
