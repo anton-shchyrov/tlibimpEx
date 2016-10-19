@@ -9,27 +9,6 @@ uses
   UTLBClasses;
 
 type
-  TIntfItem = class
-  strict private
-    FName: string;
-    FComment: string;
-  strict protected
-    property Name: string read FName;
-  public
-    constructor Create(const AName: string);
-    procedure Print(AOut: TOutFile); virtual; abstract;
-    procedure RequireUnits(AUnitManager: TUnitManager); virtual;
-  end;
-
-  TTLBMember = class(TIntfItem)
-  strict protected
-    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); virtual;
-    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); virtual;
-  public
-    constructor CreateTLB(const ATypeLib: ITypeLib; AIdx: Integer);
-    constructor Create(const ATypeInfo: ITypeInfo); virtual;
-  end;
-
   TAliasList = class
   strict private
     type
@@ -42,18 +21,44 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddAlias(const ANewName, AOldName: string);
+    procedure AddAlias(const ANewName, AOldName: string); overload;
+    function AddAlias(const AName: string; ARefCnt: Integer; AStdUnit: TStdUnits): string; overload;
+    function AddAlias(const AType: TPasTypeInfo): string; overload;
     procedure Print(AOut: TOutFile);
+  end;
+
+  TIntfItem = class
+  strict private
+    FName: string;
+    FComment: string;
+  strict protected
+    property Name: string read FName;
+  public
+    constructor Create(const AName: string);
+    procedure Print(AOut: TOutFile); virtual; abstract;
+    procedure RequireUnits(AUnitManager: TUnitManager); virtual;
+    procedure RegisterAliases(AList: TAliasList); virtual;
+  end;
+
+  TTLBMember = class(TIntfItem)
+  strict protected
+    procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); virtual;
+    procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); virtual;
+  public
+    constructor CreateTLB(const ATypeLib: ITypeLib; AIdx: Integer);
+    constructor Create(const ATypeInfo: ITypeInfo); virtual;
   end;
 
   TAlias = class(TTLBMember)
   strict private
     FAlias: TPasTypeInfo;
+    FWriteType: string;
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
   end;
 
   TTypeMember = class(TIntfItem)
@@ -64,10 +69,12 @@ type
   TVariable = class(TTypeMember)
   strict private
     FType: TPasTypeInfo;
+    FWriteType: string;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
   end;
 
   TMethodArg = class(TIntfItem)
@@ -78,6 +85,7 @@ type
       CFlagRetVal = $04;
   strict private
     FType: TPasTypeInfo;
+    FWriteType: string;
     FFlag: Byte;
   public
     constructor Create(const ATypeInfo: ITypeInfo; const AName: string;
@@ -86,8 +94,10 @@ type
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     function ToString: string; override;
     function IsRetVal: Boolean;
+    procedure RegisterAliases(AList: TAliasList); override;
   public
     property Type_: TPasTypeInfo read FType;
+    property WriteType: string read FWriteType;
   end;
 
   TIntfMethod = class(TTypeMember)
@@ -102,6 +112,7 @@ type
       );
   strict private
     FRetType: TPasTypeInfo;
+    FWriteRetType: string;
     FArgs: TObjectList<TMethodArg>;
     FCallingConv: TCallingConv;
     FUseSafeCall: Boolean;
@@ -122,9 +133,11 @@ type
     function PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder; ACnt: Integer;
       ABrackets: TBrackets): Boolean;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
   public
     property Name;
     property RetType: TPasTypeInfo read FRetType;
+    property WriteRetType: string read FWriteRetType;
     property DispID: TMemberID read FDispID;
     property PropInfo: TPropInfo read FPropInfo;
     property ArgCount: Integer read GetArgCount;
@@ -196,6 +209,7 @@ type
     procedure PrintForward(AOut: TOutFile); override;
     procedure PrintMethods(AOut: TOutFile; APropList: TPropList; APrintDisp: Boolean); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
   end;
 
   TDispInterface = class(TInterface)
@@ -252,6 +266,7 @@ type
   TRecord = class(TTLBMember)
   strict private
     FFields: TObjectList<TVariable>;
+    FAlign: Word;
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
@@ -259,6 +274,20 @@ type
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
+  end;
+
+  TTLBMemberList<T: TTLBMember> = class(TObjectList<T>)
+  strict private
+    type
+      TPrintProc = reference to procedure(AOut: TOutFile; AItem: T);
+  public
+    constructor Create;
+    procedure Print(AOut: TOutFile; const AComment: string; AAddEmptyLine: Boolean);
+    procedure CustomPrint(AOut: TOutFile; const AComment: string;
+      AAddEmptyLine: Boolean; const APrintProc: TPrintProc);
+    procedure RequireUnits(AUnitManager: TUnitManager);
+    procedure RegisterAliases(AList: TAliasList);
   end;
 
   TTLBInfo = class(TIntfItem)
@@ -266,30 +295,27 @@ type
     FMajorVersion: Integer;
     FMinorVersion: Integer;
     FUUID: TGUID;
-    FUnits: TUnitManager;
-    FEnums: TObjectList<TEnum>;
-    FRecords: TObjectList<TRecord>;
-    FInterfaces: TObjectList<TInterface>;
-    FCoClasses: TObjectList<TCoClass>;
-    FAliases: TObjectList<TAlias>;
+    FMemberList: TObjectList<TTLBMemberList<TTLBMember>>;
+    FEnums: TTLBMemberList<TEnum>;
+    FRecords: TTLBMemberList<TRecord>;
+    FInterfaces: TTLBMemberList<TInterface>;
+    FCoClasses: TTLBMemberList<TCoClass>;
+    FAliases: TTLBMemberList<TAlias>;
   strict private
     function GetPasUnitName: string;
   strict private
+    function CreateMemberList<T: TTLBMember>: TTLBMemberList<T>;
     procedure Parse(const ATypeLib: ITypeLib);
     procedure PrintHeaderConst(AOut: TOutFile);
     procedure PrintClassIDs(AOut: TOutFile);
     procedure PrintIIDs(AOut: TOutFile);
-    procedure PrintEnums(AOut: TOutFile);
-    procedure PrintForwardIntf(AOut: TOutFile);
-    procedure PrintForwardClass(AOut: TOutFile);
-    procedure PrintAliaces(AOut: TOutFile);
-    procedure PrintRecords(AOut: TOutFile);
-    procedure PrintIntf(AOut: TOutFile);
+    procedure PrintForward<T: TGUIDMember>(AOut: TOutFile; AItem: T);
   public
     constructor Create(const AFileName: string);
     destructor Destroy; override;
     procedure Print(AOut: TOutFile); override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
+    procedure RegisterAliases(AList: TAliasList); override;
   public
     property PasUnitName: string read GetPasUnitName;
   end;
@@ -464,16 +490,92 @@ begin
   end;
 end;
 
-function GetPointerName(const AType: TPasTypeInfo; ARefCnt: Integer): string;
+{ TAliasList }
+
+constructor TAliasList.Create;
 begin
-  if ARefCnt <= 0 then
-    Result := AType.Name
-  else if ARefCnt = 1 then begin
-    if AType.StdUnit <> suCustom then
-
-  end;
-
+  inherited Create;
+  FList := TDictionary<string, TItem>.Create;
 end;
+
+destructor TAliasList.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+procedure TAliasList.AddAlias(const ANewName, AOldName: string);
+var
+  LItem: TItem;
+begin
+  if not FList.TryGetValue(ANewName, LItem) then begin
+    LItem.Idx := FList.Count;
+    LItem.OldName := AOldName;
+    FList.Add(ANewName, LItem);
+  end;
+end;
+
+function TAliasList.AddAlias(const AName: string; ARefCnt: Integer;
+  AStdUnit: TStdUnits): string;
+const
+  CTypePrfx = 'T';
+  CPtrPrfx = 'P';
+  CPtrSign = '^';
+var
+  LPrevName: string;
+begin
+  if AName = '' then
+    raise Exception.Create('Type bust be not empty');
+  if ARefCnt <= 0 then
+    Result := AName
+  else if ARefCnt = 1 then begin
+    Result := AName;
+    if Result[1] = CTypePrfx then
+      Result[1] := CPtrPrfx
+    else
+      Result := CPtrPrfx + Result;
+    if AStdUnit = suCustom then
+      AddAlias(Result, CPtrSign + AName);
+  end else begin
+    LPrevName := AddAlias(AName, ARefCnt - 1, AStdUnit);
+    Result := CPtrPrfx + LPrevName;
+    AddAlias(Result, CPtrSign + LPrevName);
+  end;
+end;
+
+function TAliasList.AddAlias(const AType: TPasTypeInfo): string;
+begin
+  Result := AddAlias(AType.Name, AType.Ref, AType.StdUnit);
+end;
+
+procedure TAliasList.Print(AOut: TOutFile);
+type
+  TItemPair = TPair<string, TItem>;
+var
+  LData: TArray<TItemPair>;
+  Li: Integer;
+begin
+  if FList.Count = 0 then
+    Exit;
+  LData := FList.ToArray;
+  TArray.Sort<TItemPair>(LData, TComparer<TItemPair>.Construct(
+    function (const ALeft, ARight: TItemPair): Integer
+    begin
+      Result := CompareInt(ALeft.Value.Idx, ARight.Value.Idx);
+    end
+  ));
+  AOut.Write(TUnitSections.CType);
+  AOut.IncIdent;
+  try
+    AOut.Write('// Custom aliaces');
+    for Li := 0 to Length(LData) - 1 do
+      AOut.WriteFmt('%s = %s;', [LData[Li].Key, LData[Li].Value.OldName]);
+    AOut.EmptyLine;
+  finally
+    AOut.DecIdent;
+  end;
+end;
+
 { TIntfItem }
 
 constructor TIntfItem.Create(const AName: string);
@@ -483,6 +585,11 @@ begin
 end;
 
 procedure TIntfItem.RequireUnits(AUnitManager: TUnitManager);
+begin
+  // Abstract
+end;
+
+procedure TIntfItem.RegisterAliases(AList: TAliasList);
 begin
   // Abstract
 end;
@@ -524,51 +631,6 @@ begin
   // Abstract
 end;
 
-{ TAliasList }
-
-constructor TAliasList.Create;
-begin
-  inherited Create;
-  FList := TDictionary<string, TItem>.Create;
-end;
-
-destructor TAliasList.Destroy;
-begin
-  FList.Free;
-  inherited Destroy;
-end;
-
-procedure TAliasList.AddAlias(const ANewName, AOldName: string);
-var
-  LItem: TItem;
-begin
-  if not FList.TryGetValue(ANewName, LItem) then begin
-    LItem.Idx := FList.Count;
-    LItem.OldName := AOldName;
-    FList.Add(ANewName, LItem);
-  end;
-end;
-
-procedure TAliasList.Print(AOut: TOutFile);
-type
-  TItemPair = TPair<string, TItem>;
-var
-  LData: TArray<TItemPair>;
-  Li: Integer;
-begin
-  if FList.Count = 0 then
-    Exit;
-  LData := FList.ToArray;
-  TArray.Sort<TItemPair>(LData, TComparer<TItemPair>.Construct(
-    function (const ALeft, ARight: TItemPair): Integer
-    begin
-      Result := CompareInt(ALeft.Value.Idx, ARight.Value.Idx);
-    end
-  ));
-  for Li := 0 to Length(LData) - 1 do
-    AOut.WriteFmt('%s = %s;', [LData[Li].Key, LData[Li].Value.OldName]);
-end;
-
 { TAlias }
 
 procedure TAlias.ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr);
@@ -579,13 +641,19 @@ end;
 
 procedure TAlias.Print(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s = type %s;', [Name, FAlias.Name]);
+  AOut.WriteFmt('%s = type %s;', [Name, FWriteType]);
 end;
 
 procedure TAlias.RequireUnits(AUnitManager: TUnitManager);
 begin
   inherited RequireUnits(AUnitManager);
   AUnitManager.AddPasType(FAlias);
+end;
+
+procedure TAlias.RegisterAliases(AList: TAliasList);
+begin
+  inherited RegisterAliases(AList);
+  FWriteType := AList.AddAlias(FAlias);
 end;
 
 { TTypeMember }
@@ -615,13 +683,19 @@ end;
 
 procedure TVariable.Print(AOut: TOutFile);
 begin
-  AOut.WriteFmt('%s: %s;', [Name, FType.Name]);
+  AOut.WriteFmt('%s: %s;', [Name, FWriteType]);
 end;
 
 procedure TVariable.RequireUnits(AUnitManager: TUnitManager);
 begin
   inherited RequireUnits(AUnitManager);
   AUnitManager.AddPasType(FType);
+end;
+
+procedure TVariable.RegisterAliases(AList: TAliasList);
+begin
+  inherited RegisterAliases(AList);
+  FWriteType := AList.AddAlias(FType);
 end;
 
 { TMethodArg }
@@ -653,36 +727,33 @@ end;
 function TMethodArg.ToString: string;
 var
   LPrfx: string;
-  LRefCnt: Integer;
 begin
-  {$MESSAGE WARN 'Pointers'}
-  LRefCnt := FType.Ref;
-  if (LRefCnt > 0) and (FFlag and CFlagOut = CFlagOut) then begin
-    Dec(LRefCnt);
+  if (FType.Ref > 0) and (FFlag and CFlagOut = CFlagOut) then begin
     if FFlag and CFlagIn = CFlagIn then
       LPrfx := 'var '
     else
       LPrfx := 'out ';
   end else begin
-    if LRefCnt = 0 then begin
+    if FType.Ref = 0 then begin
       if FType.VarType in [VT_BSTR, VT_UNKNOWN, VT_DISPATCH, VT_RECORD] then
         LPrfx := 'const '
       else
         LPrfx := '';
-    end else begin
+    end else
       LPrfx := 'var ';
-      Dec(LRefCnt);
-    end;
   end;
-  if LRefCnt <> 0 then
-    LPrfx := Format('{%d} %s', [LRefCnt, LPrfx]);
-
-  Result := Format('%s%s: %s', [LPrfx, Name, FType.Name]);
+  Result := Format('%s%s: %s', [LPrfx, Name, FWriteType]);
 end;
 
 function TMethodArg.IsRetVal: Boolean;
 begin
   Result := FFlag and CFlagRetVal = CFlagRetVal;
+end;
+
+procedure TMethodArg.RegisterAliases(AList: TAliasList);
+begin
+  inherited RegisterAliases(AList);
+  FWriteType := AList.AddAlias(FType.Name, FType.Ref - 1, FType.StdUnit);
 end;
 
 { TIntfMethod }
@@ -777,6 +848,7 @@ var
   LUseSafeCall: Boolean;
   LCallConv: TCallingConv;
   LRetType: TPasTypeInfo;
+  LRetTypeName: string;
   LLastArg: TMethodArg;
   LBuilder: TStringBuilder;
   LArgCnt: Integer;
@@ -790,12 +862,14 @@ begin
 
   LLastArg := nil;
   LRetType := FRetType;
+  LRetTypeName := FWriteRetType;
   LArgCnt := FArgs.Count;
   if LUseSafeCall then begin
     if LArgCnt > 0 then begin
       LLastArg := FArgs.Last;
       if LLastArg.IsRetVal then begin
         LRetType := LLastArg.Type_;
+        LRetTypeName := LLastArg.WriteType;
         Dec(LArgCnt);
       end else
         LLastArg := nil;
@@ -826,7 +900,7 @@ begin
     LIsIdent := PrintArgs(AOut, LBuilder, LArgCnt, bRound);
     if not IsVoid(LRetType) then begin
       LBuilder.Append(': ');
-      LBuilder.Append(LRetType.Name);
+      LBuilder.Append(LRetTypeName);
     end;
     LBuilder.Append(';');
     if FCallingConv <> ccRegister then begin
@@ -874,6 +948,16 @@ begin
     ABuilder.Remove(ABuilder.Length - Length(CDelim), Length(CDelim));
     ABuilder.Append(CCloseBrackets[ABrackets]);
   end;
+end;
+
+procedure TIntfMethod.RegisterAliases(AList: TAliasList);
+var
+  Li: Integer;
+begin
+  inherited RegisterAliases(AList);
+  FWriteRetType := AList.AddAlias(FRetType);
+  for Li := 0 to FArgs.Count - 1 do
+    FArgs[Li].RegisterAliases(AList);
 end;
 
 procedure TIntfMethod.RequireUnits(AUnitManager: TUnitManager);
@@ -971,10 +1055,10 @@ begin
   ABuilder.Append(': ');
   AIdxCnt := LArgCnt;
   if LArgCnt > 0 then begin
-    ABuilder.Append(LMethod.Args[LArgCnt - 1].Type_.Name);
+    ABuilder.Append(LMethod.Args[LArgCnt - 1].WriteType);
     Dec(AIdxCnt);
   end else
-    ABuilder.Append(LMethod.RetType.Name);
+    ABuilder.Append(LMethod.WriteRetType);
   ABuilder.Append(' ');
 end;
 
@@ -1165,8 +1249,19 @@ var
   Li: Integer;
 begin
   inherited RequireUnits(AUnitManager);
+  FParent.RequireUnits(AUnitManager);
   for Li := 0 to FMethods.Count - 1 do
     FMethods[Li].RequireUnits(AUnitManager);
+end;
+
+procedure TInterface.RegisterAliases(AList: TAliasList);
+var
+  Li: Integer;
+begin
+  inherited RegisterAliases(AList);
+  FParent.RegisterAliases(AList);
+  for Li := 0 to FMethods.Count - 1 do
+    FMethods[Li].RegisterAliases(AList);
 end;
 
 { TDispInterface }
@@ -1403,6 +1498,7 @@ var
   Li: Integer;
 begin
   inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
+  FAlign := ATypeAttr.cbAlignment;
   for Li := 0 to ATypeAttr.cVars - 1 do
     FFields.Add(TVariable.Create(ATypeInfo, Li));
 end;
@@ -1411,6 +1507,8 @@ procedure TRecord.Print(AOut: TOutFile);
 var
   Li: Integer;
 begin
+//  AOut.WriteFmt('{$A %d}', [FAlign]);
+  AOut.WriteFmt('{$ALIGN %d}', [FAlign]);
   AOut.WriteFmt('%s = record', [Name]);
   AOut.IncIdent;
   try
@@ -1432,6 +1530,73 @@ begin
     FFields[Li].RequireUnits(AUnitManager);
 end;
 
+procedure TRecord.RegisterAliases(AList: TAliasList);
+var
+  Li: Integer;
+begin
+  inherited RegisterAliases(AList);
+  for Li := 0 to FFields.Count - 1 do
+    FFields[Li].RegisterAliases(AList);
+end;
+
+{ TTLBMemberList<T> }
+
+constructor TTLBMemberList<T>.Create;
+begin
+  inherited Create(True);
+end;
+
+procedure TTLBMemberList<T>.Print(AOut: TOutFile; const AComment: string;
+  AAddEmptyLine: Boolean);
+begin
+  CustomPrint(
+    AOut,
+    AComment,
+    AAddEmptyLine,
+    procedure(AOut: TOutFile; AItem: T)
+    begin
+      AItem.Print(AOut);
+    end
+  );
+end;
+
+procedure TTLBMemberList<T>.CustomPrint(AOut: TOutFile; const AComment: string;
+  AAddEmptyLine: Boolean; const APrintProc: TPrintProc);
+var
+  Li: Integer;
+begin
+  if Count > 0 then begin
+    AOut.Write(TUnitSections.CType);
+    AOut.IncIdent;
+    try
+      if AComment <> '' then
+        AOut.Write('// ' + AComment);
+      for Li := 0 to Count - 1 do
+        APrintProc(AOut, Items[Li]);
+      if AAddEmptyLine then
+        AOut.EmptyLine;
+    finally
+      AOut.DecIdent;
+    end;
+  end;
+end;
+
+procedure TTLBMemberList<T>.RequireUnits(AUnitManager: TUnitManager);
+var
+  Li: Integer;
+begin
+  for Li := 0 to Count - 1 do
+    Items[Li].RequireUnits(AUnitManager);
+end;
+
+procedure TTLBMemberList<T>.RegisterAliases(AList: TAliasList);
+var
+  Li: Integer;
+begin
+  for Li := 0 to Count - 1 do
+    Items[Li].RegisterAliases(AList);
+end;
+
 { TTLBInfo }
 
 constructor TTLBInfo.Create(const AFileName: string);
@@ -1442,29 +1607,30 @@ begin
   OleCheck(LoadTypeLibEx(PChar(AFileName), REGKIND_NONE, LTlb));
   OleCheck(LTlb.GetDocumentation(MEMBERID_NIL, @LStr, nil, nil, nil));
   inherited Create(LStr);
-  FUnits := TUnitManager.Create(True);
-  FEnums := TObjectList<TEnum>.Create(True);
-  FRecords := TObjectList<TRecord>.Create(True);
-  FInterfaces := TObjectList<TInterface>.Create(True);
-  FCoClasses := TObjectList<TCoClass>.Create(True);
-  FAliases := TObjectList<TAlias>.Create(True);
+  FMemberList := TObjectList<TTLBMemberList<TTLBMember>>.Create(True);
+  FEnums := CreateMemberList<TEnum>;
+  FRecords := CreateMemberList<TRecord>;
+  FInterfaces := CreateMemberList<TInterface>;
+  FCoClasses := CreateMemberList<TCoClass>;
+  FAliases := CreateMemberList<TAlias>;
   Parse(LTlb);
 end;
 
 destructor TTLBInfo.Destroy;
 begin
-  FAliases.Free;
-  FCoClasses.Free;
-  FInterfaces.Free;
-  FRecords.Free;
-  FEnums.Free;
-  FUnits.Free;
+  FMemberList.Free;
   inherited Destroy;
 end;
 
 function TTLBInfo.GetPasUnitName: string;
 begin
   Result := Name + '_TLB';
+end;
+
+function TTLBInfo.CreateMemberList<T>: TTLBMemberList<T>;
+begin
+  Result := TTLBMemberList<T>.Create;
+  FMemberList.Add(TTLBMemberList<TTLBMember>(Result));
 end;
 
 procedure TTLBInfo.Parse(const ATypeLib: ITypeLib);
@@ -1529,120 +1695,29 @@ begin
   end;
 end;
 
-procedure TTLBInfo.PrintEnums(AOut: TOutFile);
-var
-  Li: Integer;
+procedure TTLBInfo.PrintForward<T>(AOut: TOutFile; AItem: T);
 begin
-  if FEnums.Count > 0 then begin
-    AOut.Write('// Enumerators');
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      for Li := 0 to FEnums.Count - 1 do
-        FEnums[Li].Print(AOut);
-    finally
-      AOut.DecIdent;
-    end;
-  end;
-end;
-
-procedure TTLBInfo.PrintForwardIntf(AOut: TOutFile);
-var
-  Li: Integer;
-begin
-  if FInterfaces.Count > 0 then begin
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      AOut.Write('// Interfaces forward declarations');
-      for Li := 0 to FInterfaces.Count - 1 do
-        FInterfaces[Li].PrintForward(AOut);
-      AOut.EmptyLine;
-    finally
-      AOut.DecIdent;
-    end;
-  end;
-end;
-
-procedure TTLBInfo.PrintForwardClass(AOut: TOutFile);
-var
-  Li: Integer;
-begin
-  if FCoClasses.Count > 0 then begin
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      AOut.Write('// CoClasses as default interface');
-      for Li := 0 to FCoClasses.Count - 1 do
-        FCoClasses[Li].PrintForward(AOut);
-      AOut.EmptyLine;
-    finally
-      AOut.DecIdent;
-    end;
-  end;
-end;
-
-procedure TTLBInfo.PrintAliaces(AOut: TOutFile);
-var
-  Li: Integer;
-begin
-  if FAliases.Count > 0 then begin
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      AOut.Write('// Aliaces');
-      for Li := 0 to FAliases.Count - 1 do
-        FAliases[Li].Print(AOut);
-      AOut.EmptyLine;
-    finally
-      AOut.DecIdent;
-    end;
-  end;
-end;
-
-procedure TTLBInfo.PrintRecords(AOut: TOutFile);
-var
-  Li: Integer;
-begin
-  if FRecords.Count > 0 then begin
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      AOut.Write('// Records');
-      for Li := 0 to FRecords.Count - 1 do
-        FRecords[Li].Print(AOut);
-    finally
-      AOut.DecIdent;
-    end;
-  end;
-end;
-
-procedure TTLBInfo.PrintIntf(AOut: TOutFile);
-var
-  Li: Integer;
-begin
-  if FInterfaces.Count > 0 then begin
-    AOut.Write(TUnitSections.CType);
-    AOut.IncIdent;
-    try
-      AOut.Write('// Interfaces');
-      for Li := 0 to FInterfaces.Count - 1 do
-        FInterfaces[Li].Print(AOut);
-      AOut.EmptyLine;
-    finally
-      AOut.DecIdent;
-    end;
-  end;
+  AItem.PrintForward(AOut);
 end;
 
 procedure TTLBInfo.Print(AOut: TOutFile);
+var
+  LUnits: TUnitManager;
+  LAliaces: TAliasList;
 begin
   AOut.WriteFmt(TUnitSections.CUnit + ' %s;', [PasUnitName]);
   AOut.EmptyLine;
   AOut.Write(TUnitSections.CInterface);
   AOut.EmptyLine;
-  RequireUnits(FUnits);
-  FUnits.Print(AOut);
+
+  LUnits := TUnitManager.Create(True);
+  try
+    RequireUnits(LUnits);
+    LUnits.Print(AOut);
+  finally
+    LUnits.Free;
+  end;
+
   AOut.Write(TUnitSections.CConst);
   AOut.IncIdent;
   try
@@ -1653,28 +1728,41 @@ begin
     AOut.DecIdent;
   end;
 
-  PrintEnums(AOut);
-  PrintForwardIntf(AOut);
-  PrintForwardClass(AOut);
-  PrintAliaces(AOut);
-  PrintRecords(AOut);
-  PrintIntf(AOut);
+  if FEnums.Count > 0 then begin
+    AOut.Write('// Enumerators');
+//    AOut.Write('{$Z 4}');
+    AOut.Write('{$MINENUMSIZE 4}');
+    FEnums.Print(AOut, '', False);
+  end;
+  FInterfaces.CustomPrint(AOut, 'Interfaces forward declarations', True, PrintForward<TInterface>);
+  FCoClasses.CustomPrint(AOut, 'CoClasses as default interface', True, PrintForward<TCoClass>);
+
+  LAliaces := TAliasList.Create;
+  try
+    RegisterAliases(LAliaces);
+    LAliaces.Print(AOut);
+  finally
+    LAliaces.Free;
+  end;
+  FAliases.Print(AOut, 'Aliaces', True);
+  FRecords.Print(AOut, 'Records', False);
+  FInterfaces.Print(AOut, 'Interfaces', False);
 end;
 
 procedure TTLBInfo.RequireUnits(AUnitManager: TUnitManager);
 var
   Li: Integer;
 begin
-  for Li := 0 to FEnums.Count - 1 do
-    FEnums[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FRecords.Count - 1 do
-    FRecords[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FInterfaces.Count - 1 do
-    FInterfaces[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FCoClasses.Count - 1 do
-    FCoClasses[Li].RequireUnits(AUnitManager);
-  for Li := 0 to FAliases.Count - 1 do
-    FAliases[Li].RequireUnits(AUnitManager);
+  for Li := 0 to FMemberList.Count - 1 do
+    FMemberList[Li].RequireUnits(AUnitManager);
+end;
+
+procedure TTLBInfo.RegisterAliases(AList: TAliasList);
+var
+  Li: Integer;
+begin
+  for Li := 0 to FMemberList.Count - 1 do
+    FMemberList[Li].RegisterAliases(AList);
 end;
 
 end.

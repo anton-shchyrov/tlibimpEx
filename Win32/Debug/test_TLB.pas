@@ -30,13 +30,25 @@ type
   ITestPropDisp = dispinterface;
 
 type
+  // Custom aliaces
+  PPInteger = ^PInteger;
+
+type
   // Aliaces
+  PLong1 = type PInteger;
+  PLong2 = type PPInteger;
   myStr = type WideString;
 
 type
   // Records
+  {$ALIGN 2}
   TRec = record
-    Fld1: Integer;
+    F3: SmallInt;
+  end;
+
+  {$ALIGN 1}
+  TRecAlign = record
+    F1: ShortInt;
   end;
 
 type
@@ -52,6 +64,7 @@ type
     ['{6FB81CFB-39D0-466A-8FB3-34F4869C31EE}']
     function Base1(const ARec: TRec): HRESULT; stdcall;
     function Base2(const AVal: TGUID): HRESULT; stdcall;
+    function Base3(var ARec: TRec): HRESULT; stdcall;
   end;
 
   IChild = interface(IBase)
@@ -64,6 +77,7 @@ type
     procedure Child; dispid 1610809344;
     procedure Base1(const ARec: TRec); dispid 1610743808;
     procedure Base2(const AVal: TGUID); dispid 1610743809;
+    procedure Base3(var ARec: TRec); dispid 1610743810;
   end;
 
   IChild2 = interface(IChild)
@@ -77,6 +91,7 @@ type
     procedure Child; dispid 1610809344;
     procedure Base1(const ARec: TRec); dispid 1610743808;
     procedure Base2(const AVal: TGUID); dispid 1610743809;
+    procedure Base3(var ARec: TRec); dispid 1610743810;
   end;
 
   ITest = interface(IDispatch)
@@ -134,5 +149,4 @@ type
     property Get2: Integer dispid 1610743815;
     property Get3[AIdx: Integer]: Integer dispid 1610743817;
   end;
-
 

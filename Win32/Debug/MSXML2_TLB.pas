@@ -443,6 +443,10 @@ type
   MXNamespaceManager60 = IVBMXNamespaceManager;
 
 type
+  // Custom aliaces
+  PtagXHR_COOKIE = ^tagXHR_COOKIE;
+
+type
   // Aliaces
   DOMNodeType = type tagDOMNodeType;
   SOMITEMTYPE = type _SOMITEMTYPE;
@@ -1501,9 +1505,9 @@ type
     function putDTDHandler(const pHandler: ISAXDTDHandler): HRESULT; stdcall;
     function getErrorHandler(out ppHandler: ISAXErrorHandler): HRESULT; stdcall;
     function putErrorHandler(const pHandler: ISAXErrorHandler): HRESULT; stdcall;
-    function getBaseURL({1} out ppwchBaseUrl: Word): HRESULT; stdcall;
+    function getBaseURL({1} out ppwchBaseUrl: PWord): HRESULT; stdcall;
     function putBaseURL(var pwchBaseUrl: Word): HRESULT; stdcall;
-    function getSecureBaseURL({1} out ppwchSecureBaseUrl: Word): HRESULT; stdcall;
+    function getSecureBaseURL({1} out ppwchSecureBaseUrl: PWord): HRESULT; stdcall;
     function putSecureBaseURL(var pwchSecureBaseUrl: Word): HRESULT; stdcall;
     function parse(varInput: OleVariant): HRESULT; stdcall;
     function parseURL(var pwchUrl: Word): HRESULT; stdcall;
@@ -1534,26 +1538,26 @@ type
     ['{9B7E472A-0DE4-4640-BFF3-84D38A051C31}']
     function getColumnNumber(out pnColumn: SYSINT): HRESULT; stdcall;
     function getLineNumber(out pnLine: SYSINT): HRESULT; stdcall;
-    function getPublicId({1} out ppwchPublicId: Word): HRESULT; stdcall;
-    function getSystemId({1} out ppwchSystemId: Word): HRESULT; stdcall;
+    function getPublicId({1} out ppwchPublicId: PWord): HRESULT; stdcall;
+    function getSystemId({1} out ppwchSystemId: PWord): HRESULT; stdcall;
   end;
 
   ISAXAttributes = interface(IUnknown)
     ['{F078ABE1-45D2-4832-91EA-4466CE2F25C9}']
     function getLength(out pnLength: SYSINT): HRESULT; stdcall;
-    function getURI(nIndex: SYSINT; {1} out ppwchUri: Word; out pcchUri: SYSINT): HRESULT; stdcall;
-    function getLocalName(nIndex: SYSINT; {1} out ppwchLocalName: Word; out pcchLocalName: SYSINT): HRESULT; stdcall;
-    function getQName(nIndex: SYSINT; {1} out ppwchQName: Word; out pcchQName: SYSINT): HRESULT; stdcall;
-    function getName(nIndex: SYSINT; {1} out ppwchUri: Word; out pcchUri: SYSINT; {1} out ppwchLocalName: Word; out pcchLocalName: SYSINT; {1} out ppwchQName: Word;
+    function getURI(nIndex: SYSINT; {1} out ppwchUri: PWord; out pcchUri: SYSINT): HRESULT; stdcall;
+    function getLocalName(nIndex: SYSINT; {1} out ppwchLocalName: PWord; out pcchLocalName: SYSINT): HRESULT; stdcall;
+    function getQName(nIndex: SYSINT; {1} out ppwchQName: PWord; out pcchQName: SYSINT): HRESULT; stdcall;
+    function getName(nIndex: SYSINT; {1} out ppwchUri: PWord; out pcchUri: SYSINT; {1} out ppwchLocalName: PWord; out pcchLocalName: SYSINT; {1} out ppwchQName: PWord;
       out pcchQName: SYSINT): HRESULT; stdcall;
     function getIndexFromName(var pwchUri: Word; cchUri: SYSINT; var pwchLocalName: Word; cchLocalName: SYSINT; out pnIndex: SYSINT): HRESULT; stdcall;
     function getIndexFromQName(var pwchQName: Word; cchQName: SYSINT; out pnIndex: SYSINT): HRESULT; stdcall;
-    function getType(nIndex: SYSINT; {1} out ppwchType: Word; out pcchType: SYSINT): HRESULT; stdcall;
-    function getTypeFromName(var pwchUri: Word; cchUri: SYSINT; var pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchType: Word; out pcchType: SYSINT): HRESULT; stdcall;
-    function getTypeFromQName(var pwchQName: Word; cchQName: SYSINT; {1} out ppwchType: Word; out pcchType: SYSINT): HRESULT; stdcall;
-    function getValue(nIndex: SYSINT; {1} out ppwchValue: Word; out pcchValue: SYSINT): HRESULT; stdcall;
-    function getValueFromName(var pwchUri: Word; cchUri: SYSINT; var pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchValue: Word; out pcchValue: SYSINT): HRESULT; stdcall;
-    function getValueFromQName(var pwchQName: Word; cchQName: SYSINT; {1} out ppwchValue: Word; out pcchValue: SYSINT): HRESULT; stdcall;
+    function getType(nIndex: SYSINT; {1} out ppwchType: PWord; out pcchType: SYSINT): HRESULT; stdcall;
+    function getTypeFromName(var pwchUri: Word; cchUri: SYSINT; var pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchType: PWord; out pcchType: SYSINT): HRESULT; stdcall;
+    function getTypeFromQName(var pwchQName: Word; cchQName: SYSINT; {1} out ppwchType: PWord; out pcchType: SYSINT): HRESULT; stdcall;
+    function getValue(nIndex: SYSINT; {1} out ppwchValue: PWord; out pcchValue: SYSINT): HRESULT; stdcall;
+    function getValueFromName(var pwchUri: Word; cchUri: SYSINT; var pwchLocalName: Word; cchLocalName: SYSINT; {1} out ppwchValue: PWord; out pcchValue: SYSINT): HRESULT; stdcall;
+    function getValueFromQName(var pwchQName: Word; cchQName: SYSINT; {1} out ppwchValue: PWord; out pcchValue: SYSINT): HRESULT; stdcall;
   end;
 
   ISAXDTDHandler = interface(IUnknown)
@@ -2603,7 +2607,7 @@ type
     function setProperty(eProperty: XHR_PROPERTY; ullValue: UInt64): HRESULT; stdcall;
     function setRequestHeader(pwszHeader: PWideChar; pwszValue: PWideChar): HRESULT; stdcall;
     function getAllResponseHeaders(out ppwszHeaders: PWideChar): HRESULT; stdcall;
-    function GetCookie(pwszUrl: PWideChar; pwszName: PWideChar; dwFlags: Cardinal; out pcCookies: Cardinal; {1} out ppCookies: tagXHR_COOKIE): HRESULT; stdcall;
+    function GetCookie(pwszUrl: PWideChar; pwszName: PWideChar; dwFlags: Cardinal; out pcCookies: Cardinal; {1} out ppCookies: PtagXHR_COOKIE): HRESULT; stdcall;
     function getResponseHeader(pwszHeader: PWideChar; out ppwszValue: PWideChar): HRESULT; stdcall;
   end;
 
@@ -2874,5 +2878,4 @@ type
     function getPrefix(pwszNamespaceURI: PWideChar; nIndex: Integer; var pwchPrefix: Word; var pcchPrefix: SYSINT): HRESULT; stdcall;
     function getURI(pwchPrefix: PWideChar; const pContextNode: IXMLDOMNode; var pwchUri: Word; var pcchUri: SYSINT): HRESULT; stdcall;
   end;
-
 

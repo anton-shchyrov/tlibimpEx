@@ -12,7 +12,7 @@ unit test_TLB;
 // ************************************************************************ //
 
 // $Rev: 52393 $
-// File generated on 18.10.2016 17:46:19 from Type Library described below.
+// File generated on 19.10.2016 19:29:57 from Type Library described below.
 
 // ************************************************************************  //
 // Type Lib: D:\Anton\Sources\rsShared\TLB\test.tlb (1)
@@ -79,9 +79,20 @@ type
 // *********************************************************************//
 // Declaration of structures, unions and aliases.                         
 // *********************************************************************//
+  PLong1 = ^Integer; 
+  PLong2 = ^PInteger1; 
+  PInteger1 = ^Integer; {*}
+  PUserType1 = ^TRec; {*}
 
+
+{$ALIGN 2}
   TRec = record
-    Fld1: Integer;
+    F3: Smallint;
+  end;
+
+{$ALIGN 1}
+  TRecAlign = record
+    F1: Shortint;
   end;
 
   myStr = WideString; 
@@ -107,6 +118,7 @@ type
     ['{6FB81CFB-39D0-466A-8FB3-34F4869C31EE}']
     procedure Base1(ARec: TRec); safecall;
     procedure Base2(AVal: TGUID); safecall;
+    procedure Base3(var ARec: TRec); safecall;
   end;
 
 // *********************************************************************//
@@ -129,6 +141,7 @@ type
     procedure Child; dispid 1610809344;
     procedure Base1(ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743808;
     procedure Base2(AVal: {NOT_OLEAUTO(TGUID)}OleVariant); dispid 1610743809;
+    procedure Base3(var ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743810;
   end;
 
 // *********************************************************************//
@@ -152,6 +165,7 @@ type
     procedure Child; dispid 1610809344;
     procedure Base1(ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743808;
     procedure Base2(AVal: {NOT_OLEAUTO(TGUID)}OleVariant); dispid 1610743809;
+    procedure Base3(var ARec: {NOT_OLEAUTO(TRec)}OleVariant); dispid 1610743810;
   end;
 
 // *********************************************************************//

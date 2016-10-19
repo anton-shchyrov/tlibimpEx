@@ -18,16 +18,29 @@ library test
       [id(3)]
       HRESULT _stdcall Disp3([out, retval] long * AIdx);
   }
+  
+  [uuid(257404EC-D927-4466-9FCF-F202D9C3B46C)]
+  typedef long * PLong1;
+  [uuid(191334F4-A40C-4753-B580-9B67C06FC3E8)]
+  typedef long ** PLong2;
 
   [uuid(6C190416-C4B8-47AD-8FB7-C5786B1A6B5C)]
   typedef struct {
-    long Fld1;
+    short F3;
+//    long Fld1;
+//    GUID ** Fld2;
   } TRec;
+
+  [uuid(73EA076A-9FAE-424C-BBF1-9976B2F22724)]
+  typedef struct {
+    char F1;
+  } TRecAlign;
 
   [uuid(6FB81CFB-39D0-466A-8FB3-34F4869C31EE)]
   interface IBase: IDispatch {
     HRESULT _stdcall Base1([in] TRec ARec);
     HRESULT _stdcall Base2([in] GUID AVal);
+    HRESULT _stdcall Base3([in] TRec * ARec);
   }
 
   [
