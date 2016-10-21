@@ -1,4 +1,4 @@
-unit MSXML2_TLB;
+unit MSXML2_TLB_1;
 
 interface
 
@@ -106,7 +106,6 @@ const
 
 // Enumerators
 {$MINENUMSIZE 4}
-
 type
   tagDOMNodeType = type TOleEnum;
 const
@@ -429,6 +428,7 @@ type
   IMXNamespacePrefixesDisp = dispinterface;
   IMXNamespaceManager = interface;
 
+type
   // CoClasses as default interface
   DOMDocument60 = IXMLDOMDocument3;
   FreeThreadedDOMDocument60 = IXMLDOMDocument3;
@@ -443,9 +443,11 @@ type
   SAXAttributes60 = IMXAttributes;
   MXNamespaceManager60 = IVBMXNamespaceManager;
 
+type
   // Custom aliaces
   PtagXHR_COOKIE = ^tagXHR_COOKIE;
 
+type
   // Aliaces
   DOMNodeType = type tagDOMNodeType;
   SOMITEMTYPE = type _SOMITEMTYPE;
@@ -460,6 +462,7 @@ type
   SXH_PROXY_SETTING = type _SXH_PROXY_SETTING;
   XHR_PROPERTY = type _XHR_PROPERTY;
 
+type
   // Records
   {$ALIGN 4}
   __msxml6_ReferenceRemainingTypes__ = record
@@ -488,12 +491,6 @@ type
   end;
 
   {$ALIGN 4}
-  _FILETIME = record
-    dwLowDateTime: Cardinal;
-    dwHighDateTime: Cardinal;
-  end;
-
-  {$ALIGN 4}
   tagXHR_COOKIE = record
     pwszUrl: PWideChar;
     pwszName: PWideChar;
@@ -503,6 +500,13 @@ type
     dwFlags: Cardinal;
   end;
 
+  {$ALIGN 4}
+  _FILETIME = record
+    dwLowDateTime: Cardinal;
+    dwHighDateTime: Cardinal;
+  end;
+
+type
   // Interfaces
   IXMLDOMNode = interface(IDispatch)
     ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
@@ -558,7 +562,7 @@ type
     property specified: WordBool read Get_specified;
     property definition: IXMLDOMNode read Get_definition;
     property nodeTypedValue: OleVariant read Get_nodeTypedValue write Set_nodeTypedValue;
-    // property dataType: OleVariant read Get_dataType write Set_dataType;
+    property dataType: OleVariant read Get_dataType write Set_dataType;
     property xml: WideString read Get_xml;
     property parsed: WordBool read Get_parsed;
     property namespaceURI: WideString read Get_namespaceURI;
@@ -973,22 +977,14 @@ type
     property baseName: WideString readonly dispid 34;
   end;
 
-  IXMLDOMCharacterData = interface(IXMLDOMNode)
-    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
-    function Get_data: WideString; safecall;
-    procedure Set_data(const data: WideString); safecall;
-    function Get_length: Integer; safecall;
-    function substringData(offset: Integer; count: Integer): WideString; safecall;
-    procedure appendData(const data: WideString); safecall;
-    procedure insertData(offset: Integer; const data: WideString); safecall;
-    procedure deleteData(offset: Integer; count: Integer); safecall;
-    procedure replaceData(offset: Integer; count: Integer; const data: WideString); safecall;
-    property data: WideString read Get_data write Set_data;
-    property length: Integer read Get_length;
+  IXMLDOMText = interface(IXMLDOMCharacterData)
+    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
+    function splitText(offset: Integer): IXMLDOMText; safecall;
   end;
 
-  IXMLDOMCharacterDataDisp = dispinterface
-    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
+  IXMLDOMTextDisp = dispinterface
+    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
+    function splitText(offset: Integer): IXMLDOMText; dispid 123;
     function substringData(offset: Integer; count: Integer): WideString; dispid 111;
     procedure appendData(const data: WideString); dispid 112;
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
@@ -1030,14 +1026,22 @@ type
     property baseName: WideString readonly dispid 34;
   end;
 
-  IXMLDOMText = interface(IXMLDOMCharacterData)
-    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
-    function splitText(offset: Integer): IXMLDOMText; safecall;
+  IXMLDOMCharacterData = interface(IXMLDOMNode)
+    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
+    function Get_data: WideString; safecall;
+    procedure Set_data(const data: WideString); safecall;
+    function Get_length: Integer; safecall;
+    function substringData(offset: Integer; count: Integer): WideString; safecall;
+    procedure appendData(const data: WideString); safecall;
+    procedure insertData(offset: Integer; const data: WideString); safecall;
+    procedure deleteData(offset: Integer; count: Integer); safecall;
+    procedure replaceData(offset: Integer; count: Integer; const data: WideString); safecall;
+    property data: WideString read Get_data write Set_data;
+    property length: Integer read Get_length;
   end;
 
-  IXMLDOMTextDisp = dispinterface
-    ['{2933BF87-7B36-11D2-B20E-00C04F983E60}']
-    function splitText(offset: Integer): IXMLDOMText; dispid 123;
+  IXMLDOMCharacterDataDisp = dispinterface
+    ['{2933BF84-7B36-11D2-B20E-00C04F983E60}']
     function substringData(offset: Integer; count: Integer): WideString; dispid 111;
     procedure appendData(const data: WideString); dispid 112;
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
@@ -1779,55 +1783,6 @@ type
     procedure schemaElementDecl(const oSchemaElement: ISchemaElement); dispid 1403;
   end;
 
-  ISchemaItem = interface(IDispatch)
-    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_name: WideString; safecall;
-    function Get_namespaceURI: WideString; safecall;
-    function Get_schema: ISchema; safecall;
-    function Get_id: WideString; safecall;
-    function Get_itemType: SOMITEMTYPE; safecall;
-    function Get_unhandledAttributes: IVBSAXAttributes; safecall;
-    function writeAnnotation(const annotationSink: IUnknown): WordBool; safecall;
-    property name: WideString read Get_name;
-    property namespaceURI: WideString read Get_namespaceURI;
-    property schema: ISchema read Get_schema;
-    property id: WideString read Get_id;
-    property itemType: SOMITEMTYPE read Get_itemType;
-    property unhandledAttributes: IVBSAXAttributes read Get_unhandledAttributes;
-  end;
-
-  ISchemaItemDisp = dispinterface
-    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
-    function writeAnnotation(const annotationSink: IUnknown): WordBool; dispid 1483;
-    property id: WideString readonly dispid 1440;
-    property itemType: SOMITEMTYPE readonly dispid 1446;
-    property name: WideString readonly dispid 1457;
-    property namespaceURI: WideString readonly dispid 1459;
-    property schema: ISchema readonly dispid 1467;
-    property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
-  end;
-
-  ISchemaParticle = interface(ISchemaItem)
-    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
-    function Get_minOccurs: OleVariant; safecall;
-    function Get_maxOccurs: OleVariant; safecall;
-    property minOccurs: OleVariant read Get_minOccurs;
-    property maxOccurs: OleVariant read Get_maxOccurs;
-  end;
-
-  ISchemaParticleDisp = dispinterface
-    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
-    function writeAnnotation(const annotationSink: IUnknown): WordBool; dispid 1483;
-    property maxOccurs: OleVariant readonly dispid 1451;
-    property minOccurs: OleVariant readonly dispid 1455;
-    property name: WideString readonly dispid 1457;
-    property namespaceURI: WideString readonly dispid 1459;
-    property schema: ISchema readonly dispid 1467;
-    property id: WideString readonly dispid 1440;
-    property itemType: SOMITEMTYPE readonly dispid 1446;
-    property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
-  end;
-
   ISchemaElement = interface(ISchemaParticle)
     ['{50EA08B7-DD1B-4664-9A50-C2F40F4BD79A}']
     function Get_type_: ISchemaType; safecall;
@@ -1875,6 +1830,55 @@ type
     property schema: ISchema readonly dispid 1467;
     property id: WideString readonly dispid 1440;
     property itemType: SOMITEMTYPE readonly dispid 1446;
+    property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
+  end;
+
+  ISchemaParticle = interface(ISchemaItem)
+    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
+    function Get_minOccurs: OleVariant; safecall;
+    function Get_maxOccurs: OleVariant; safecall;
+    property minOccurs: OleVariant read Get_minOccurs;
+    property maxOccurs: OleVariant read Get_maxOccurs;
+  end;
+
+  ISchemaParticleDisp = dispinterface
+    ['{50EA08B5-DD1B-4664-9A50-C2F40F4BD79A}']
+    function writeAnnotation(const annotationSink: IUnknown): WordBool; dispid 1483;
+    property maxOccurs: OleVariant readonly dispid 1451;
+    property minOccurs: OleVariant readonly dispid 1455;
+    property name: WideString readonly dispid 1457;
+    property namespaceURI: WideString readonly dispid 1459;
+    property schema: ISchema readonly dispid 1467;
+    property id: WideString readonly dispid 1440;
+    property itemType: SOMITEMTYPE readonly dispid 1446;
+    property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
+  end;
+
+  ISchemaItem = interface(IDispatch)
+    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
+    function Get_name: WideString; safecall;
+    function Get_namespaceURI: WideString; safecall;
+    function Get_schema: ISchema; safecall;
+    function Get_id: WideString; safecall;
+    function Get_itemType: SOMITEMTYPE; safecall;
+    function Get_unhandledAttributes: IVBSAXAttributes; safecall;
+    function writeAnnotation(const annotationSink: IUnknown): WordBool; safecall;
+    property name: WideString read Get_name;
+    property namespaceURI: WideString read Get_namespaceURI;
+    property schema: ISchema read Get_schema;
+    property id: WideString read Get_id;
+    property itemType: SOMITEMTYPE read Get_itemType;
+    property unhandledAttributes: IVBSAXAttributes read Get_unhandledAttributes;
+  end;
+
+  ISchemaItemDisp = dispinterface
+    ['{50EA08B3-DD1B-4664-9A50-C2F40F4BD79A}']
+    function writeAnnotation(const annotationSink: IUnknown): WordBool; dispid 1483;
+    property id: WideString readonly dispid 1440;
+    property itemType: SOMITEMTYPE readonly dispid 1446;
+    property name: WideString readonly dispid 1457;
+    property namespaceURI: WideString readonly dispid 1459;
+    property schema: ISchema readonly dispid 1467;
     property unhandledAttributes: IVBSAXAttributes readonly dispid 1478;
   end;
 
@@ -2288,20 +2292,16 @@ type
     procedure ondataavailable; dispid 198;
   end;
 
-  IXMLDOMDocument2 = interface(IXMLDOMDocument)
-    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
-    function Get_namespaces: IXMLDOMSchemaCollection; safecall;
-    function Get_schemas: OleVariant; safecall;
-    procedure Set_schemas(otherCollection: OleVariant); safecall;
-    function validate: IXMLDOMParseError; safecall;
-    procedure setProperty(const name: WideString; value: OleVariant); safecall;
-    function getProperty(const name: WideString): OleVariant; safecall;
-    property namespaces: IXMLDOMSchemaCollection read Get_namespaces;
-    property schemas: OleVariant read Get_schemas write Set_schemas;
+  IXMLDOMDocument3 = interface(IXMLDOMDocument2)
+    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; safecall;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; safecall;
   end;
 
-  IXMLDOMDocument2Disp = dispinterface
-    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
+  IXMLDOMDocument3Disp = dispinterface
+    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; dispid 208;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; dispid 209;
     function validate: IXMLDOMParseError; dispid 203;
     procedure setProperty(const name: WideString; value: OleVariant); dispid 204;
     function getProperty(const name: WideString): OleVariant; dispid 205;
@@ -2369,16 +2369,20 @@ type
     property baseName: WideString readonly dispid 34;
   end;
 
-  IXMLDOMDocument3 = interface(IXMLDOMDocument2)
-    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
-    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; safecall;
-    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; safecall;
+  IXMLDOMDocument2 = interface(IXMLDOMDocument)
+    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
+    function Get_namespaces: IXMLDOMSchemaCollection; safecall;
+    function Get_schemas: OleVariant; safecall;
+    procedure Set_schemas(otherCollection: OleVariant); safecall;
+    function validate: IXMLDOMParseError; safecall;
+    procedure setProperty(const name: WideString; value: OleVariant); safecall;
+    function getProperty(const name: WideString): OleVariant; safecall;
+    property namespaces: IXMLDOMSchemaCollection read Get_namespaces;
+    property schemas: OleVariant read Get_schemas write Set_schemas;
   end;
 
-  IXMLDOMDocument3Disp = dispinterface
-    ['{2933BF96-7B36-11D2-B20E-00C04F983E60}']
-    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; dispid 208;
-    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; dispid 209;
+  IXMLDOMDocument2Disp = dispinterface
+    ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
     function validate: IXMLDOMParseError; dispid 203;
     procedure setProperty(const name: WideString; value: OleVariant); dispid 204;
     function getProperty(const name: WideString): OleVariant; dispid 205;
@@ -2625,16 +2629,16 @@ type
     function RemoteWrite(var pv: Byte; cb: Cardinal; out pcbWritten: Cardinal): HRESULT; stdcall;
   end;
 
-  IServerXMLHTTPRequest = interface(IXMLHTTPRequest)
-    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
-    procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); safecall;
-    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; safecall;
-    function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; safecall;
-    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); safecall;
+  IServerXMLHTTPRequest2 = interface(IServerXMLHTTPRequest)
+    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); safecall;
+    procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); safecall;
   end;
 
-  IServerXMLHTTPRequestDisp = dispinterface
-    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
+  IServerXMLHTTPRequest2Disp = dispinterface
+    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); dispid 19;
+    procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); dispid 20;
     procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); dispid 15;
     function waitForResponse(timeoutInSeconds: OleVariant): WordBool; dispid 16;
     function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; dispid 17;
@@ -2655,16 +2659,16 @@ type
     property onreadystatechange: IDispatch writeonly dispid 14;
   end;
 
-  IServerXMLHTTPRequest2 = interface(IServerXMLHTTPRequest)
-    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
-    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); safecall;
-    procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); safecall;
+  IServerXMLHTTPRequest = interface(IXMLHTTPRequest)
+    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
+    procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); safecall;
+    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; safecall;
+    function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; safecall;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); safecall;
   end;
 
-  IServerXMLHTTPRequest2Disp = dispinterface
-    ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
-    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); dispid 19;
-    procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); dispid 20;
+  IServerXMLHTTPRequestDisp = dispinterface
+    ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
     procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); dispid 15;
     function waitForResponse(timeoutInSeconds: OleVariant): WordBool; dispid 16;
     function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; dispid 17;
@@ -2878,65 +2882,66 @@ type
     function getURI(pwchPrefix: PWideChar; const pContextNode: IXMLDOMNode; var pwchUri: Word; var pcchUri: SYSINT): HRESULT; stdcall;
   end;
 
+type
   // CoClasses
   CoDOMDocument60 = class
-    class function Create: IXMLDOMDocument3;
-    class function CreateRemote(const AMachineName: string): IXMLDOMDocument3;
+    class function Create: IXMLDOMDocument3
+    class function CreateRemote(const AMachineName: string): IXMLDOMDocument3
   end;
 
   CoFreeThreadedDOMDocument60 = class
-    class function Create: IXMLDOMDocument3;
-    class function CreateRemote(const AMachineName: string): IXMLDOMDocument3;
+    class function Create: IXMLDOMDocument3
+    class function CreateRemote(const AMachineName: string): IXMLDOMDocument3
   end;
 
   CoXMLSchemaCache60 = class
-    class function Create: IXMLDOMSchemaCollection2;
-    class function CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2;
+    class function Create: IXMLDOMSchemaCollection2
+    class function CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2
   end;
 
   CoXSLTemplate60 = class
-    class function Create: IXSLTemplate;
-    class function CreateRemote(const AMachineName: string): IXSLTemplate;
+    class function Create: IXSLTemplate
+    class function CreateRemote(const AMachineName: string): IXSLTemplate
   end;
 
   CoXMLHTTP60 = class
-    class function Create: IXMLHTTPRequest;
-    class function CreateRemote(const AMachineName: string): IXMLHTTPRequest;
+    class function Create: IXMLHTTPRequest
+    class function CreateRemote(const AMachineName: string): IXMLHTTPRequest
   end;
 
   CoFreeThreadedXMLHTTP60 = class
-    class function Create: IXMLHTTPRequest2;
-    class function CreateRemote(const AMachineName: string): IXMLHTTPRequest2;
+    class function Create: IXMLHTTPRequest2
+    class function CreateRemote(const AMachineName: string): IXMLHTTPRequest2
   end;
 
   CoServerXMLHTTP60 = class
-    class function Create: IServerXMLHTTPRequest2;
-    class function CreateRemote(const AMachineName: string): IServerXMLHTTPRequest2;
+    class function Create: IServerXMLHTTPRequest2
+    class function CreateRemote(const AMachineName: string): IServerXMLHTTPRequest2
   end;
 
   CoSAXXMLReader60 = class
-    class function Create: IVBSAXXMLReader;
-    class function CreateRemote(const AMachineName: string): IVBSAXXMLReader;
+    class function Create: IVBSAXXMLReader
+    class function CreateRemote(const AMachineName: string): IVBSAXXMLReader
   end;
 
   CoMXXMLWriter60 = class
-    class function Create: IMXWriter;
-    class function CreateRemote(const AMachineName: string): IMXWriter;
+    class function Create: IMXWriter
+    class function CreateRemote(const AMachineName: string): IMXWriter
   end;
 
   CoMXHTMLWriter60 = class
-    class function Create: IMXWriter;
-    class function CreateRemote(const AMachineName: string): IMXWriter;
+    class function Create: IMXWriter
+    class function CreateRemote(const AMachineName: string): IMXWriter
   end;
 
   CoSAXAttributes60 = class
-    class function Create: IMXAttributes;
-    class function CreateRemote(const AMachineName: string): IMXAttributes;
+    class function Create: IMXAttributes
+    class function CreateRemote(const AMachineName: string): IMXAttributes
   end;
 
   CoMXNamespaceManager60 = class
-    class function Create: IVBMXNamespaceManager;
-    class function CreateRemote(const AMachineName: string): IVBMXNamespaceManager;
+    class function Create: IVBMXNamespaceManager
+    class function CreateRemote(const AMachineName: string): IVBMXNamespaceManager
   end;
 
 implementation
@@ -2946,144 +2951,144 @@ uses
 
 { CoDOMDocument60 }
 
-class function CoDOMDocument60.Create: IXMLDOMDocument3;
+class function CoDOMDocument60.Create: IXMLDOMDocument3
 begin
   Result := CreateComObject(CLASS_DOMDocument60) as IXMLDOMDocument3;
 end;
 
-class function CoDOMDocument60.CreateRemote(const AMachineName: string): IXMLDOMDocument3;
+class function CoDOMDocument60.CreateRemote(const AMachineName: string): IXMLDOMDocument3
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_DOMDocument60) as IXMLDOMDocument3;
 end;
 
 { CoFreeThreadedDOMDocument60 }
 
-class function CoFreeThreadedDOMDocument60.Create: IXMLDOMDocument3;
+class function CoFreeThreadedDOMDocument60.Create: IXMLDOMDocument3
 begin
   Result := CreateComObject(CLASS_FreeThreadedDOMDocument60) as IXMLDOMDocument3;
 end;
 
-class function CoFreeThreadedDOMDocument60.CreateRemote(const AMachineName: string): IXMLDOMDocument3;
+class function CoFreeThreadedDOMDocument60.CreateRemote(const AMachineName: string): IXMLDOMDocument3
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_FreeThreadedDOMDocument60) as IXMLDOMDocument3;
 end;
 
 { CoXMLSchemaCache60 }
 
-class function CoXMLSchemaCache60.Create: IXMLDOMSchemaCollection2;
+class function CoXMLSchemaCache60.Create: IXMLDOMSchemaCollection2
 begin
   Result := CreateComObject(CLASS_XMLSchemaCache60) as IXMLDOMSchemaCollection2;
 end;
 
-class function CoXMLSchemaCache60.CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2;
+class function CoXMLSchemaCache60.CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XMLSchemaCache60) as IXMLDOMSchemaCollection2;
 end;
 
 { CoXSLTemplate60 }
 
-class function CoXSLTemplate60.Create: IXSLTemplate;
+class function CoXSLTemplate60.Create: IXSLTemplate
 begin
   Result := CreateComObject(CLASS_XSLTemplate60) as IXSLTemplate;
 end;
 
-class function CoXSLTemplate60.CreateRemote(const AMachineName: string): IXSLTemplate;
+class function CoXSLTemplate60.CreateRemote(const AMachineName: string): IXSLTemplate
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XSLTemplate60) as IXSLTemplate;
 end;
 
 { CoXMLHTTP60 }
 
-class function CoXMLHTTP60.Create: IXMLHTTPRequest;
+class function CoXMLHTTP60.Create: IXMLHTTPRequest
 begin
   Result := CreateComObject(CLASS_XMLHTTP60) as IXMLHTTPRequest;
 end;
 
-class function CoXMLHTTP60.CreateRemote(const AMachineName: string): IXMLHTTPRequest;
+class function CoXMLHTTP60.CreateRemote(const AMachineName: string): IXMLHTTPRequest
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XMLHTTP60) as IXMLHTTPRequest;
 end;
 
 { CoFreeThreadedXMLHTTP60 }
 
-class function CoFreeThreadedXMLHTTP60.Create: IXMLHTTPRequest2;
+class function CoFreeThreadedXMLHTTP60.Create: IXMLHTTPRequest2
 begin
   Result := CreateComObject(CLASS_FreeThreadedXMLHTTP60) as IXMLHTTPRequest2;
 end;
 
-class function CoFreeThreadedXMLHTTP60.CreateRemote(const AMachineName: string): IXMLHTTPRequest2;
+class function CoFreeThreadedXMLHTTP60.CreateRemote(const AMachineName: string): IXMLHTTPRequest2
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_FreeThreadedXMLHTTP60) as IXMLHTTPRequest2;
 end;
 
 { CoServerXMLHTTP60 }
 
-class function CoServerXMLHTTP60.Create: IServerXMLHTTPRequest2;
+class function CoServerXMLHTTP60.Create: IServerXMLHTTPRequest2
 begin
   Result := CreateComObject(CLASS_ServerXMLHTTP60) as IServerXMLHTTPRequest2;
 end;
 
-class function CoServerXMLHTTP60.CreateRemote(const AMachineName: string): IServerXMLHTTPRequest2;
+class function CoServerXMLHTTP60.CreateRemote(const AMachineName: string): IServerXMLHTTPRequest2
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_ServerXMLHTTP60) as IServerXMLHTTPRequest2;
 end;
 
 { CoSAXXMLReader60 }
 
-class function CoSAXXMLReader60.Create: IVBSAXXMLReader;
+class function CoSAXXMLReader60.Create: IVBSAXXMLReader
 begin
   Result := CreateComObject(CLASS_SAXXMLReader60) as IVBSAXXMLReader;
 end;
 
-class function CoSAXXMLReader60.CreateRemote(const AMachineName: string): IVBSAXXMLReader;
+class function CoSAXXMLReader60.CreateRemote(const AMachineName: string): IVBSAXXMLReader
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_SAXXMLReader60) as IVBSAXXMLReader;
 end;
 
 { CoMXXMLWriter60 }
 
-class function CoMXXMLWriter60.Create: IMXWriter;
+class function CoMXXMLWriter60.Create: IMXWriter
 begin
   Result := CreateComObject(CLASS_MXXMLWriter60) as IMXWriter;
 end;
 
-class function CoMXXMLWriter60.CreateRemote(const AMachineName: string): IMXWriter;
+class function CoMXXMLWriter60.CreateRemote(const AMachineName: string): IMXWriter
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXXMLWriter60) as IMXWriter;
 end;
 
 { CoMXHTMLWriter60 }
 
-class function CoMXHTMLWriter60.Create: IMXWriter;
+class function CoMXHTMLWriter60.Create: IMXWriter
 begin
   Result := CreateComObject(CLASS_MXHTMLWriter60) as IMXWriter;
 end;
 
-class function CoMXHTMLWriter60.CreateRemote(const AMachineName: string): IMXWriter;
+class function CoMXHTMLWriter60.CreateRemote(const AMachineName: string): IMXWriter
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXHTMLWriter60) as IMXWriter;
 end;
 
 { CoSAXAttributes60 }
 
-class function CoSAXAttributes60.Create: IMXAttributes;
+class function CoSAXAttributes60.Create: IMXAttributes
 begin
   Result := CreateComObject(CLASS_SAXAttributes60) as IMXAttributes;
 end;
 
-class function CoSAXAttributes60.CreateRemote(const AMachineName: string): IMXAttributes;
+class function CoSAXAttributes60.CreateRemote(const AMachineName: string): IMXAttributes
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_SAXAttributes60) as IMXAttributes;
 end;
 
 { CoMXNamespaceManager60 }
 
-class function CoMXNamespaceManager60.Create: IVBMXNamespaceManager;
+class function CoMXNamespaceManager60.Create: IVBMXNamespaceManager
 begin
   Result := CreateComObject(CLASS_MXNamespaceManager60) as IVBMXNamespaceManager;
 end;
 
-class function CoMXNamespaceManager60.CreateRemote(const AMachineName: string): IVBMXNamespaceManager;
+class function CoMXNamespaceManager60.CreateRemote(const AMachineName: string): IVBMXNamespaceManager
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXNamespaceManager60) as IVBMXNamespaceManager;
 end;

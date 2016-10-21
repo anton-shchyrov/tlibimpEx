@@ -29,7 +29,7 @@ type
     property Level[AIdx: Integer]: string read GetLevel;
   end;
 
-  TStdUnits = (suSystem, suCustom, suActiveX, suWindows);
+  TStdUnits = (suSystem, suCustom, suActiveX, suWindows, suComObj);
 
   TPasTypeInfo = record
     Name: string;
@@ -38,6 +38,7 @@ type
     VarType: TVarType;
     StdUnit: TStdUnits;
     CustomUnit: string;
+    function IsEqual(const AInfo: TPasTypeInfo): Boolean;
   end;
 
   TUnitManager = class
@@ -52,7 +53,8 @@ type
         (Name: 'System'; NS: ''),
         (Name: ''; NS: ''),
         (Name: 'ActiveX'; NS: 'Winapi'),
-        (Name: 'Windows'; NS: 'Winapi')
+        (Name: 'Windows'; NS: 'Winapi'),
+        (Name: 'ComObj'; NS: 'System.Win')
       );
   strict private
     FUnits: TDictionary<string, Integer>;
@@ -64,6 +66,7 @@ type
     procedure AddCustomUnit(const AUnit: string);
     procedure AddPasType(const AType: TPasTypeInfo);
     procedure Print(AOut: TOutFile);
+    procedure Clear;
   end;
 
   TReservedWords = class
@@ -147,12 +150,19 @@ begin
   FLevels.Delete(FLevels.Count - 1);
 end;
 
+{ TPasTypeInfo }
+
+function TPasTypeInfo.IsEqual(const AInfo: TPasTypeInfo): Boolean;
+begin
+  Result := (Name = AInfo.Name) and (Ref = AInfo.Ref);
+end;
+
 { TUnitManager }
 
 constructor TUnitManager.Create(AUseNS: Boolean);
 begin
   inherited Create;
-  FUnits := TDictionary<string, Integer>.Create;
+  FUnits := TDictionary<string, Integer>.Create(Length(CStdUnits));
   FUseNS := AUseNS;
 end;
 
@@ -233,6 +243,11 @@ begin
     AOut.DecIdent;
   end;
   AOut.EmptyLine;
+end;
+
+procedure TUnitManager.Clear;
+begin
+  FUnits.Clear;
 end;
 
 { TReservedWords }

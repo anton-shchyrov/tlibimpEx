@@ -102,6 +102,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Win32\Debug\MSXML2_TLB.pas"/>
         <DCCReference Include="UTLBMembers.pas"/>
         <DCCReference Include="UTLBClasses.pas"/>
         <RidlCompile Include="test.ridl"/>

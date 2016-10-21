@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
+  MSXML2_TLB in 'Win32\Debug\MSXML2_TLB.pas',
   UTLBMembers in 'UTLBMembers.pas',
   UTLBClasses in 'UTLBClasses.pas';
 
@@ -188,10 +189,10 @@ end;
 
 const
 //  CName = 'tlibimpEx.tlb';
-//  CName = 'msxml6.dll';
+  CName = 'msxml6.dll';
 //  CName = 'msxml2my.tlb';
 //  CName = 'rsEmc.tlb';
-  CName = 'test.tlb';
+//  CName = 'test.tlb';
 
 var
   LParser: TTLBInfo;
