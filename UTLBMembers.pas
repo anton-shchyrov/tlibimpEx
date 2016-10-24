@@ -41,7 +41,7 @@ type
   end;
 
   TTLBMember = class;
-  TTLBMemberDict = TDictionary<string, TTLBMember>;
+  TTLBMemberDict = class(TDictionary<string, TTLBMember>);
 
   TTLBMember = class(TIntfItem)
   strict private
@@ -58,7 +58,6 @@ type
   public
     property Members: TTLBMemberDict read FMembers write FMembers;
   end;
-
 
   TAlias = class(TTLBMember)
   strict private
@@ -228,13 +227,19 @@ type
 
   TCoClass = class(TGUIDMember)
   strict private
+    FInterfaces: TObjectList<TInterface>;
+    FEvents: TObjectList<TInterface>;
     FDefaultIntf: TCustomInterface;
   strict private
-    function GetClassName: string;
+    function GetCoClassName: string;
+    function GetOleClassName: string;
+    procedure PrintCoClass(AOut: TOutFile);
+    procedure PrintOleClass(AOut: TOutFile);
   strict protected
     function GetIIDPrefix: string; override;
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
+    constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
     function Print(AOut: TOutFile): Boolean; override;
     procedure PrintForward(AOut: TOutFile); override;
@@ -1440,15 +1445,59 @@ end;
 
 { TCoClass }
 
+constructor TCoClass.Create(const ATypeInfo: ITypeInfo);
+begin
+  FInterfaces := TObjectList<TInterface>.Create(True);
+  FEvents := TObjectList<TInterface>.Create(True);
+end;
+
 destructor TCoClass.Destroy;
 begin
-  FDefaultIntf.Free;
+  FEvents.Free;
+  FInterfaces.Free;
   inherited Destroy;
 end;
 
-function TCoClass.GetClassName: string;
+function TCoClass.GetCoClassName: string;
 begin
   Result := 'Co' + Name;
+end;
+
+function TCoClass.GetOleClassName: string;
+begin
+  Result := 'T' + Name;
+end;
+
+procedure TCoClass.PrintCoClass(AOut: TOutFile);
+begin
+  AOut.WriteFmt('%s = class', [GetCoClassName]);
+  AOut.IncIdent;
+  try
+    AOut.WriteFmt('class function Create: %s;', [FDefaultIntf.Name]);
+    AOut.WriteFmt('class function CreateRemote(const AMachineName: string): %s;', [FDefaultIntf.Name]);
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write('end;');
+  AOut.EmptyLine;
+end;
+
+procedure TCoClass.PrintOleClass(AOut: TOutFile);
+begin
+  AOut.WriteFmt('%s = class(TOleServer)', [GetOleClassName]);
+  AOut.Write('private');
+  AOut.IncIdent;
+  try
+    AOut.WriteFmt('FIntf: %s', [FDefaultIntf.Name]);
+  finally
+    AOut.DecIdent;
+  end;
+  if FEvents.Count > 0 then begin
+
+  end;
+
+  AOut.Write('end;');
+  AOut.EmptyLine;
 end;
 
 function TCoClass.GetIIDPrefix: string;
@@ -1462,16 +1511,20 @@ var
   LFlag: Integer;
   LRefType: HRefType;
   LInfo: ITypeInfo;
+  LIntf: TInterface;
 begin
   inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
   for Li := 0 to ATypeAttr.cImplTypes - 1 do begin
     OleCheck(ATypeInfo.GetImplTypeFlags(Li, LFlag));
-    if LFlag and IMPLTYPEFLAG_FDEFAULT = IMPLTYPEFLAG_FDEFAULT then begin
-      OleCheck(ATypeInfo.GetRefTypeOfImplType(Li, LRefType));
-      OleCheck(ATypeInfo.GetRefTypeInfo(LRefType, LInfo));
-      FDefaultIntf := TInterface.Create(LInfo);
-      Break;
-    end;
+    OleCheck(ATypeInfo.GetRefTypeOfImplType(Li, LRefType));
+    OleCheck(ATypeInfo.GetRefTypeInfo(LRefType, LInfo));
+    LIntf := TInterface.Create(LInfo);
+    if LFlag and IMPLTYPEFLAG_FSOURCE = IMPLTYPEFLAG_FSOURCE then
+      FEvents.Add(LIntf)
+    else
+      FInterfaces.Add(LIntf);
+    if (FDefaultIntf = nil) and (LFlag and IMPLTYPEFLAG_FDEFAULT = IMPLTYPEFLAG_FDEFAULT) then
+      FDefaultIntf := LIntf;
   end;
 end;
 
@@ -1480,16 +1533,8 @@ begin
   Result := inherited Print(AOut);
   if not Result then
     Exit;
-  AOut.WriteFmt('%s = class', [GetClassName]);
-  AOut.IncIdent;
-  try
-    AOut.WriteFmt('class function Create: %s;', [FDefaultIntf.Name]);
-    AOut.WriteFmt('class function CreateRemote(const AMachineName: string): %s;', [FDefaultIntf.Name]);
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.Write('end;');
-  AOut.EmptyLine;
+  PrintCoClass(AOut);
+  PrintOleClass(AOut);
 end;
 
 procedure TCoClass.PrintForward(AOut: TOutFile);
@@ -1503,7 +1548,7 @@ var
   LIntfName: string;
   LSfxFunc: string;
 begin
-  LClassName := GetClassName;
+  LClassName := GetCoClassName;
   LIntfName := FDefaultIntf.Name;
   LSfxFunc := Format('%s_%s) as %s;', [GetIIDPrefix, Name, LIntfName]);
 

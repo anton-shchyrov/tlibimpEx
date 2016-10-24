@@ -3,7 +3,7 @@ program tlibimpEx;
 {.$APPTYPE CONSOLE}
 
 uses
-  FastMM4,
+//  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
