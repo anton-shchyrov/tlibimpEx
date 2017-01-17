@@ -2884,9 +2884,63 @@ type
     class function CreateRemote(const AMachineName: string): IXMLDOMDocument3;
   end;
 
+  TDOMDocument60 = class(TOleServer)
+  private
+    FIntf: IXMLDOMDocument3;
+  private
+    FOnondataavailable: TNotifyEvent;
+    FOnonreadystatechange: TNotifyEvent;
+  private
+    function GetDefaultInterface: IXMLDOMDocument3;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXMLDOMDocument3
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode;
+  public
+    property DefaultInterface: IXMLDOMDocument3 read GetDefaultInterface;
+  published
+    property Onondataavailable: TNotifyEvent read FOnondataavailable write FOnondataavailable;
+    property Ononreadystatechange: TNotifyEvent read FOnonreadystatechange write FOnonreadystatechange;
+  end;
+
   CoFreeThreadedDOMDocument60 = class
     class function Create: IXMLDOMDocument3;
     class function CreateRemote(const AMachineName: string): IXMLDOMDocument3;
+  end;
+
+  TFreeThreadedDOMDocument60 = class(TOleServer)
+  private
+    FIntf: IXMLDOMDocument3;
+  private
+    FOnondataavailable: TNotifyEvent;
+    FOnonreadystatechange: TNotifyEvent;
+  private
+    function GetDefaultInterface: IXMLDOMDocument3;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXMLDOMDocument3
+    function validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
+    function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode;
+  public
+    property DefaultInterface: IXMLDOMDocument3 read GetDefaultInterface;
+  published
+    property Onondataavailable: TNotifyEvent read FOnondataavailable write FOnondataavailable;
+    property Ononreadystatechange: TNotifyEvent read FOnonreadystatechange write FOnonreadystatechange;
   end;
 
   CoXMLSchemaCache60 = class
@@ -2894,9 +2948,51 @@ type
     class function CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2;
   end;
 
+  TXMLSchemaCache60 = class(TOleServer)
+  private
+    FIntf: IXMLDOMSchemaCollection2;
+  private
+    function GetDefaultInterface: IXMLDOMSchemaCollection2;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXMLDOMSchemaCollection2
+    procedure validate;
+    function getSchema(const namespaceURI: WideString): ISchema;
+    function getDeclaration(const node: IXMLDOMNode): ISchemaItem;
+  public
+    property DefaultInterface: IXMLDOMSchemaCollection2 read GetDefaultInterface;
+  end;
+
   CoXSLTemplate60 = class
     class function Create: IXSLTemplate;
     class function CreateRemote(const AMachineName: string): IXSLTemplate;
+  end;
+
+  TXSLTemplate60 = class(TOleServer)
+  private
+    FIntf: IXSLTemplate;
+  private
+    function GetDefaultInterface: IXSLTemplate;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXSLTemplate
+    function createProcessor: IXSLProcessor;
+  public
+    property DefaultInterface: IXSLTemplate read GetDefaultInterface;
   end;
 
   CoXMLHTTP60 = class
@@ -2904,9 +3000,64 @@ type
     class function CreateRemote(const AMachineName: string): IXMLHTTPRequest;
   end;
 
+  TXMLHTTP60 = class(TOleServer)
+  private
+    FIntf: IXMLHTTPRequest;
+  private
+    function GetDefaultInterface: IXMLHTTPRequest;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXMLHTTPRequest
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant);
+    procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString);
+    function getResponseHeader(const bstrHeader: WideString): WideString;
+    function getAllResponseHeaders: WideString;
+    procedure send(varBody: OleVariant);
+    procedure abort;
+  public
+    property DefaultInterface: IXMLHTTPRequest read GetDefaultInterface;
+  end;
+
   CoFreeThreadedXMLHTTP60 = class
     class function Create: IXMLHTTPRequest2;
     class function CreateRemote(const AMachineName: string): IXMLHTTPRequest2;
+  end;
+
+  TFreeThreadedXMLHTTP60 = class(TOleServer)
+  private
+    FIntf: IXMLHTTPRequest2;
+  private
+    function GetDefaultInterface: IXMLHTTPRequest2;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IXMLHTTPRequest2
+    procedure open(pwszMethod: PWideChar; pwszUrl: PWideChar; const pStatusCallback: IXMLHTTPRequest2Callback; pwszUserName: PWideChar; pwszPassword: PWideChar;
+      pwszProxyUserName: PWideChar; pwszProxyPassword: PWideChar);
+    procedure send(const pBody: ISequentialStream; cbBody: UInt64);
+    procedure abort;
+    procedure SetCookie(var pCookie: tagXHR_COOKIE; out pdwCookieState: Cardinal);
+    procedure SetCustomResponseStream(const pSequentialStream: ISequentialStream);
+    procedure setProperty(eProperty: XHR_PROPERTY; ullValue: UInt64);
+    procedure setRequestHeader(pwszHeader: PWideChar; pwszValue: PWideChar);
+    procedure getAllResponseHeaders(out ppwszHeaders: PWideChar);
+    procedure GetCookie(pwszUrl: PWideChar; pwszName: PWideChar; dwFlags: Cardinal; out pcCookies: Cardinal; out ppCookies: PtagXHR_COOKIE);
+    procedure getResponseHeader(pwszHeader: PWideChar; out ppwszValue: PWideChar);
+  public
+    property DefaultInterface: IXMLHTTPRequest2 read GetDefaultInterface;
   end;
 
   CoServerXMLHTTP60 = class
@@ -2914,9 +3065,55 @@ type
     class function CreateRemote(const AMachineName: string): IServerXMLHTTPRequest2;
   end;
 
+  TServerXMLHTTP60 = class(TOleServer)
+  private
+    FIntf: IServerXMLHTTPRequest2;
+  private
+    function GetDefaultInterface: IServerXMLHTTPRequest2;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IServerXMLHTTPRequest2
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant);
+    procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString);
+  public
+    property DefaultInterface: IServerXMLHTTPRequest2 read GetDefaultInterface;
+  end;
+
   CoSAXXMLReader60 = class
     class function Create: IVBSAXXMLReader;
     class function CreateRemote(const AMachineName: string): IVBSAXXMLReader;
+  end;
+
+  TSAXXMLReader60 = class(TOleServer)
+  private
+    FIntf: IVBSAXXMLReader;
+  private
+    function GetDefaultInterface: IVBSAXXMLReader;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IVBSAXXMLReader
+    function getFeature(const strName: WideString): WordBool;
+    procedure putFeature(const strName: WideString; fValue: WordBool);
+    function getProperty(const strName: WideString): OleVariant;
+    procedure putProperty(const strName: WideString; varValue: OleVariant);
+    procedure parse(varInput: OleVariant);
+    procedure parseURL(const strURL: WideString);
+  public
+    property DefaultInterface: IVBSAXXMLReader read GetDefaultInterface;
   end;
 
   CoMXXMLWriter60 = class
@@ -2924,9 +3121,49 @@ type
     class function CreateRemote(const AMachineName: string): IMXWriter;
   end;
 
+  TMXXMLWriter60 = class(TOleServer)
+  private
+    FIntf: IMXWriter;
+  private
+    function GetDefaultInterface: IMXWriter;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IMXWriter
+    procedure flush;
+  public
+    property DefaultInterface: IMXWriter read GetDefaultInterface;
+  end;
+
   CoMXHTMLWriter60 = class
     class function Create: IMXWriter;
     class function CreateRemote(const AMachineName: string): IMXWriter;
+  end;
+
+  TMXHTMLWriter60 = class(TOleServer)
+  private
+    FIntf: IMXWriter;
+  private
+    function GetDefaultInterface: IMXWriter;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IMXWriter
+    procedure flush;
+  public
+    property DefaultInterface: IMXWriter read GetDefaultInterface;
   end;
 
   CoSAXAttributes60 = class
@@ -2934,9 +3171,68 @@ type
     class function CreateRemote(const AMachineName: string): IMXAttributes;
   end;
 
+  TSAXAttributes60 = class(TOleServer)
+  private
+    FIntf: IMXAttributes;
+  private
+    function GetDefaultInterface: IMXAttributes;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IMXAttributes
+    procedure addAttribute(const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString; const strValue: WideString);
+    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT);
+    procedure clear;
+    procedure removeAttribute(nIndex: SYSINT);
+    procedure setAttribute(nIndex: SYSINT; const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
+      const strValue: WideString);
+    procedure setAttributes(varAtts: OleVariant);
+    procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString);
+    procedure setQName(nIndex: SYSINT; const strQName: WideString);
+    procedure setType(nIndex: SYSINT; const strType: WideString);
+    procedure setURI(nIndex: SYSINT; const strURI: WideString);
+    procedure setValue(nIndex: SYSINT; const strValue: WideString);
+  public
+    property DefaultInterface: IMXAttributes read GetDefaultInterface;
+  end;
+
   CoMXNamespaceManager60 = class
     class function Create: IVBMXNamespaceManager;
     class function CreateRemote(const AMachineName: string): IVBMXNamespaceManager;
+  end;
+
+  TMXNamespaceManager60 = class(TOleServer)
+  private
+    FIntf: IVBMXNamespaceManager;
+  private
+    function GetDefaultInterface: IVBMXNamespaceManager;
+  protected
+    procedure InitServerData; override;
+    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Connect; override;
+    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure Disconnect; override;
+  public  // Implements IVBMXNamespaceManager
+    procedure reset;
+    procedure pushContext;
+    procedure pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool);
+    procedure popContext;
+    procedure declarePrefix(const prefix: WideString; const namespaceURI: WideString);
+    function getDeclaredPrefixes: IMXNamespacePrefixes;
+    function getPrefixes(const namespaceURI: WideString): IMXNamespacePrefixes;
+    function getURI(const prefix: WideString): OleVariant;
+    function getURIFromNode(const strPrefix: WideString; const contextNode: IXMLDOMNode): OleVariant;
+  public
+    property DefaultInterface: IVBMXNamespaceManager read GetDefaultInterface;
   end;
 
 implementation

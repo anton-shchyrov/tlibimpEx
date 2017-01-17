@@ -1,0 +1,1403 @@
+[
+  uuid(86B7C309-2174-42F4-BDC0-343828D6FE24),
+  version(1.0),
+  helpstring("Radiosoft ActiveDataX Library"),
+  control
+
+]
+library rsActiveDataX
+{
+
+  importlib("comsvcs.dll");/*IStream*/
+  importlib("stdole2.tlb");
+  importlib("rsShare.tlb");
+
+  interface IrsADXLicence2;
+
+  [
+    uuid(283610C7-B39B-4F83-9AFD-8EB1AE3F688E),
+    version(1.0)
+  ]
+  typedef enum TFileFormat
+  {
+    ffDefault = -1,
+    ffBMP = 0,
+    ffWMF = 1,
+    ffEMF = 2,
+    ffJPEG = 3,
+    ffPNG = 4
+  } TFileFormat;
+
+  [
+    uuid(9EF27173-3805-4B2B-9102-6BF7C4C67375),
+    version(1.0)
+  ]
+  typedef enum TMarkerFlag
+  {
+    mfNone         = 0x0000,
+    mfProperty     = 0x0001,
+    mfPermanent    = 0x0002,
+    mfNotPermanent = 0x0004,
+    mfLic   			 = 0x0008
+  } TMarkerFlag;
+
+  [
+    uuid(3B39A993-0004-4B48-8A3B-2C5E22B17C9B),
+    version(1.0),
+    helpstring("Events interface for rsActiveDataX Control")
+  ]
+   dispinterface IrsActiveDataXEvents
+  {
+    properties:
+    methods:
+    [id(0x000000C9)]
+    void OnActivate(void);
+    [id(0x000000CA)]
+    void OnClick(void);
+    [id(0x000000CB)]
+    void OnCreate(void);
+    [id(0x000000CC)]
+    void OnDblClick(void);
+    [id(0x000000CD)]
+    void OnDestroy(void);
+    [id(0x000000CE)]
+    void OnDeactivate(void);
+    [id(0x000000CF)]
+    void OnKeyPress([in, out] short * Key );
+    [id(0x000000D0)]
+    void OnMouseEnter(void);
+    [id(0x000000D1)]
+    void OnMouseLeave(void);
+    [id(0x000000D2)]
+    void OnPaint(void);
+    [id(0x000000D3)]
+    void OnLicClick([in] IrsADXLicence2 * ALicense);
+  };
+
+  [
+    uuid(C8E237C6-8273-4917-8FD5-AF927463498B),
+    version(1.0),
+    helpstring("rsActiveDataX Control"),
+    control
+  ]
+  coclass rsActiveDataX
+  {
+    [default] interface IrsActiveDataX2;
+    interface IrsActiveDataX;
+    [default, source] dispinterface IrsActiveDataXEvents;
+  };
+
+  [
+    uuid(B01B0F41-0075-49AF-AA54-BDC03767382D),
+    version(1.0)
+  ]
+  typedef enum TxActiveFormBorderStyle
+  {
+    [
+    helpstring("afbNone")
+    ]
+    afbNone = 0,
+    [
+    helpstring("afbSingle")
+    ]
+    afbSingle = 1,
+    [
+    helpstring("afbSunken")
+    ]
+    afbSunken = 2,
+    [
+    helpstring("afbRaised")
+    ]
+    afbRaised = 3
+  } TxActiveFormBorderStyle;
+
+  [
+    uuid(9D5BE875-7408-4C70-A267-3AFAB8D9EAE5),
+    version(1.0)
+  ]
+  typedef enum TxPrintScale
+  {
+    [
+    helpstring("poNone")
+    ]
+    poNone = 0,
+    [
+    helpstring("poProportional")
+    ]
+    poProportional = 1,
+    [
+    helpstring("poPrintToFit")
+    ]
+    poPrintToFit = 2
+  } TxPrintScale;
+
+  [
+    uuid(06CB15DF-6524-412E-9E28-98DC87C7F609),
+    version(1.0)
+  ]
+  typedef enum TxMouseButton
+  {
+    [
+    helpstring("mbLeft")
+    ]
+    mbLeft = 0,
+    [
+    helpstring("mbRight")
+    ]
+    mbRight = 1,
+    [
+    helpstring("mbMiddle")
+    ]
+    mbMiddle = 2
+  } TxMouseButton;
+
+  [
+    uuid(13EE51A2-56E9-49CD-90A4-C92BBF0E978A),
+    version(1.0)
+  ]
+  typedef enum TxPopupMode
+  {
+    [
+    helpstring("pmNone")
+    ]
+    pmNone = 0,
+    [
+    helpstring("pmAuto")
+    ]
+    pmAuto = 1,
+    [
+    helpstring("pmExplicit")
+    ]
+    pmExplicit = 2
+  } TxPopupMode;
+
+  [
+    uuid(6190410D-DD6A-4103-8D66-A3B06D0252CE),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsPropertySeries: IDispatch
+  {
+    [
+      id(100),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Color([out, retval] OLE_COLOR * AOut );
+    [
+      id(100),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Color([in] OLE_COLOR AVal );
+    [
+      id(101),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Visible([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(101),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Visible([in] VARIANT_BOOL AVal );
+    [
+      id(102),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpGUID([out, retval] GUID * AOut );
+    [
+      id(103),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpGUIDStr([out, retval] BSTR * AOut );
+    [
+      id(104),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpName([out, retval] BSTR * AOut );
+    [
+      id(105),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpDesc([out, retval] BSTR * AOut );
+    [
+      id(105),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall PrpDesc([in] BSTR AVal );
+    [
+      id(106),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Values([out, retval] IUnknown ** AOut );
+    [
+      id(107),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall UseGradientFill([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(107),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall UseGradientFill([in] VARIANT_BOOL AVal );
+  }
+
+  [
+    uuid(9E98D2ED-A388-443B-B24A-CAAB158AE8AF),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+  interface IrsPropertySeries2: IrsPropertySeries
+  {
+    [
+      id(110),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall GroupID([out, retval] long * AOut );
+  }
+
+  [
+    uuid(FC8BAA48-9128-42E7-8D3F-EE3E670E9E31),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsUserPropertySeries: IrsPropertySeries
+  {
+    [
+      id(200),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Values([out, retval] IUnknown ** AOut );
+    [
+      id(200),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Values([in] IUnknown * AVal );
+  }
+
+  [
+    uuid(E9811BBC-D1C6-4DA3-BDAF-D6A3FC983F58),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsSeriesList: IDispatch
+  {
+    [
+      id(101),
+      propget
+    ]
+    HRESULT _stdcall Visible([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(101),
+      propput
+    ]
+    HRESULT _stdcall Visible([in] VARIANT_BOOL AVal );
+    [
+      id(102),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpSeriesCount([out, retval] long * AOut );
+    [
+      id(103),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PrpSeries([in] long AIdx, [out, retval] IrsPropertySeries ** AOut );
+    [id(104)]
+    HRESULT _stdcall AddSeries([in] GUID AGUID, [out, retval] IrsUserPropertySeries ** AOut );
+    [id(105)]
+    HRESULT _stdcall LoadBase64WithHdr([in] BSTR AGUID, [in] BSTR AHeader, [in] BSTR AData );
+    [id(106)]
+    HRESULT _stdcall LoadData([in] GUID AGUID, [in] IUnknown * AHeader, [in] IUnknown * AData );
+    [id(107)]
+    HRESULT _stdcall EnableValidProperties( void );
+  }
+
+   interface IrsLevelPalette;
+
+   interface IrsADXInterfacedList;
+
+   interface IrsADXLicenceList;
+
+   interface IrsADXPrpMarker;
+
+  [
+    uuid(2BB11364-34E7-4A90-A06A-0A68D700A9F1),
+    version(1.0),
+    helpstring("Dispatch interface for rsActiveDataX Control"),
+    dual,
+    oleautomation
+  ]
+   interface IrsActiveDataX: IDispatch
+  {
+    [
+    propget,
+    id(0x000000C9),
+    hidden
+    ]
+    HRESULT _stdcall Visible([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000C9),
+    hidden
+    ]
+    HRESULT _stdcall Visible([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000CA)
+    ]
+    HRESULT _stdcall AutoScroll([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000CA)
+    ]
+    HRESULT _stdcall AutoScroll([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000CB)
+    ]
+    HRESULT _stdcall AutoSize([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000CB)
+    ]
+    HRESULT _stdcall AutoSize([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000CC)
+    ]
+    HRESULT _stdcall AxBorderStyle([out, retval] TxActiveFormBorderStyle * Value );
+    [
+    propput,
+    id(0x000000CC)
+    ]
+    HRESULT _stdcall AxBorderStyle([in] TxActiveFormBorderStyle Value );
+    [
+    propget,
+    id(0xFFFFFDFA)
+    ]
+    HRESULT _stdcall Caption([out, retval] BSTR * Value );
+    [
+    propput,
+    id(0xFFFFFDFA)
+    ]
+    HRESULT _stdcall Caption([in] BSTR Value );
+    [
+    propget,
+    id(0xFFFFFE0B)
+    ]
+    HRESULT _stdcall Color([out, retval] OLE_COLOR * Value );
+    [
+    propput,
+    id(0xFFFFFE0B)
+    ]
+    HRESULT _stdcall Color([in] OLE_COLOR Value );
+    [
+    propget,
+    id(0xFFFFFE00)
+    ]
+    HRESULT _stdcall Font([out, retval] IFontDisp ** Value );
+    [
+    propput,
+    id(0xFFFFFE00)
+    ]
+    HRESULT _stdcall Font([in] IFontDisp * Value );
+    [
+    propputref,
+    id(0xFFFFFE00)
+    ]
+    HRESULT _stdcall Font([in] IFontDisp ** Value );
+    [
+    propget, 
+    id(0x000000CD)
+    ]
+    HRESULT _stdcall KeyPreview([out, retval] VARIANT_BOOL * Value );
+    [
+    propput, 
+    id(0x000000CD)
+    ]
+    HRESULT _stdcall KeyPreview([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000CE)
+    ]
+    HRESULT _stdcall PixelsPerInch([out, retval] long * Value );
+    [
+    propput, 
+    id(0x000000CE)
+    ]
+    HRESULT _stdcall PixelsPerInch([in] long Value );
+    [
+    propget,
+    id(0x000000CF)
+    ]
+    HRESULT _stdcall PrintScale([out, retval] TxPrintScale * Value );
+    [
+    propput, 
+    id(0x000000CF)
+    ]
+    HRESULT _stdcall PrintScale([in] TxPrintScale Value );
+    [
+    propget, 
+    id(0x000000D0)
+    ]
+    HRESULT _stdcall Scaled([out, retval] VARIANT_BOOL * Value );
+    [
+    propput, 
+    id(0x000000D0)
+    ]
+    HRESULT _stdcall Scaled([in] VARIANT_BOOL Value );
+    [
+    propget, 
+    id(0x000000D1), 
+    hidden
+    ]
+    HRESULT _stdcall Active([out, retval] VARIANT_BOOL * Value );
+    [
+    propget, 
+    id(0x000000D2),
+    hidden
+    ]
+    HRESULT _stdcall DropTarget([out, retval] VARIANT_BOOL * Value );
+    [
+    propput, 
+    id(0x000000D2), 
+    hidden
+    ]
+    HRESULT _stdcall DropTarget([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000D3), 
+    hidden
+    ]
+    HRESULT _stdcall HelpFile([out, retval] BSTR * Value );
+    [
+    propput, 
+    id(0x000000D3), 
+    hidden
+    ]
+    HRESULT _stdcall HelpFile([in] BSTR Value );
+    [
+    propget, 
+    id(0x000000D4), 
+    hidden
+    ]
+    HRESULT _stdcall PopupMode([out, retval] TxPopupMode * Value );
+    [
+    propput, 
+    id(0x000000D4), 
+    hidden
+    ]
+    HRESULT _stdcall PopupMode([in] TxPopupMode Value );
+    [
+    propget,
+    id(0x000000D5),
+    hidden
+    ]
+    HRESULT _stdcall ScreenSnap([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000D5),
+    hidden
+    ]
+    HRESULT _stdcall ScreenSnap([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000D6), 
+    hidden
+    ]
+    HRESULT _stdcall SnapBuffer([out, retval] long * Value );
+    [
+    propput,
+    id(0x000000D6), 
+    hidden
+    ]
+    HRESULT _stdcall SnapBuffer([in] long Value );
+    [
+    propget,
+    id(0x000000D7), 
+    hidden
+    ]
+    HRESULT _stdcall DockSite([out, retval] VARIANT_BOOL * Value );
+    [
+    propput, 
+    id(0x000000D7), 
+    hidden
+    ]
+    HRESULT _stdcall DockSite([in] VARIANT_BOOL Value );
+    [
+    propget, 
+    id(0x000000D8), 
+    hidden
+    ]
+    HRESULT _stdcall DoubleBuffered([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000D8),
+    hidden
+    ]
+    HRESULT _stdcall DoubleBuffered([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000D9),
+    hidden
+    ]
+    HRESULT _stdcall AlignDisabled([out, retval] VARIANT_BOOL * Value );
+    [
+    propget,
+    id(0x000000DA),
+    hidden
+    ]
+    HRESULT _stdcall MouseInClient([out, retval] VARIANT_BOOL * Value );
+    [
+    propget,
+    id(0x000000DB),
+    hidden
+    ]
+    HRESULT _stdcall VisibleDockClientCount([out, retval] long * Value );
+    [
+    propget,
+    id(0x000000DC),
+    hidden
+    ]
+    HRESULT _stdcall UseDockManager([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000DC),
+    hidden
+    ]
+    HRESULT _stdcall UseDockManager([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0xFFFFFDFE),
+    hidden
+    ]
+    HRESULT _stdcall Enabled([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0xFFFFFDFE),
+    hidden
+    ]
+    HRESULT _stdcall Enabled([in] VARIANT_BOOL Value );
+    [
+    propget,
+    id(0x000000DD),
+    hidden
+    ]
+    HRESULT _stdcall ExplicitLeft([out, retval] long * Value );
+    [
+    propget,
+    id(0x000000DE),
+    hidden
+    ]
+    HRESULT _stdcall ExplicitTop([out, retval] long * Value );
+    [
+    propget,
+    id(0x000000DF),
+    hidden
+    ]
+    HRESULT _stdcall ExplicitWidth([out, retval] long * Value );
+    [
+    propget,
+    id(0x000000E0),
+    hidden
+    ]
+    HRESULT _stdcall ExplicitHeight([out, retval] long * Value );
+    [
+    propget,
+    id(0x000000E1)
+    ]
+    HRESULT _stdcall AlignWithMargins([out, retval] VARIANT_BOOL * Value );
+    [
+    propput,
+    id(0x000000E1)
+    ]
+    HRESULT _stdcall AlignWithMargins([in] VARIANT_BOOL Value );
+    //
+    [
+      id(0x00000200),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall BgColor([out, retval] OLE_COLOR * AOut );
+    [
+      id(0x00000200),
+      propput
+    ]
+    HRESULT _stdcall BgColor([in] OLE_COLOR AVal );
+    [
+      id(0x00000201),
+      propget
+    ]
+    HRESULT _stdcall LabelColor([out, retval] OLE_COLOR * AOut );
+    [
+      id(0x00000201),
+      propput
+    ]
+    HRESULT _stdcall LabelColor([in] OLE_COLOR AVal );
+    [
+      id(0x00000202),
+      propget
+    ]
+    HRESULT _stdcall LabelVisible([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(0x00000202),
+      propput
+    ]
+    HRESULT _stdcall LabelVisible([in] VARIANT_BOOL AVal );
+    //
+    [id(0x00000220)]
+    HRESULT _stdcall CreateChart( void );
+    [id(0x00000221)]
+    HRESULT _stdcall SavePictureToFile([in] BSTR AFile, [in, out] TFileFormat * AFormat );
+    [id(0x00000222)]
+    HRESULT _stdcall SavePictureToStream([in] IUnknown * AStream, [in, out] TFileFormat * AFormat );
+    [id(0x00000225)]
+    HRESULT _stdcall AddSeriesList([out, retval] IrsSeriesList ** AOut );
+    [id(0x00000226)]
+    HRESULT _stdcall ClearSeriesList( void );
+    [id(0x00000227)]
+    HRESULT _stdcall DeleteSeriesList( [in] long AIdx );
+    [
+      id(0x00000228),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall SeriesListCount([out, retval] long * AOut );
+    [
+      id(0x00000229),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall SeriesList([in] long AIdx, [out, retval] IrsSeriesList ** AOut );
+    [id(0x0000022A)]
+    HRESULT _stdcall IndexOf([in] IrsSeriesList * ASeries, [out, retval] long * AOut );
+    [id(0x0000022B)]
+    HRESULT _stdcall EnableValidSeries( void );
+    [id(0x0000022C)]
+    HRESULT _stdcall Get_Palette( [out, retval] IrsLevelPalette ** AOut );
+    [id(0x0000022D)]
+    HRESULT _stdcall Set_Palette( [in] IrsLevelPalette * APalette );
+    [id(0x0000022E)]
+    HRESULT _stdcall Get_Limits( [out, retval] IrsLimits2 ** AOut );
+    [id(0x0000022F)]
+    HRESULT _stdcall Set_Limits( [in] IrsLimits2 * ALimits );
+  };
+
+  [
+    uuid(3E1A1FAC-72E7-454D-BD03-42B96B524E9A),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXLoadSaveSupport: IDispatch
+  {
+    [id(0x10000001)]
+    HRESULT _stdcall LoadData([in] IStream * AStream);
+
+    [id(0x10010002)]
+    HRESULT _stdcall SaveData([in, out] IStream ** AStream);
+  }
+
+  [
+    uuid(2F2D00EA-DD3F-42D7-B978-0572C1DA6A45),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXParamSupport: IDispatch
+  {
+    [
+      id(0x10000011),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Param([in] BSTR AName, [out, retval] VARIANT * AValue );
+    [
+      id(0x10000011),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Param([in] BSTR AName, [in] VARIANT AValue );
+
+  }
+
+  [
+    uuid(F758BA93-93FA-4ACE-9236-845C044CB60D),
+    version(1.0),
+    helpstring("Dispatch interface for rsActiveDataX Control ver. 2"),
+    dual,
+    oleautomation
+  ]
+   interface IrsActiveDataX2: IrsActiveDataX
+  {
+    [
+      propget,
+      id(0x00000300),
+      hidden
+    ]
+    HRESULT _stdcall Height([out, retval] long * AValue );
+    [
+      propput,
+      id(0x00000300),
+      hidden
+    ]
+    HRESULT _stdcall Height([in] long AValue );
+
+    [
+      propget,
+      id(0x00000301),
+      hidden
+    ]
+    HRESULT _stdcall Width([out, retval] long * AValue );
+    [
+      propput,
+      id(0x00000301),
+      hidden
+    ]
+    HRESULT _stdcall Width([in] long AValue );
+    [
+      id(0x00000302),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall TextColor([out, retval] OLE_COLOR * AValue );
+    [
+      id(0x00000302),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall TextColor([in] OLE_COLOR AValue );
+
+    [
+      id(0x00000303),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Param([in] BSTR AName, [out, retval] VARIANT * AValue );
+    [
+      id(0x00000303),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Param([in] BSTR AName, [in] VARIANT AValue );
+
+    [
+      id(0x00000304),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall MarkerList( [out, retval] IrsADXInterfacedList ** AOut );
+
+    [
+      id(0x00000305),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall LicenceList( [out, retval] IrsADXLicenceList ** AOut );
+
+    [
+      id(0x00000306),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall PropertyMarker([out, retval] IrsADXPrpMarker ** AOut);
+
+    [ id(0x00000307) ]
+    HRESULT _stdcall DeleteMarkers([in] TMarkerFlag AFlags);
+
+    [ id(0x00000308) ]
+    HRESULT _stdcall Set_Scale([in] double AXCoef, [in] double AYCoef);
+
+    [
+      id(0x00000309),
+      helpstring( "Относит масштаб" )
+    ]
+    HRESULT _stdcall Set_DeltaScale([in] double AXCoef, [in] double AYCoef);
+
+    [ id(0x0000030a) ]
+    HRESULT _stdcall BeginPaint([out, retval] VARIANT * AVal);
+
+    [ id(0x0000030b) ]
+    HRESULT _stdcall EndPaint([in] VARIANT AVal);
+
+  }
+
+  [
+    uuid(CE64766F-E275-4B8E-9A9E-872B446593E0),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsLevelPalette: IDispatch
+  {
+    [ id(0x100) ]
+    HRESULT _stdcall Get_Count([out, retval] long * AOut );
+
+    [ id(0x101) ]
+    HRESULT _stdcall Get_Item([in] long AIdx, [out] double * AValue,
+      [out] OLE_COLOR * AColor);
+
+    [ id(0x102) ]
+    HRESULT _stdcall Set_Item([in] long AIdx, [in] double AValue,
+    	[in] OLE_COLOR AColor);
+
+    [ id(0x103) ]
+    HRESULT _stdcall AddItem( [in] double AValue,
+      [in] OLE_COLOR AColor, [out, retval] long * AOutIdx);
+
+    [ id(0x104) ]
+    HRESULT _stdcall InsertItem([in] long AIdx, [in] double AValue,
+    	[in] OLE_COLOR AColor);
+
+    [ id(0x105) ]
+    HRESULT _stdcall DeleteItem([in] long AIdx);
+
+    [ id(0x106) ]
+    HRESULT _stdcall Clear( void );
+
+    [ id(0x107) ]
+    HRESULT _stdcall Sort( void );
+
+    [ id(0x108) ]
+    HRESULT _stdcall Get_ColorByValue([in] double AValue,
+    	[out, retval] OLE_COLOR * AColor);
+
+    [ id(0x109) ]
+    HRESULT _stdcall Get_NullColor([out, retval] OLE_COLOR * AColor );
+
+    [ id(0x110) ]
+    HRESULT _stdcall Set_NullColor([in] OLE_COLOR AColor );
+
+  }
+  
+  [
+    uuid(D44B5464-27CA-48BD-9098-493317AE0E13),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXCompare: IDispatch
+  {           /* + Compare: TListSortCompare*/
+    [ id(0x1000) ]
+    HRESULT _stdcall Compare([in] VARIANT AItem1, [in] VARIANT AItem2, [out] int * AOut);
+  }
+
+  [
+    uuid(92F75DB3-038F-4741-B8DD-5F5C3C5D0922),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXCustomList: IDispatch
+  {           
+    [
+      id(0x1001),
+      hidden,
+      propget
+     ]
+    HRESULT _stdcall Item([in] long AIdx, [out, retval] VARIANT * AValue);
+
+    [
+      id(0x1001),
+      hidden,
+      propput
+     ]
+    HRESULT _stdcall Item([in] long AIdx, [in] VARIANT AValue);
+
+    [ id(0x1002) ]
+    HRESULT _stdcall AddItem( [in] VARIANT AValue, [out, retval] long * AOutIdx);
+
+    [ id(0x1003) ]
+    HRESULT _stdcall InsertItem([in] long AIdx, [in] VARIANT AValue);
+
+    [ id(0x1004) ]
+    HRESULT _stdcall DeleteItem([in] long AIdx);
+
+    [ id(0x1005) ]
+    HRESULT _stdcall Clear( void );
+
+    [ id(0x1006) ]
+    HRESULT _stdcall Sort( void );
+
+    [ id(0x1007) ]
+    HRESULT _stdcall IndexOf([in] VARIANT AValue,
+    	[out, retval] long * AIdx);
+
+    [
+    propget,
+    id(0x1008),
+    hidden
+    ]
+    HRESULT _stdcall Sorted([out, retval] VARIANT_BOOL * AValue );
+
+    [
+    propput,
+    id(0x1008),
+    hidden
+    ]
+    HRESULT _stdcall Sorted([in] VARIANT_BOOL AValue );
+
+    [
+      id(0x1009),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Count([out, retval] long * AOut );
+
+    [
+      id(0x100a),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Compare([out, retval] IrsADXCompare ** AOut );
+    [
+      id(0x100a),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Compare([in] IrsADXCompare * AValue );
+  }
+
+  [
+    uuid(E7547563-65CD-4D33-83BE-0496A1F46494),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXInterfacedList: IrsADXCustomList
+  {
+
+    [ id(0x1100) ]
+    HRESULT _stdcall AddIntf( [out, retval] IUnknown ** AValue);
+    /*Проверить работает в JavaScript*/
+    [ id(0x1101) ]
+    HRESULT _stdcall InsertIntf([in] long AIdx, [out, retval] IUnknown ** AValue);
+  }
+
+/*   ==========   marker ==========   */
+  [
+    uuid(D8F262FE-2416-483C-8A65-39E7B2E769CD),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXCustomMarker: IDispatch
+  {
+    [
+      id(0x100),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Color([out, retval] OLE_COLOR * AValue );
+    [
+      id(0x100),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Color([in] OLE_COLOR AValue );
+
+    [
+      id(0x102),
+      propget,
+      hidden
+    ]
+    HRESULT _stdcall Visible([out, retval] VARIANT_BOOL * AValue );
+    [
+      id(0x102),
+      propput,
+      hidden
+    ]
+    HRESULT _stdcall Visible([in] VARIANT_BOOL AValue );
+  }
+
+  [
+    uuid(CB7BFB1B-F25C-4C28-99F7-6204169DA4D3),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXMarker: IrsADXCustomMarker
+  {
+    [id(0x200)]
+    HRESULT _stdcall Get_XPos([out] TDimensionKind * ADimKind,
+                     [out] unsigned long * ADim,
+                     [in, out] VARIANT * AOut );
+    [id(0x201)]
+    HRESULT _stdcall Set_XPos([in] TDimensionKind ADimKind,
+                     [in] unsigned long ADim,
+                     [in] VARIANT AValue );
+    [id(0x202)]
+    HRESULT _stdcall Get_YPos([out] TDimensionKind * ADimKind,
+                     [out] unsigned long * ADim,
+                     [in, out] VARIANT * AOut );
+    [id(0x203)]
+    HRESULT _stdcall Set_YPos([in] TDimensionKind ADimKind,
+                     [in] unsigned long ADim,
+                     [in] VARIANT AValue );
+  }
+
+  [
+    uuid(F5212A8C-868C-4B8B-B927-BD8EA147C448),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXUserDefMarker: IrsADXMarker
+  {
+    [
+      id(0x210),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall IsPermanent([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(0x210),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall IsPermanent([in] VARIANT_BOOL AVal );
+  }
+
+  [
+    uuid(96AFDB4A-28A7-477B-936C-B82ACDD463C9),
+    version(1.0)
+  ]
+  typedef enum TVertAlign
+  {
+    vaTop = 0,
+    vaCenter = 1,
+    vaBottom = 2
+  } TVertAlign;
+
+  [
+    uuid(C6D45BCF-ACC6-4FDF-BC37-D73ADE3667AD),
+    version(1.0)
+  ]
+  typedef enum THorizAlign
+  {
+    haLeft = 0,
+    haRight = 1,
+    haCenter = 2
+  } THorizAlign;
+
+  [
+    uuid(CBF12208-120B-45FF-A651-3E96AA0C876C),
+    version(1.0)
+  ]
+  typedef struct TMarkerAlign
+  {
+    THorizAlign Horiz;
+    TVertAlign Vert;
+  } TMarkerAlign;
+
+  [
+    uuid(840223C7-88EB-43C7-9F84-86C11B6B32C1),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXUserDefMarker2: IrsADXUserDefMarker
+  {
+    [
+      id(0x220),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall XAlign([out, retval] TMarkerAlign * AOut);
+    [
+      id(0x220),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall XAlign([in] TMarkerAlign AVal);
+    [
+      id(0x221),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall YAlign([out, retval] TMarkerAlign * AOut);
+    [
+      id(0x221),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall YAlign([in] TMarkerAlign AVal);
+    [
+      id(0x222),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall XTitle([out, retval] BSTR * AOut);
+    [
+      id(0x222),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall XTitle([in] BSTR AVal);
+    [
+      id(0x223),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall YTitle([out, retval] BSTR * AOut);
+    [
+      id(0x223),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall YTitle([in] BSTR AVal);
+  }
+
+  [
+    uuid(02651DE5-2F42-48DB-B454-269F0DE3BCE0),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXPrpMarker: IrsADXMarker
+  {
+    [
+      id(0x210),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Alignment([out, retval] VARIANT_BOOL * AOut );
+    [
+      id(0x210),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Alignment([in] VARIANT_BOOL AVal );
+
+    [
+      id(0x211),
+    ]
+    HRESULT _stdcall DoAlign( void );
+  }
+  /*  ================= Licence ================*/
+  [
+    uuid(5B9A3DB0-31AD-453D-80FA-F0C0AF24DEA9),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXID: IDispatch
+  {
+    [
+      id(0x100),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall ID([out, retval] int * AValue);
+    [
+      id(0x100),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall ID([in] int  AValue);
+
+    [
+      id(0x101),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall GUID([out, retval] GUID * AValue);
+    [
+      id(0x101),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall GUID([in] GUID AValue);
+
+    [
+      id(0x102),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall GUIDStr([out, retval] BSTR * AValue);
+    [
+      id(0x102),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall GUIDStr([in] BSTR AValue);
+
+    [ id(0x103) ]
+    HRESULT _stdcall Assign([in] IUnknown * AValue);
+  }
+
+  [
+    uuid(C03B1D8C-B096-4F46-8198-DD6F282EBB4B),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXLicenceList: IrsADXInterfacedList
+  {
+    [ id(0x1200) ]
+    HRESULT _stdcall GetLicenceListByFreq([in] TFreqDim ADim,
+                     [in] VARIANT AValue,
+                     [out, retval] IrsADXLicenceList ** AOut);
+    [ id(0x1201) ]
+    HRESULT _stdcall SelectById([in] IrsADXID * AValue );
+
+    [
+      id(0x1202),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Visible([out, retval] VARIANT_BOOL * AValue );
+    [
+      id(0x1202),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Visible([in] VARIANT_BOOL AValue );
+  }
+
+  [
+    uuid(2F51D0D3-D5AD-473F-B156-B4331387A9BB),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXLicenceFreq: IDispatch
+  {
+    [
+      id(0x100),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Freq([in] TFreqDim ADim, [out, retval] VARIANT * AValue );
+    [
+      id(0x100),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Freq([in] TFreqDim ADim, [in] VARIANT AValue );
+
+    [
+      id(0x101),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Color([out, retval] OLE_COLOR * AValue );
+    [
+      id(0x101),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Color([in] OLE_COLOR AValue );
+
+    [
+      id(0x102),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall BorderColor([out, retval] OLE_COLOR * AValue );
+    [
+      id(0x102),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall BorderColor([in] OLE_COLOR AValue );
+
+    [ id(0x103) ]
+    HRESULT _stdcall Assign([in] IUnknown * AValue);
+  }
+
+  [
+    uuid(BA14E64A-3E3F-44D0-83D2-9B21B26CC7C8),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXLicence: IDispatch
+  {
+    [
+      id(0x100),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Freq([out, retval] IrsADXLicenceFreq ** AOut );
+
+    [
+      id(0x101),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall DuplexFreq([out, retval] IrsADXLicenceFreq ** AOut );
+
+    [
+      id(0x102),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall Hint([out, retval] BSTR * AOut );
+
+    [
+      id(0x102),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall Hint([in] BSTR AValue );
+
+    [
+      id(0x103),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall ID([out, retval] IrsADXID ** AOut );
+    [
+      id(0x103),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall ID([in] IrsADXID * AValue );
+
+    [ id(0x104) ]
+    HRESULT _stdcall Assign([in] IUnknown * AValue);
+  }
+
+  [
+    uuid(1DD18E0D-731B-44E5-A8B2-838F34A4444F),
+    version(1.0),
+    dual,
+    oleautomation
+  ]
+   interface IrsADXLicence2: IrsADXLicence
+  {
+    [
+      id(0x200),
+      hidden,
+      propget
+    ]
+    HRESULT _stdcall StnID([out, retval] IrsADXID ** AOut);
+    [
+      id(0x200),
+      hidden,
+      propput
+    ]
+    HRESULT _stdcall StnID([in] IrsADXID * AVal);
+  }
+
+};

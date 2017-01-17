@@ -3,11 +3,11 @@ program tlibimpEx;
 {.$APPTYPE CONSOLE}
 
 uses
-//  FastMM4,
+  FastMM4,
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
-  MSXML2_TLB in 'Win32\Debug\MSXML2_TLB.pas',
+//  MSXML2_TLB in 'Win32\Debug\MSXML2_TLB.pas',
   UTLBMembers in 'UTLBMembers.pas',
   UTLBClasses in 'UTLBClasses.pas';
 

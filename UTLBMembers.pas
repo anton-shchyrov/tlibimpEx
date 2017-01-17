@@ -99,6 +99,8 @@ type
     property WriteType: string read FWriteType;
   end;
 
+  TPrintMethodMode = (pmmIntf, pmmDisp, pmmDelphi);
+
   TIntfMethod = class(TTypeMember)
   strict private
     type
@@ -127,12 +129,13 @@ type
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer; AUseSafecall: Boolean);
     destructor Destroy; override;
     function Print(AOut: TOutFile): Boolean; override;
-    procedure PrintForDisp(AOut: TOutFile; AUseDisp: Boolean);
+    procedure PrintForDisp(AOut: TOutFile; AMode: TPrintMethodMode);
     function PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder; ACnt: Integer;
       ABrackets: TBrackets): Boolean;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
     function IsSafecall: Boolean;
+    function GetEventType: string;
     class function IsVoid(const AType: TPasTypeInfo): Boolean; static;
   public
     property RetType: TPasTypeInfo read FRetType;
@@ -168,7 +171,7 @@ type
     function GetIIDPrefix: string; override;
   public
     procedure PrintForward(AOut: TOutFile); override;
-    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; APrintDisp: Boolean); virtual;
+    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; AMode: TPrintMethodMode); virtual;
   end;
 
   TInterface = class(TCustomInterface)
@@ -207,7 +210,9 @@ type
     destructor Destroy; override;
     function Print(AOut: TOutFile): Boolean; override;
     procedure PrintForward(AOut: TOutFile); override;
-    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; APrintDisp: Boolean); override;
+    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; AMode: TPrintMethodMode); override;
+    procedure PrintAsEvents(AOut: TOutFile);
+    procedure PrintAsProps(AOut: TOutFile);
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
   end;
@@ -229,7 +234,7 @@ type
   strict private
     FInterfaces: TObjectList<TInterface>;
     FEvents: TObjectList<TInterface>;
-    FDefaultIntf: TCustomInterface;
+    FDefaultIntf: TInterface;
   strict private
     function GetCoClassName: string;
     function GetOleClassName: string;
@@ -243,6 +248,7 @@ type
     destructor Destroy; override;
     function Print(AOut: TOutFile): Boolean; override;
     procedure PrintForward(AOut: TOutFile); override;
+    procedure RegisterAliases(AList: TAliasList); override;
     procedure PrintImpl(AOut: TOutFile);
     procedure RequireImplUnits(AUnitManager: TUnitManager);
   end;
@@ -555,7 +561,7 @@ var
   LPrevName: string;
 begin
   if AName = '' then
-    raise Exception.Create('Type bust be not empty');
+    raise Exception.Create('Type must be not empty');
   if ARefCnt <= 0 then
     Result := AName
   else if ARefCnt = 1 then begin
@@ -861,10 +867,10 @@ begin
   Result := inherited Print(AOut);
   if not Result then
     Exit;
-  PrintForDisp(AOut, False);
+  PrintForDisp(AOut, pmmIntf);
 end;
 
-procedure TIntfMethod.PrintForDisp(AOut: TOutFile; AUseDisp: Boolean);
+procedure TIntfMethod.PrintForDisp(AOut: TOutFile; AMode: TPrintMethodMode);
 var
   LIsIdent: Boolean;
   LUseSafeCall: Boolean;
@@ -875,7 +881,7 @@ var
   LBuilder: TStringBuilder;
   LArgCnt: Integer;
 begin
-  if AUseDisp then
+  if AMode <> pmmIntf then
     LUseSafeCall := IsRetHRes
   else
     LUseSafeCall := IsSafecall;
@@ -923,9 +929,9 @@ begin
       LBuilder.Append(LRetTypeName);
     end;
     LBuilder.Append(';');
-    if FCallingConv <> ccRegister then begin
+    if (FCallingConv <> ccRegister) and (AMode <> pmmDelphi) then begin
       LBuilder.Append(' ');
-      if AUseDisp then
+      if AMode = pmmDisp then
         LBuilder.AppendFormat('dispid %d', [FDispID])
       else
         LBuilder.Append(CCallinvConvNames[LCallConv]);
@@ -995,6 +1001,31 @@ begin
   Result := FUseSafeCall and (FCallingConv = ccStdcall) and IsRetHRes;
 end;
 
+function TIntfMethod.GetEventType: string;
+var
+  Li: Integer;
+  LBld: TStringBuilder;
+  LIsProc: Boolean;
+begin
+  LIsProc := IsVoid(FRetType) or IsRetHRes;
+  if LIsProc and (FArgs.Count = 0) then
+    Exit('TNotifyEvent');
+
+  LBld := TStringBuilder.Create;
+  try
+    for Li := 0 to FArgs.Count - 1 do
+      LBld.Append(FArgs[Li].Name);
+    if not LIsProc then begin
+      LBld.Append('Func');
+      LBld.Append(FRetType.Name);
+    end else
+      LBld.Append('Proc');
+    Result := LBld.ToString;
+  finally
+    LBld.Free;
+  end;
+end;
+
 class function TIntfMethod.IsVoid(const AType: TPasTypeInfo): Boolean;
 begin
   Result := (AType.RefBase = 0) and (AType.VarType = VT_VOID);
@@ -1026,7 +1057,7 @@ begin
 end;
 
 procedure TCustomInterface.PrintMethods(AOut: TOutFile; APropList: TPropList;
-  APrintDisp: Boolean);
+  AMode: TPrintMethodMode);
 begin
   // Abstract
 end;
@@ -1243,6 +1274,8 @@ end;
 
 procedure TInterface.InternalPrint(AOut: TOutFile; const AHeader: string;
   APrintDisp: Boolean);
+const
+  CModes: array[Boolean] of TPrintMethodMode = (pmmIntf, pmmDisp);
 var
   LProps: TPropList;
   LPropArray: TPropArray;
@@ -1263,7 +1296,7 @@ begin
         ));
       end;
       {$ENDIF}
-      PrintMethods(AOut, LProps, APrintDisp);
+      PrintMethods(AOut, LProps, CModes[APrintDisp]);
       LPropArray := PropListToSortedArray(LProps);
       if APrintDisp then
         PrintDispProps(AOut, LPropArray)
@@ -1315,13 +1348,13 @@ begin
 end;
 
 procedure TInterface.PrintMethods(AOut: TOutFile; APropList: TPropList;
-  APrintDisp: Boolean);
+  AMode: TPrintMethodMode);
 var
   Li: Integer;
   LMethod: TIntfMethod;
   LPropMember: TPropMember;
 begin
-  inherited PrintMethods(AOut, APropList, APrintDisp);
+  inherited PrintMethods(AOut, APropList, AMode);
   for Li := 0 to FMethods.Count - 1 do begin
     LMethod := FMethods[Li];
     if LMethod.PropInfo <> piNone then begin
@@ -1336,12 +1369,32 @@ begin
         LPropMember.Write := LMethod;
       APropList.AddOrSetValue(LMethod.DispID, LPropMember);
     end;
-    if not APrintDisp or (LMethod.PropInfo = piNone) then
-      LMethod.PrintForDisp(AOut, APrintDisp);
+    if (AMode = pmmIntf) or (LMethod.PropInfo = piNone) then
+      LMethod.PrintForDisp(AOut, AMode);
   end;
-  if APrintDisp then begin
+  if AMode = pmmDisp then begin
 //    AOut.Write('// Parent ' + FParent.Name);
-    FParent.PrintMethods(AOut, APropList, APrintDisp);
+    FParent.PrintMethods(AOut, APropList, AMode);
+  end;
+end;
+
+procedure TInterface.PrintAsEvents(AOut: TOutFile);
+var
+  Li: Integer;
+begin
+  for Li := 0 to FMethods.Count - 1 do
+    AOut.WriteFmt('FOn%s: %s;', [FMethods[Li].Name, FMethods[Li].GetEventType]);
+end;
+
+procedure TInterface.PrintAsProps(AOut: TOutFile);
+var
+  Li: Integer;
+begin
+  for Li := 0 to FMethods.Count - 1 do  begin
+    AOut.WriteFmt(
+      'property On%s: %s read FOn%0:s write FOn%0:s;',
+      [FMethods[Li].Name, FMethods[Li].GetEventType]
+    );
   end;
 end;
 
@@ -1449,6 +1502,7 @@ constructor TCoClass.Create(const ATypeInfo: ITypeInfo);
 begin
   FInterfaces := TObjectList<TInterface>.Create(True);
   FEvents := TObjectList<TInterface>.Create(True);
+  inherited Create(ATypeInfo);
 end;
 
 destructor TCoClass.Destroy;
@@ -1483,19 +1537,83 @@ begin
 end;
 
 procedure TCoClass.PrintOleClass(AOut: TOutFile);
+var
+  Li: Integer;
+  LProps: TPropList;
 begin
   AOut.WriteFmt('%s = class(TOleServer)', [GetOleClassName]);
   AOut.Write('private');
   AOut.IncIdent;
   try
-    AOut.WriteFmt('FIntf: %s', [FDefaultIntf.Name]);
+    AOut.WriteFmt('FIntf: %s;', [FDefaultIntf.Name]);
   finally
     AOut.DecIdent;
   end;
   if FEvents.Count > 0 then begin
-
+    AOut.Write('private');
+    AOut.IncIdent;
+    try
+      for Li := 0 to FEvents.Count - 1 do
+        FEvents[Li].PrintAsEvents(AOut);
+    finally
+      AOut.DecIdent;
+    end;
   end;
-
+  AOut.Write('private');
+  AOut.IncIdent;
+  try
+    AOut.WriteFmt('function GetDefaultInterface: %s;', [FDefaultIntf.Name]);
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write('protected');
+  AOut.IncIdent;
+  try
+    AOut.Write('procedure InitServerData; override;');
+    AOut.Write('procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;');
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write('public');
+  AOut.IncIdent;
+  try
+    AOut.Write('constructor Create(AOwner: TComponent); override;');
+    AOut.Write('destructor Destroy; override;');
+    AOut.Write('procedure Connect; override;');
+    AOut.Write('procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);');
+    AOut.Write('procedure Disconnect; override;');
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.WriteFmt('public  // Implements %s', [FDefaultIntf.Name]);
+  AOut.IncIdent;
+  try
+    LProps := TPropList.Create;
+    try
+      FDefaultIntf.PrintMethods(AOut, LProps, pmmDelphi);
+    finally
+      LProps.Free;
+    end;
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write('public');
+  AOut.IncIdent;
+  try
+    AOut.WriteFmt('property DefaultInterface: %s read GetDefaultInterface;', [FDefaultIntf.Name]);
+  finally
+    AOut.DecIdent;
+  end;
+  if FEvents.Count > 0 then begin
+    AOut.Write('published');
+    AOut.IncIdent;
+    try
+      for Li := 0 to FEvents.Count - 1 do
+        FEvents[Li].PrintAsProps(AOut);
+    finally
+      AOut.DecIdent;
+    end;
+  end;
   AOut.Write('end;');
   AOut.EmptyLine;
 end;
@@ -1511,6 +1629,7 @@ var
   LFlag: Integer;
   LRefType: HRefType;
   LInfo: ITypeInfo;
+  LAttr: PTypeAttr;
   LIntf: TInterface;
 begin
   inherited ParseTypeAttr(ATypeInfo, ATypeAttr);
@@ -1518,13 +1637,21 @@ begin
     OleCheck(ATypeInfo.GetImplTypeFlags(Li, LFlag));
     OleCheck(ATypeInfo.GetRefTypeOfImplType(Li, LRefType));
     OleCheck(ATypeInfo.GetRefTypeInfo(LRefType, LInfo));
-    LIntf := TInterface.Create(LInfo);
-    if LFlag and IMPLTYPEFLAG_FSOURCE = IMPLTYPEFLAG_FSOURCE then
-      FEvents.Add(LIntf)
-    else
-      FInterfaces.Add(LIntf);
-    if (FDefaultIntf = nil) and (LFlag and IMPLTYPEFLAG_FDEFAULT = IMPLTYPEFLAG_FDEFAULT) then
-      FDefaultIntf := LIntf;
+    OleCheck(LInfo.GetTypeAttr(LAttr));
+    try
+      if LAttr^.typekind = TKIND_DISPATCH then
+        LIntf := TDispInterface.Create(LInfo)
+      else
+        LIntf := TInterface.Create(LInfo);
+      if LFlag and IMPLTYPEFLAG_FSOURCE = IMPLTYPEFLAG_FSOURCE then
+        FEvents.Add(LIntf)
+      else
+        FInterfaces.Add(LIntf);
+      if (FDefaultIntf = nil) and (LFlag and IMPLTYPEFLAG_FDEFAULT = IMPLTYPEFLAG_FDEFAULT) then
+        FDefaultIntf := LIntf;
+    finally
+      LInfo.ReleaseTypeAttr(LAttr);
+    end;
   end;
 end;
 
@@ -1540,6 +1667,12 @@ end;
 procedure TCoClass.PrintForward(AOut: TOutFile);
 begin
   AOut.WriteFmt('%s = %s;', [Name, FDefaultIntf.Name]);
+end;
+
+procedure TCoClass.RegisterAliases(AList: TAliasList);
+begin
+  inherited RegisterAliases(AList);
+  FDefaultIntf.RegisterAliases(AList);
 end;
 
 procedure TCoClass.PrintImpl(AOut: TOutFile);
