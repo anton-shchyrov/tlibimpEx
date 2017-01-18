@@ -24,7 +24,7 @@ type
     procedure AddAlias(const ANewName, AOldName: string); overload;
     function AddAlias(const AName: string; ARefCnt: Integer; AStdUnit: TStdUnits): string; overload;
     function AddAlias(const AType: TPasTypeInfo): string; overload;
-    procedure Print(AOut: TOutFile);
+    procedure Print(AOut: TCustomOut);
   end;
 
   TIntfItem = class
@@ -33,7 +33,7 @@ type
     FComment: string;
   public
     constructor Create(const AName: string);
-    function Print(AOut: TOutFile): Boolean; virtual;
+    function Print(AOut: TCustomOut): Boolean; virtual;
     procedure RequireUnits(AUnitManager: TUnitManager); virtual;
     procedure RegisterAliases(AList: TAliasList); virtual;
   public
@@ -50,11 +50,11 @@ type
   strict protected
     procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); virtual;
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); virtual;
-    procedure PrintRecursive(AOut: TOutFile); virtual;
+    procedure PrintRecursive(AOut: TCustomOut); virtual;
   public
     constructor CreateTLB(const ATypeLib: ITypeLib; AIdx: Integer);
     constructor Create(const ATypeInfo: ITypeInfo); virtual;
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
   public
     property Members: TTLBMemberDict read FMembers write FMembers;
   end;
@@ -66,7 +66,7 @@ type
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
   end;
@@ -89,7 +89,7 @@ type
   public
     constructor Create(const ATypeInfo: ITypeInfo; const AName: string;
       const ADesc: TElemDesc);
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     function ToString: string; override;
     function IsRetVal: Boolean;
@@ -128,9 +128,9 @@ type
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer; AUseSafecall: Boolean);
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
-    procedure PrintForDisp(AOut: TOutFile; AMode: TPrintMethodMode);
-    function PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder; ACnt: Integer;
+    function Print(AOut: TCustomOut): Boolean; override;
+    procedure PrintForDisp(AOut: TCustomOut; AMode: TPrintMethodMode; const AClassName: string = '');
+    function PrintArgs(AOut: TCustomOut; ABuilder: TStringBuilder; ACnt: Integer;
       ABrackets: TBrackets): Boolean;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
@@ -155,8 +155,8 @@ type
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
     function GetIIDPrefix: string; virtual; abstract;
   public
-    procedure PrintIID(AOut: TOutFile);
-    procedure PrintForward(AOut: TOutFile); virtual; abstract;
+    procedure PrintIID(AOut: TCustomOut);
+    procedure PrintForward(AOut: TCustomOut); virtual; abstract;
   end;
 
   TPropMember = record
@@ -164,34 +164,40 @@ type
     Write: TIntfMethod;
     Index: Integer;
   end;
-  TPropList = TDictionary<TMemberID, TPropMember>;
+
+  TPropList = class(TDictionary<TMemberID, TPropMember>)
+  public
+    type
+      TPropPair = TPair<TMemberID, TPropMember>;
+      TPropArray = TArray<TPropPair>;
+  strict private
+    function GetPropMethod(const AProp: TPropMember): TIntfMethod; inline;
+    function PrintHeaderProp(AOut: TCustomOut; ABuilder: TStringBuilder;
+      const AProp: TPropMember; out AIdxCnt: Integer): Boolean;
+    function CheckProcessProp(const AProp: TPropMember): Boolean;
+  public
+    function ToSortedArray: TPropArray;
+    procedure PrintMethods(AOut: TCustomOut);
+    procedure PrintProps(AOut: TCustomOut);
+    procedure PrintDispProps(AOut: TCustomOut);
+  end;
 
   TCustomInterface = class(TGUIDMember)
   strict protected
     function GetIIDPrefix: string; override;
   public
-    procedure PrintForward(AOut: TOutFile); override;
-    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; AMode: TPrintMethodMode); virtual;
+    procedure PrintForward(AOut: TCustomOut); override;
+    procedure PrintMethods(AOut: TCustomOut; APropList: TPropList;
+      AMode: TPrintMethodMode; const AClassName: string = ''); virtual;
   end;
 
   TInterface = class(TCustomInterface)
-  strict private
-    type
-      TPropPair = TPair<TMemberID, TPropMember>;
-      TPropArray = TArray<TPropPair>;
   strict private
     FMethods: TObjectList<TIntfMethod>;
     FParent: TCustomInterface;
     FFlags: Word;
   strict private
     function GetForwardDecl: string;
-    function PropListToSortedArray(AProps: TPropList): TPropArray;
-    function GetPropMethod(const AProp: TPropMember): TIntfMethod; inline;
-    function PrintHeaderProp(AOut: TOutFile; ABuilder: TStringBuilder;
-      const AProp: TPropMember; out AIdxCnt: Integer): Boolean;
-    function CheckProcessProp(const AProp: TPropMember): Boolean;
-    procedure PrintProps(AOut: TOutFile; const AProps: TPropArray);
-    procedure PrintDispProps(AOut: TOutFile; const AProps: TPropArray);
   strict protected
     property Flags: Word read FFlags;
   strict protected
@@ -200,19 +206,20 @@ type
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
     procedure ParseTypeInfo(const ATypeInfo: ITypeInfo); override;
-    procedure InternalPrint(AOut: TOutFile; const AHeader: string;
+    procedure InternalPrint(AOut: TCustomOut; const AHeader: string;
       APrintDisp: Boolean);
     function CreateParent(const ATypeInfo: ITypeInfo): TCustomInterface; virtual;
-    procedure PrintSelf(AOut: TOutFile); virtual;
-    procedure PrintRecursive(AOut: TOutFile); override;
+    procedure PrintSelf(AOut: TCustomOut); virtual;
+    procedure PrintRecursive(AOut: TCustomOut); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
-    procedure PrintForward(AOut: TOutFile); override;
-    procedure PrintMethods(AOut: TOutFile; APropList: TPropList; AMode: TPrintMethodMode); override;
-    procedure PrintAsEvents(AOut: TOutFile);
-    procedure PrintAsProps(AOut: TOutFile);
+    function Print(AOut: TCustomOut): Boolean; override;
+    procedure PrintForward(AOut: TCustomOut); override;
+    procedure PrintMethods(AOut: TCustomOut; APropList: TPropList;
+      AMode: TPrintMethodMode; const AClassName: string = ''); override;
+    procedure PrintAsEvents(AOut: TCustomOut);
+    procedure PrintAsProps(AOut: TCustomOut);
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
   end;
@@ -224,10 +231,10 @@ type
   strict protected
     function GetIIDPrefix: string; override;
     function CreateParent(const ATypeInfo: ITypeInfo): TCustomInterface; override;
-    procedure PrintSelf(AOut: TOutFile); override;
+    procedure PrintSelf(AOut: TCustomOut); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
-    procedure PrintForward(AOut: TOutFile); override;
+    procedure PrintForward(AOut: TCustomOut); override;
   end;
 
   TCoClass = class(TGUIDMember)
@@ -238,18 +245,21 @@ type
   strict private
     function GetCoClassName: string;
     function GetOleClassName: string;
-    procedure PrintCoClass(AOut: TOutFile);
-    procedure PrintOleClass(AOut: TOutFile);
+    procedure PrintCoClass(AOut: TCustomOut);
+    procedure PrintOleClass(AOut: TCustomOut);
+    procedure PrintCoClassImpl(AOut: TCustomOut);
+    procedure PrintOleClassImpl(AOut: TCustomOut);
+    procedure PrintIntfPropImpl(AMethod: TIntfMethod; ABuilder: TStringBuilder);
   strict protected
     function GetIIDPrefix: string; override;
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
-    procedure PrintForward(AOut: TOutFile); override;
+    function Print(AOut: TCustomOut): Boolean; override;
+    procedure PrintForward(AOut: TCustomOut); override;
     procedure RegisterAliases(AList: TAliasList); override;
-    procedure PrintImpl(AOut: TOutFile);
+    procedure PrintImpl(AOut: TCustomOut);
     procedure RequireImplUnits(AUnitManager: TUnitManager);
   end;
 
@@ -259,7 +269,7 @@ type
     FValueFmt: string;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
   public
     property ValueFmt: string read FValueFmt write FValueFmt;
   end;
@@ -270,13 +280,13 @@ type
     FShowEnum: Boolean;
     FShowHex: Boolean;
   strict private
-    procedure PrintItem(AOut: TOutFile; AItem: TEnumItem; const AFmt: string);
+    procedure PrintItem(AOut: TCustomOut; AItem: TEnumItem; const AFmt: string);
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
   end;
 
@@ -286,7 +296,7 @@ type
     FWriteType: string;
   public
     constructor Create(const ATypeInfo: ITypeInfo; AIdx: Integer);
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
   public
@@ -299,11 +309,11 @@ type
     FAlign: Word;
   strict protected
     procedure ParseTypeAttr(const ATypeInfo: ITypeInfo; const ATypeAttr: TTypeAttr); override;
-    procedure PrintRecursive(AOut: TOutFile); override;
+    procedure PrintRecursive(AOut: TCustomOut); override;
   public
     constructor Create(const ATypeInfo: ITypeInfo); override;
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RegisterAliases(AList: TAliasList); override;
   end;
@@ -311,11 +321,11 @@ type
   TTLBMemberList<T: TTLBMember> = class(TObjectList<T>)
   strict private
     type
-      TPrintProc = reference to procedure(AOut: TOutFile; AItem: T);
+      TPrintProc = reference to procedure(AOut: TCustomOut; AItem: T);
   public
     constructor Create;
-    procedure Print(AOut: TOutFile; const AComment: string; AAddEmptyLine: Boolean);
-    procedure CustomPrint(AOut: TOutFile; const AComment: string;
+    procedure Print(AOut: TCustomOut; const AComment: string; AAddEmptyLine: Boolean);
+    procedure CustomPrint(AOut: TCustomOut; const AComment: string;
       AAddEmptyLine: Boolean; const APrintProc: TPrintProc);
     procedure RequireUnits(AUnitManager: TUnitManager);
     procedure RegisterAliases(AList: TAliasList);
@@ -340,15 +350,15 @@ type
   strict private
     function CreateMemberList<T: TTLBMember>: TTLBMemberList<T>;
     procedure Parse(const ATypeLib: ITypeLib);
-    procedure PrintHeaderConst(AOut: TOutFile);
-    procedure PrintClassIDs(AOut: TOutFile);
-    procedure PrintIIDs(AOut: TOutFile);
-    procedure PrintForward<T: TGUIDMember>(AOut: TOutFile; AItem: T);
-    procedure PrintClassImpl(AOut: TOutFile);
+    procedure PrintHeaderConst(AOut: TCustomOut);
+    procedure PrintClassIDs(AOut: TCustomOut);
+    procedure PrintIIDs(AOut: TCustomOut);
+    procedure PrintForward<T: TGUIDMember>(AOut: TCustomOut; AItem: T);
+    procedure PrintClassImpl(AOut: TCustomOut);
   public
     constructor Create(const AFileName: string);
     destructor Destroy; override;
-    function Print(AOut: TOutFile): Boolean; override;
+    function Print(AOut: TCustomOut): Boolean; override;
     procedure RequireUnits(AUnitManager: TUnitManager); override;
     procedure RequireImplUnits(AUnitManager: TUnitManager);
     procedure RegisterAliases(AList: TAliasList); override;
@@ -362,6 +372,11 @@ uses
   System.Win.ComObj,
   System.Generics.Defaults;
 
+const
+  CEmpty = '';
+  CSpace = ' ';
+  CSemicolon = ';';
+
 type
   TUnitSections = record
     const
@@ -370,6 +385,29 @@ type
       CImplementation = 'implementation';
       CType = 'type';
       CConst = 'const';
+      CVar = 'var';
+      CBegin = 'begin';
+      CEnd = 'end.';
+      CComment = '// ';
+  end;
+
+  TClassSections = record
+    const
+      CClass = 'class';
+      CPrivate = 'private';
+      CProtected = 'protected';
+      CPublic = 'public';
+      CPublished = 'published';
+      CProperty = 'property';
+      CRead = 'read';
+      CWrite = 'write';
+      CDefault = 'default';
+      CGetPrfx = 'Get_';
+      CSetPrfx = 'Set_';
+      CProcedure = 'procedure';
+      CFunction = 'function';
+      COut = 'out';
+      CEnd = 'end;';
   end;
 
 function __TypeDescToPasType(const ATypeDesc: TTypeDesc; out AHRef: HRefType;
@@ -458,7 +496,7 @@ function TypeDescToPasType(const ATypeDesc: TTypeDesc; out AHRef: HRefType;
 begin
   APasType.Ref := 0;
   APasType.StdUnit := suSystem;
-  APasType.CustomUnit := '';
+  APasType.CustomUnit := CEmpty;
   Result := __TypeDescToPasType(ATypeDesc, AHRef, APasType);
   APasType.RefBase := APasType.Ref;
 end;
@@ -560,7 +598,7 @@ const
 var
   LPrevName: string;
 begin
-  if AName = '' then
+  if AName = CEmpty then
     raise Exception.Create('Type must be not empty');
   if ARefCnt <= 0 then
     Result := AName
@@ -584,7 +622,7 @@ begin
   Result := AddAlias(AType.Name, AType.Ref, AType.StdUnit);
 end;
 
-procedure TAliasList.Print(AOut: TOutFile);
+procedure TAliasList.Print(AOut: TCustomOut);
 type
   TItemPair = TPair<string, TItem>;
 var
@@ -601,7 +639,7 @@ begin
     end
   ));
 
-  AOut.Write('// Custom aliaces');
+  AOut.Write(TUnitSections.CComment + 'Custom aliaces');
   for Li := 0 to Length(LData) - 1 do
     AOut.WriteFmt('%s = %s;', [LData[Li].Key, LData[Li].Value.OldName]);
   AOut.EmptyLine;
@@ -615,7 +653,7 @@ begin
   FName := TReservedWords.Escape(AName);
 end;
 
-function TIntfItem.Print(AOut: TOutFile): Boolean;
+function TIntfItem.Print(AOut: TCustomOut): Boolean;
 begin
   Result := True;
 end;
@@ -667,12 +705,12 @@ begin
   // Abstract
 end;
 
-procedure TTLBMember.PrintRecursive(AOut: TOutFile);
+procedure TTLBMember.PrintRecursive(AOut: TCustomOut);
 begin
   // Abstract
 end;
 
-function TTLBMember.Print(AOut: TOutFile): Boolean;
+function TTLBMember.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -693,7 +731,7 @@ begin
   FAlias := ElemDescToTypeStr(ATypeInfo, ATypeAttr.tdescAlias);
 end;
 
-function TAlias.Print(AOut: TOutFile): Boolean;
+function TAlias.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -738,7 +776,7 @@ begin
     FFlag := FFlag or CFlagRetVal;
 end;
 
-function TMethodArg.Print(AOut: TOutFile): Boolean;
+function TMethodArg.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -758,18 +796,20 @@ var
 begin
   if (FType.Ref > 0) and (FFlag and CFlagOut = CFlagOut) then begin
     if FFlag and CFlagIn = CFlagIn then
-      LPrfx := 'var '
+      LPrfx := TUnitSections.CVar
     else
-      LPrfx := 'out ';
+      LPrfx := TClassSections.COut;
   end else begin
     if FType.Ref = 0 then begin
       if FType.VarType in [VT_BSTR, VT_UNKNOWN, VT_DISPATCH, VT_RECORD] then
-        LPrfx := 'const '
+        LPrfx := TUnitSections.CConst
       else
-        LPrfx := '';
+        LPrfx := CEmpty;
     end else
-      LPrfx := 'var ';
+      LPrfx := TUnitSections.CVar;
   end;
+  if LPrfx <> CEmpty then
+    LPrfx := LPrfx + CSpace;
   Result := Format('%s%s: %s', [LPrfx, Name, FWriteType]);
 end;
 
@@ -817,7 +857,7 @@ begin
       OleCheck(ATypeInfo.GetNames(LDesc^.memid, @LParamNames[0], LDesc^.cParams + 1, LCnt));
       for Li := 0 to LDesc^.cParams - 1 do begin
         LPrmName := LParamNames[Li + 1];
-        if LPrmName = '' then
+        if LPrmName = CEmpty then
           LPrmName := 'Param' + IntToStr(Li + 1);
         FArgs.Add(TMethodArg.Create(ATypeInfo, LPrmName, LDesc^.lprgelemdescParam^[Li]));
       end;
@@ -862,7 +902,7 @@ begin
   Result := (FRetType.RefBase = 0) and (FRetType.VarType = VT_HRESULT);
 end;
 
-function TIntfMethod.Print(AOut: TOutFile): Boolean;
+function TIntfMethod.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -870,7 +910,8 @@ begin
   PrintForDisp(AOut, pmmIntf);
 end;
 
-procedure TIntfMethod.PrintForDisp(AOut: TOutFile; AMode: TPrintMethodMode);
+procedure TIntfMethod.PrintForDisp(AOut: TCustomOut; AMode: TPrintMethodMode;
+  const AClassName: string);
 var
   LIsIdent: Boolean;
   LUseSafeCall: Boolean;
@@ -910,16 +951,21 @@ begin
   LBuilder := TStringBuilder.Create;
   try
     if (LLastArg <> nil) or (not LUseSafeCall and not IsVoid(FRetType)) then
-      LBuilder.Append('function ')
+      LBuilder.Append(TClassSections.CFunction)
     else begin
-      LBuilder.Append('procedure ');
+      LBuilder.Append(TClassSections.CProcedure);
       LRetType.Ref := 0;
       LRetType.VarType := VT_VOID;
     end;
+    LBuilder.Append(CSpace);
+    if AClassName <> CEmpty then begin
+      LBuilder.Append(AClassName);
+      LBuilder.Append('.');
+    end;
 
     case FPropInfo of
-      piGet: LBuilder.Append('Get_');
-      piSet: LBuilder.Append('Set_');
+      piGet: LBuilder.Append(TClassSections.CGetPrfx);
+      piSet: LBuilder.Append(TClassSections.CSetPrfx);
     end;
 
     LBuilder.Append(Name);
@@ -928,14 +974,14 @@ begin
       LBuilder.Append(': ');
       LBuilder.Append(LRetTypeName);
     end;
-    LBuilder.Append(';');
+    LBuilder.Append(CSemicolon);
     if (FCallingConv <> ccRegister) and (AMode <> pmmDelphi) then begin
-      LBuilder.Append(' ');
+      LBuilder.Append(CSpace);
       if AMode = pmmDisp then
         LBuilder.AppendFormat('dispid %d', [FDispID])
       else
         LBuilder.Append(CCallinvConvNames[LCallConv]);
-      LBuilder.Append(';');
+      LBuilder.Append(CSemicolon);
     end;
     AOut.Write(LBuilder.ToString);
   finally
@@ -945,10 +991,10 @@ begin
     AOut.DecIdent;
 end;
 
-function TIntfMethod.PrintArgs(AOut: TOutFile; ABuilder: TStringBuilder;
+function TIntfMethod.PrintArgs(AOut: TCustomOut; ABuilder: TStringBuilder;
   ACnt: Integer; ABrackets: TBrackets): Boolean;
 const
-  CDelim = '; ';
+  CDelim = CSemicolon + CSpace;
   COpenBrackets: array[TBrackets] of Char = ('(', '[');
   CCloseBrackets: array[TBrackets] of Char = (')', ']');
 var
@@ -1039,61 +1085,14 @@ begin
   FUUID := ATypeAttr.guid;
 end;
 
-procedure TGUIDMember.PrintIID(AOut: TOutFile);
+procedure TGUIDMember.PrintIID(AOut: TCustomOut);
 begin
   AOut.WriteFmt('%s_%s: TGUID = ''%s'';', [GetIIDPrefix, Name, GUIDToString(FUUID)]);
 end;
 
-{ TCustomInterface }
+{ TPropList }
 
-function TCustomInterface.GetIIDPrefix: string;
-begin
-  Result := 'IID';
-end;
-
-procedure TCustomInterface.PrintForward(AOut: TOutFile);
-begin
-  // Abstract
-end;
-
-procedure TCustomInterface.PrintMethods(AOut: TOutFile; APropList: TPropList;
-  AMode: TPrintMethodMode);
-begin
-  // Abstract
-end;
-
-{ TInterface }
-
-constructor TInterface.Create(const ATypeInfo: ITypeInfo);
-begin
-  FMethods := TObjectList<TIntfMethod>.Create(True);
-  inherited Create(ATypeInfo);
-end;
-
-destructor TInterface.Destroy;
-begin
-  FParent.Free;
-  FMethods.Free;
-  inherited Destroy;
-end;
-
-function TInterface.GetForwardDecl: string;
-begin
-  Result := Name + ' = interface';
-end;
-
-function TInterface.PropListToSortedArray(AProps: TPropList): TPropArray;
-begin
-  Result := AProps.ToArray;
-  TArray.Sort<TPropPair>(Result, TComparer<TPropPair>.Construct(
-    function (const ALeft, ARight: TPropPair): Integer
-    begin
-      Result := CompareInt(ALeft.Value.Index, ARight.Value.Index);
-    end
-  ));
-end;
-
-function TInterface.GetPropMethod(const AProp: TPropMember): TIntfMethod;
+function TPropList.GetPropMethod(const AProp: TPropMember): TIntfMethod;
 begin
   if AProp.Read <> nil then
     Result := AProp.Read
@@ -1101,14 +1100,14 @@ begin
     Result := AProp.Write;
 end;
 
-function TInterface.PrintHeaderProp(AOut: TOutFile; ABuilder: TStringBuilder;
+function TPropList.PrintHeaderProp(AOut: TCustomOut; ABuilder: TStringBuilder;
   const AProp: TPropMember; out AIdxCnt: Integer): Boolean;
 var
   LMethod: TIntfMethod;
   LArgCnt: Integer;
 begin
   LMethod := GetPropMethod(AProp);
-  ABuilder.Append('property ');
+  ABuilder.Append(TClassSections.CProperty + CSpace);
   ABuilder.Append(LMethod.Name);
   LArgCnt := LMethod.ArgCount;
   Result := LMethod.PrintArgs(AOut, ABuilder, LArgCnt - 1, bSquare);
@@ -1119,10 +1118,10 @@ begin
     Dec(AIdxCnt);
   end else
     ABuilder.Append(LMethod.WriteRetType);
-  ABuilder.Append(' ');
+  ABuilder.Append(CSpace);
 end;
 
-function TInterface.CheckProcessProp(const AProp: TPropMember): Boolean;
+function TPropList.CheckProcessProp(const AProp: TPropMember): Boolean;
 var
   LArg: TMethodArg;
   LRetType: TPasTypeInfo;
@@ -1173,34 +1172,74 @@ begin
   Result := True;
 end;
 
-procedure TInterface.PrintProps(AOut: TOutFile; const AProps: TPropArray);
+function TPropList.ToSortedArray: TPropArray;
+begin
+  Result := ToArray;
+  TArray.Sort<TPropPair>(Result, TComparer<TPropPair>.Construct(
+    function (const ALeft, ARight: TPropPair): Integer
+    begin
+      Result := CompareInt(ALeft.Value.Index, ARight.Value.Index);
+    end
+  ));
+end;
+
+procedure TPropList.PrintMethods(AOut: TCustomOut);
 var
+  LProps: TPropArray;
+  Li: Integer;
+  LProp: TPropMember;
+begin
+  if Count = 0 then
+    Exit;
+  LProps := ToSortedArray;
+  for Li := 0 to Length(LProps) - 1 do begin
+    LProp := LProps[Li].Value;
+    if LProp.Read <> nil then
+      LProp.Read.PrintForDisp(AOut, pmmDelphi);
+    if LProp.Write <> nil then
+      LProp.Write.PrintForDisp(AOut, pmmDelphi);
+  end;
+end;
+
+procedure TPropList.PrintProps(AOut: TCustomOut);
+var
+  LProps: TPropArray;
   LBuilder: TStringBuilder;
   Li: Integer;
   LProp: TPropMember;
   LIdxCnt: Integer;
   LIsIdent: Boolean;
 begin
+  if Count = 0 then
+    Exit;
+  LProps := ToSortedArray;
   LBuilder := TStringBuilder.Create;
   try
-    for Li := 0 to Length(AProps) - 1 do begin
-      LProp := AProps[Li].Value;
+    for Li := 0 to Length(LProps) - 1 do begin
+      LProp := LProps[Li].Value;
       if not CheckProcessProp(LProp) then
-        LBuilder.Append('// ');
+        LBuilder.Append(TUnitSections.CComment);
       LIsIdent := PrintHeaderProp(AOut, LBuilder, LProp, LIdxCnt);
       if LProp.Read <> nil then begin
-        LBuilder.Append('read Get_');
+        LBuilder.Append(TClassSections.CRead);
+        LBuilder.Append(CSpace);
+        LBuilder.Append(TClassSections.CGetPrfx);
         LBuilder.Append(LProp.Read.Name);
-        LBuilder.Append(' ');
+        LBuilder.Append(CSpace);
       end;
       if LProp.Write <> nil then begin
-        LBuilder.Append('write Set_');
+        LBuilder.Append(TClassSections.CWrite);
+        LBuilder.Append(CSpace);
+        LBuilder.Append(TClassSections.CSetPrfx);
         LBuilder.Append(LProp.Write.Name);
-        LBuilder.Append(' ');
+        LBuilder.Append(CSpace);
       end;
       LBuilder.Chars[LBuilder.Length - 1] := ';';
-      if (AProps[Li].Key = 0) and (LIdxCnt > 0) then
-        LBuilder.Append(' default;');
+      if (LProps[Li].Key = 0) and (LIdxCnt > 0) then begin
+        LBuilder.Append(CSpace);
+        LBuilder.Append(TClassSections.CDefault);
+        LBuilder.Append(CSemicolon);
+      end;
       AOut.Write(LBuilder.ToString);
       LBuilder.Clear;
       if LIsIdent then
@@ -1211,18 +1250,22 @@ begin
   end;
 end;
 
-procedure TInterface.PrintDispProps(AOut: TOutFile; const AProps: TPropArray);
+procedure TPropList.PrintDispProps(AOut: TCustomOut);
 var
+  LProps: TPropArray;
   LBuilder: TStringBuilder;
   Li: Integer;
   LProp: TPropMember;
   LIdxCnt: Integer;
   LIsIdent: Boolean;
 begin
+  if Count = 0 then
+    Exit;
+  LProps := ToSortedArray;
   LBuilder := TStringBuilder.Create;
   try
-    for Li := 0 to Length(AProps) - 1 do begin
-      LProp := AProps[Li].Value;
+    for Li := 0 to Length(LProps) - 1 do begin
+      LProp := LProps[Li].Value;
       LIsIdent := PrintHeaderProp(AOut, LBuilder, LProp, LIdxCnt);
       if LProp.Read <> nil then begin
         if LProp.Write = nil then
@@ -1230,7 +1273,7 @@ begin
       end else
         LBuilder.Append('writeonly ');
 
-      LBuilder.AppendFormat('dispid %d;', [AProps[Li].Key]);
+      LBuilder.AppendFormat('dispid %d;', [LProps[Li].Key]);
       AOut.Write(LBuilder.ToString);
       LBuilder.Clear;
       if LIsIdent then
@@ -1239,6 +1282,44 @@ begin
   finally
     LBuilder.Free;
   end;
+end;
+
+{ TCustomInterface }
+
+function TCustomInterface.GetIIDPrefix: string;
+begin
+  Result := 'IID';
+end;
+
+procedure TCustomInterface.PrintForward(AOut: TCustomOut);
+begin
+  // Abstract
+end;
+
+procedure TCustomInterface.PrintMethods(AOut: TCustomOut; APropList: TPropList;
+  AMode: TPrintMethodMode; const AClassName: string);
+begin
+  // Abstract
+end;
+
+{ TInterface }
+
+constructor TInterface.Create(const ATypeInfo: ITypeInfo);
+begin
+  FMethods := TObjectList<TIntfMethod>.Create(True);
+  inherited Create(ATypeInfo);
+end;
+
+destructor TInterface.Destroy;
+begin
+  FParent.Free;
+  FMethods.Free;
+  inherited Destroy;
+end;
+
+function TInterface.GetForwardDecl: string;
+begin
+  Result := Name + ' = interface';
 end;
 
 class function TInterface.GetIsDisp(AFlags: Word): Boolean;
@@ -1272,13 +1353,12 @@ begin
   FParent := CreateParent(LInfo);
 end;
 
-procedure TInterface.InternalPrint(AOut: TOutFile; const AHeader: string;
+procedure TInterface.InternalPrint(AOut: TCustomOut; const AHeader: string;
   APrintDisp: Boolean);
 const
   CModes: array[Boolean] of TPrintMethodMode = (pmmIntf, pmmDisp);
 var
   LProps: TPropList;
-  LPropArray: TPropArray;
 begin
   AOut.Write(AHeader);
   AOut.IncIdent;
@@ -1297,18 +1377,17 @@ begin
       end;
       {$ENDIF}
       PrintMethods(AOut, LProps, CModes[APrintDisp]);
-      LPropArray := PropListToSortedArray(LProps);
       if APrintDisp then
-        PrintDispProps(AOut, LPropArray)
+        LProps.PrintDispProps(AOut)
       else
-        PrintProps(AOut, LPropArray);
+        LProps.PrintProps(AOut);
     finally
       LProps.Free;
     end;
   finally
     AOut.DecIdent;
   end;
-  AOut.Write('end;');
+  AOut.Write(TClassSections.CEnd);
   AOut.EmptyLine;
 end;
 
@@ -1317,7 +1396,7 @@ begin
   Result := TCustomInterface.Create(ATypeInfo);
 end;
 
-procedure TInterface.PrintSelf(AOut: TOutFile);
+procedure TInterface.PrintSelf(AOut: TCustomOut);
 var
   LHeader: string;
 begin
@@ -1325,7 +1404,7 @@ begin
   InternalPrint(AOut, LHeader, False);
 end;
 
-procedure TInterface.PrintRecursive(AOut: TOutFile);
+procedure TInterface.PrintRecursive(AOut: TCustomOut);
 var
   LMem: TTLBMember;
 begin
@@ -1334,7 +1413,7 @@ begin
     LMem.Print(AOut);
 end;
 
-function TInterface.Print(AOut: TOutFile): Boolean;
+function TInterface.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -1342,13 +1421,13 @@ begin
   PrintSelf(AOut);
 end;
 
-procedure TInterface.PrintForward(AOut: TOutFile);
+procedure TInterface.PrintForward(AOut: TCustomOut);
 begin
-  AOut.Write(GetForwardDecl + ';');
+  AOut.Write(GetForwardDecl + CSemicolon);
 end;
 
-procedure TInterface.PrintMethods(AOut: TOutFile; APropList: TPropList;
-  AMode: TPrintMethodMode);
+procedure TInterface.PrintMethods(AOut: TCustomOut; APropList: TPropList;
+  AMode: TPrintMethodMode; const AClassName: string);
 var
   Li: Integer;
   LMethod: TIntfMethod;
@@ -1370,15 +1449,15 @@ begin
       APropList.AddOrSetValue(LMethod.DispID, LPropMember);
     end;
     if (AMode = pmmIntf) or (LMethod.PropInfo = piNone) then
-      LMethod.PrintForDisp(AOut, AMode);
+      LMethod.PrintForDisp(AOut, AMode, AClassName);
   end;
   if AMode = pmmDisp then begin
-//    AOut.Write('// Parent ' + FParent.Name);
-    FParent.PrintMethods(AOut, APropList, AMode);
+//    AOut.Write(TUnitSections.CComment + 'Parent ' + FParent.Name);
+    FParent.PrintMethods(AOut, APropList, AMode, AClassName);
   end;
 end;
 
-procedure TInterface.PrintAsEvents(AOut: TOutFile);
+procedure TInterface.PrintAsEvents(AOut: TCustomOut);
 var
   Li: Integer;
 begin
@@ -1386,7 +1465,7 @@ begin
     AOut.WriteFmt('FOn%s: %s;', [FMethods[Li].Name, FMethods[Li].GetEventType]);
 end;
 
-procedure TInterface.PrintAsProps(AOut: TOutFile);
+procedure TInterface.PrintAsProps(AOut: TCustomOut);
 var
   Li: Integer;
 begin
@@ -1482,18 +1561,18 @@ begin
     Result := inherited CreateParent(ATypeInfo);
 end;
 
-procedure TDispInterface.PrintSelf(AOut: TOutFile);
+procedure TDispInterface.PrintSelf(AOut: TCustomOut);
 begin
   if GetIsDisp then
     inherited PrintSelf(AOut);
   InternalPrint(AOut, GetForwardDecl, True);
 end;
 
-procedure TDispInterface.PrintForward(AOut: TOutFile);
+procedure TDispInterface.PrintForward(AOut: TCustomOut);
 begin
   if GetIsDisp then
     inherited PrintForward(AOut);
-  AOut.Write(GetForwardDecl + ';');
+  AOut.Write(GetForwardDecl + CSemicolon);
 end;
 
 { TCoClass }
@@ -1522,7 +1601,7 @@ begin
   Result := 'T' + Name;
 end;
 
-procedure TCoClass.PrintCoClass(AOut: TOutFile);
+procedure TCoClass.PrintCoClass(AOut: TCustomOut);
 begin
   AOut.WriteFmt('%s = class', [GetCoClassName]);
   AOut.IncIdent;
@@ -1532,14 +1611,15 @@ begin
   finally
     AOut.DecIdent;
   end;
-  AOut.Write('end;');
+  AOut.Write(TClassSections.CEnd);
   AOut.EmptyLine;
 end;
 
-procedure TCoClass.PrintOleClass(AOut: TOutFile);
+procedure TCoClass.PrintOleClass(AOut: TCustomOut);
 var
   Li: Integer;
   LProps: TPropList;
+  LOutBuf: TOutBuffer;
 begin
   AOut.WriteFmt('%s = class(TOleServer)', [GetOleClassName]);
   AOut.Write('private');
@@ -1550,7 +1630,7 @@ begin
     AOut.DecIdent;
   end;
   if FEvents.Count > 0 then begin
-    AOut.Write('private');
+    AOut.Write(TClassSections.CPrivate);
     AOut.IncIdent;
     try
       for Li := 0 to FEvents.Count - 1 do
@@ -1559,45 +1639,58 @@ begin
       AOut.DecIdent;
     end;
   end;
-  AOut.Write('private');
-  AOut.IncIdent;
+  LOutBuf := TOutBuffer.Create;
   try
-    AOut.WriteFmt('function GetDefaultInterface: %s;', [FDefaultIntf.Name]);
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.Write('protected');
-  AOut.IncIdent;
-  try
-    AOut.Write('procedure InitServerData; override;');
-    AOut.Write('procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;');
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.Write('public');
-  AOut.IncIdent;
-  try
-    AOut.Write('constructor Create(AOwner: TComponent); override;');
-    AOut.Write('destructor Destroy; override;');
-    AOut.Write('procedure Connect; override;');
-    AOut.Write('procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);');
-    AOut.Write('procedure Disconnect; override;');
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.WriteFmt('public  // Implements %s', [FDefaultIntf.Name]);
-  AOut.IncIdent;
-  try
-    LProps := TPropList.Create;
+    LOutBuf.Ident := AOut.Ident;
+    LOutBuf.Write(TClassSections.CPrivate);
+    LOutBuf.IncIdent;
     try
-      FDefaultIntf.PrintMethods(AOut, LProps, pmmDelphi);
+      LOutBuf.WriteFmt('function GetDefaultInterface: %s;', [FDefaultIntf.Name]);
     finally
-      LProps.Free;
+      LOutBuf.DecIdent;
     end;
+    LOutBuf.Write(TClassSections.CProtected);
+    LOutBuf.IncIdent;
+    try
+      LOutBuf.Write('procedure InitServerData; override;');
+      LOutBuf.Write('procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;');
+    finally
+      LOutBuf.DecIdent;
+    end;
+    LOutBuf.Write(TClassSections.CPublic);
+    LOutBuf.IncIdent;
+    try
+      LOutBuf.Write('constructor Create(AOwner: TComponent); override;');
+      LOutBuf.Write('destructor Destroy; override;');
+      LOutBuf.Write('procedure Connect; override;');
+      LOutBuf.Write('procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);');
+      LOutBuf.Write('procedure Disconnect; override;');
+    finally
+      LOutBuf.DecIdent;
+    end;
+    LOutBuf.WriteFmt('public  // Implements %s', [FDefaultIntf.Name]);
+    LOutBuf.IncIdent;
+    try
+      LProps := TPropList.Create;
+      try
+        FDefaultIntf.PrintMethods(LOutBuf, LProps, pmmDelphi);
+        if LProps.Count > 0 then begin
+          LProps.PrintProps(LOutBuf);
+          AOut.Write(TClassSections.CPrivate);
+          AOut.IncIdent;
+          LProps.PrintMethods(AOut);
+        end;
+      finally
+        LProps.Free;
+      end;
+    finally
+      LOutBuf.DecIdent;
+    end;
+    LOutBuf.Flush(AOut);
   finally
-    AOut.DecIdent;
+    LOutBuf.Free;
   end;
-  AOut.Write('public');
+  AOut.Write(TClassSections.CPublic);
   AOut.IncIdent;
   try
     AOut.WriteFmt('property DefaultInterface: %s read GetDefaultInterface;', [FDefaultIntf.Name]);
@@ -1605,7 +1698,7 @@ begin
     AOut.DecIdent;
   end;
   if FEvents.Count > 0 then begin
-    AOut.Write('published');
+    AOut.Write(TClassSections.CPublished);
     AOut.IncIdent;
     try
       for Li := 0 to FEvents.Count - 1 do
@@ -1614,8 +1707,138 @@ begin
       AOut.DecIdent;
     end;
   end;
-  AOut.Write('end;');
+  AOut.Write(TClassSections.CEnd);
   AOut.EmptyLine;
+end;
+
+procedure TCoClass.PrintCoClassImpl(AOut: TCustomOut);
+var
+  LClassName: string;
+  LIntfName: string;
+  LSfxFunc: string;
+begin
+  LClassName := GetCoClassName;
+  LIntfName := FDefaultIntf.Name;
+  LSfxFunc := Format('%s_%s) as %s;', [GetIIDPrefix, Name, LIntfName]);
+
+  AOut.WriteFmt('{ %s }', [LClassName]);
+  AOut.EmptyLine;
+
+  AOut.WriteFmt('class function %s.Create: %s;', [LClassName, LIntfName]);
+  AOut.Write(TUnitSections.CBegin);
+  AOut.IncIdent;
+  try
+    AOut.Write('Result := CreateComObject(' + LSfxFunc);
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write(TClassSections.CEnd);
+  AOut.EmptyLine;
+
+  AOut.WriteFmt(
+    'class function %s.CreateRemote(const AMachineName: string): %s;',
+    [LClassName, LIntfName]
+  );
+  AOut.Write(TUnitSections.CBegin);
+  AOut.IncIdent;
+  try
+    AOut.Write('Result := CreateRemoteComObject(AMachineName, ' + LSfxFunc);
+  finally
+    AOut.DecIdent;
+  end;
+  AOut.Write(TClassSections.CEnd);
+  AOut.EmptyLine;
+end;
+
+procedure TCoClass.PrintOleClassImpl(AOut: TCustomOut);
+var
+  LClassName: string;
+  LProps: TPropList;
+  LBuf: TOutBuffer;
+  LBuilder: TStringBuilder;
+  LPropList: TPropList.TPropArray;
+  LProp: TPropList.TPropPair;
+  LMethod: TIntfMethod;
+begin
+  LClassName := GetOleClassName;
+  AOut.WriteFmt('{ %s }', [LClassName]);
+  AOut.EmptyLine;
+  LProps := TPropList.Create;
+  try
+    LBuf := TOutBuffer.Create;
+    try
+      LBuilder := TStringBuilder.Create;
+      try
+        FDefaultIntf.PrintMethods(LBuf, LProps, pmmDelphi, LClassName);
+        LPropList := LProps.ToSortedArray;
+        for LProp in LPropList do begin
+          LMethod := LProp.Value.Read;
+          if LMethod <> nil then begin
+            LMethod.PrintForDisp(AOut, pmmDelphi, LClassName);
+            AOut.Write(TUnitSections.CBegin);
+            AOut.IncIdent;
+            try
+              LBuilder.Append('Result := ');
+              PrintIntfPropImpl(LMethod, LBuilder);
+              LBuilder.Append(CSemicolon);
+              AOut.Write(LBuilder.ToString);
+              LBuilder.Clear;
+            finally
+              AOut.DecIdent;
+            end;
+            AOut.Write(TClassSections.CEnd);
+            AOut.EmptyLine;
+          end;
+          LMethod := LProp.Value.Write;
+          if LMethod <> nil then begin
+            LMethod.PrintForDisp(AOut, pmmDelphi, LClassName);
+            AOut.Write(TUnitSections.CBegin);
+            AOut.IncIdent;
+            try
+              PrintIntfPropImpl(LMethod, LBuilder);
+              LBuilder.Append(' := ');
+              if LMethod.ArgCount > 0 then
+                LBuilder.Append(LMethod.Args[LMethod.ArgCount - 1].Name)
+              else
+                LBuilder.Append('???');
+              LBuilder.Append(CSemicolon);
+              AOut.Write(LBuilder.ToString);
+              LBuilder.Clear;
+            finally
+              AOut.DecIdent;
+            end;
+            AOut.Write(TClassSections.CEnd);
+            AOut.EmptyLine;
+          end;
+        end;  // for LProp in LPropList do begin
+      finally
+        LBuilder.Free
+      end;
+    finally
+      LBuf.Free;
+    end;
+  finally
+    LProps.Free;
+  end;
+end;
+
+procedure TCoClass.PrintIntfPropImpl(AMethod: TIntfMethod; ABuilder: TStringBuilder);
+const
+  CDelim = ', ';
+var
+  Li: Integer;
+begin
+  ABuilder.Append('DefaultInterface.');
+  ABuilder.Append(AMethod.Name);
+  if AMethod.ArgCount > 1 then begin
+    ABuilder.Append('[');
+    for Li := 0 to AMethod.ArgCount - 3 do begin
+      ABuilder.Append(AMethod.Args[Li].Name);
+      ABuilder.Append(CDelim);
+    end;
+    ABuilder.Append(AMethod.Args[AMethod.ArgCount - 2].Name);
+    ABuilder.Append(']');
+  end;
 end;
 
 function TCoClass.GetIIDPrefix: string;
@@ -1655,7 +1878,7 @@ begin
   end;
 end;
 
-function TCoClass.Print(AOut: TOutFile): Boolean;
+function TCoClass.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -1664,7 +1887,7 @@ begin
   PrintOleClass(AOut);
 end;
 
-procedure TCoClass.PrintForward(AOut: TOutFile);
+procedure TCoClass.PrintForward(AOut: TCustomOut);
 begin
   AOut.WriteFmt('%s = %s;', [Name, FDefaultIntf.Name]);
 end;
@@ -1675,43 +1898,10 @@ begin
   FDefaultIntf.RegisterAliases(AList);
 end;
 
-procedure TCoClass.PrintImpl(AOut: TOutFile);
-var
-  LClassName: string;
-  LIntfName: string;
-  LSfxFunc: string;
+procedure TCoClass.PrintImpl(AOut: TCustomOut);
 begin
-  LClassName := GetCoClassName;
-  LIntfName := FDefaultIntf.Name;
-  LSfxFunc := Format('%s_%s) as %s;', [GetIIDPrefix, Name, LIntfName]);
-
-  AOut.WriteFmt('{ %s }', [LClassName]);
-  AOut.EmptyLine;
-
-  AOut.WriteFmt('class function %s.Create: %s;', [LClassName, LIntfName]);
-  AOut.Write('begin');
-  AOut.IncIdent;
-  try
-    AOut.Write('Result := CreateComObject(' + LSfxFunc);
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.Write('end;');
-  AOut.EmptyLine;
-
-  AOut.WriteFmt(
-    'class function %s.CreateRemote(const AMachineName: string): %s;',
-    [LClassName, LIntfName]
-  );
-  AOut.Write('begin');
-  AOut.IncIdent;
-  try
-    AOut.Write('Result := CreateRemoteComObject(AMachineName, ' + LSfxFunc);
-  finally
-    AOut.DecIdent;
-  end;
-  AOut.Write('end;');
-  AOut.EmptyLine;
+  PrintCoClassImpl(AOut);
+  PrintOleClassImpl(AOut);
 end;
 
 procedure TCoClass.RequireImplUnits(AUnitManager: TUnitManager);
@@ -1735,7 +1925,7 @@ begin
   end;
 end;
 
-function TEnumItem.Print(AOut: TOutFile): Boolean;
+function TEnumItem.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -1759,7 +1949,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TEnum.PrintItem(AOut: TOutFile; AItem: TEnumItem; const AFmt: string);
+procedure TEnum.PrintItem(AOut: TCustomOut; AItem: TEnumItem; const AFmt: string);
 begin
   AItem.ValueFmt := AFmt;
   AItem.Print(AOut);
@@ -1774,7 +1964,7 @@ begin
     FItems.Add(TEnumItem.Create(ATypeInfo, Li));
 end;
 
-function TEnum.Print(AOut: TOutFile): Boolean;
+function TEnum.Print(AOut: TCustomOut): Boolean;
 var
   Li: Integer;
   LFmt: string;
@@ -1840,7 +2030,7 @@ begin
   end;
 end;
 
-function TVariable.Print(AOut: TOutFile): Boolean;
+function TVariable.Print(AOut: TCustomOut): Boolean;
 begin
   Result := inherited Print(AOut);
   if not Result then
@@ -1884,7 +2074,7 @@ begin
     FFields.Add(TVariable.Create(ATypeInfo, Li));
 end;
 
-procedure TRecord.PrintRecursive(AOut: TOutFile);
+procedure TRecord.PrintRecursive(AOut: TCustomOut);
 var
   Li: Integer;
   LMem: TTLBMember;
@@ -1896,7 +2086,7 @@ begin
   end;
 end;
 
-function TRecord.Print(AOut: TOutFile): Boolean;
+function TRecord.Print(AOut: TCustomOut): Boolean;
 var
   Li: Integer;
 begin
@@ -1914,7 +2104,7 @@ begin
   finally
     AOut.DecIdent;
   end;
-  AOut.Write('end;');
+  AOut.Write(TClassSections.CEnd);
   AOut.EmptyLine;
 end;
 
@@ -1943,28 +2133,28 @@ begin
   inherited Create(True);
 end;
 
-procedure TTLBMemberList<T>.Print(AOut: TOutFile; const AComment: string;
+procedure TTLBMemberList<T>.Print(AOut: TCustomOut; const AComment: string;
   AAddEmptyLine: Boolean);
 begin
   CustomPrint(
     AOut,
     AComment,
     AAddEmptyLine,
-    procedure(AOut: TOutFile; AItem: T)
+    procedure(AOut: TCustomOut; AItem: T)
     begin
       AItem.Print(AOut);
     end
   );
 end;
 
-procedure TTLBMemberList<T>.CustomPrint(AOut: TOutFile; const AComment: string;
+procedure TTLBMemberList<T>.CustomPrint(AOut: TCustomOut; const AComment: string;
   AAddEmptyLine: Boolean; const APrintProc: TPrintProc);
 var
   Li: Integer;
 begin
   if Count > 0 then begin
     if AComment <> '' then
-      AOut.Write('// ' + AComment);
+      AOut.Write(TUnitSections.CComment + AComment);
     for Li := 0 to Count - 1 do
       APrintProc(AOut, Items[Li]);
     if AAddEmptyLine then
@@ -2067,7 +2257,7 @@ begin
   end;
 end;
 
-procedure TTLBInfo.PrintHeaderConst(AOut: TOutFile);
+procedure TTLBInfo.PrintHeaderConst(AOut: TCustomOut);
 begin
   AOut.WriteFmt('%sMajorVersion = %d;', [Name, FMajorVersion]);
   AOut.WriteFmt('%sMinorVersion = %d;', [Name, FMinorVersion]);
@@ -2076,7 +2266,7 @@ begin
   AOut.EmptyLine;
 end;
 
-procedure TTLBInfo.PrintClassIDs(AOut: TOutFile);
+procedure TTLBInfo.PrintClassIDs(AOut: TCustomOut);
 var
   Li: Integer;
 begin
@@ -2088,7 +2278,7 @@ begin
   end;
 end;
 
-procedure TTLBInfo.PrintIIDs(AOut: TOutFile);
+procedure TTLBInfo.PrintIIDs(AOut: TCustomOut);
 var
   Li: Integer;
 begin
@@ -2100,12 +2290,12 @@ begin
   end;
 end;
 
-procedure TTLBInfo.PrintForward<T>(AOut: TOutFile; AItem: T);
+procedure TTLBInfo.PrintForward<T>(AOut: TCustomOut; AItem: T);
 begin
   AItem.PrintForward(AOut);
 end;
 
-procedure TTLBInfo.PrintClassImpl(AOut: TOutFile);
+procedure TTLBInfo.PrintClassImpl(AOut: TCustomOut);
 var
   Li: Integer;
 begin
@@ -2113,7 +2303,7 @@ begin
     FCoClasses[Li].PrintImpl(AOut);
 end;
 
-function TTLBInfo.Print(AOut: TOutFile): Boolean;
+function TTLBInfo.Print(AOut: TCustomOut): Boolean;
 var
   LUnits: TUnitManager;
   LAliaces: TAliasList;
@@ -2150,7 +2340,7 @@ begin
       AOut.Write(TUnitSections.CType);
       AOut.IncIdent;
       try
-        FEnums.Print(AOut, '', False);
+        FEnums.Print(AOut, CEmpty, False);
       finally
         AOut.DecIdent;
       end;
@@ -2189,7 +2379,7 @@ begin
     RequireImplUnits(LUnits);
     LUnits.Print(AOut);
     PrintClassImpl(AOut);
-    AOut.Write('end.');
+    AOut.Write(TUnitSections.CEnd);
   finally
     LUnits.Free;
   end;

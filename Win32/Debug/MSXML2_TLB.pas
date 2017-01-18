@@ -2952,6 +2952,9 @@ type
   private
     FIntf: IXMLDOMSchemaCollection2;
   private
+    function Get_validateOnLoad: WordBool;
+    procedure Set_validateOnLoad(validateOnLoad: WordBool);
+  private
     function GetDefaultInterface: IXMLDOMSchemaCollection2;
   protected
     procedure InitServerData; override;
@@ -2966,6 +2969,7 @@ type
     procedure validate;
     function getSchema(const namespaceURI: WideString): ISchema;
     function getDeclaration(const node: IXMLDOMNode): ISchemaItem;
+    property validateOnLoad: WordBool read Get_validateOnLoad write Set_validateOnLoad;
   public
     property DefaultInterface: IXMLDOMSchemaCollection2 read GetDefaultInterface;
   end;
@@ -2979,6 +2983,9 @@ type
   private
     FIntf: IXSLTemplate;
   private
+    function Get_stylesheet: IXMLDOMNode;
+    procedure Set_stylesheet(const stylesheet: IXMLDOMNode);
+  private
     function GetDefaultInterface: IXSLTemplate;
   protected
     procedure InitServerData; override;
@@ -2991,6 +2998,7 @@ type
     procedure Disconnect; override;
   public  // Implements IXSLTemplate
     function createProcessor: IXSLProcessor;
+    property stylesheet: IXMLDOMNode read Get_stylesheet write Set_stylesheet;
   public
     property DefaultInterface: IXSLTemplate read GetDefaultInterface;
   end;
@@ -3003,6 +3011,15 @@ type
   TXMLHTTP60 = class(TOleServer)
   private
     FIntf: IXMLHTTPRequest;
+  private
+    function Get_status: Integer;
+    function Get_statusText: WideString;
+    function Get_responseXML: IDispatch;
+    function Get_responseText: WideString;
+    function Get_responseBody: OleVariant;
+    function Get_responseStream: OleVariant;
+    function Get_readyState: Integer;
+    procedure Set_onreadystatechange(const Param1: IDispatch);
   private
     function GetDefaultInterface: IXMLHTTPRequest;
   protected
@@ -3021,6 +3038,14 @@ type
     function getAllResponseHeaders: WideString;
     procedure send(varBody: OleVariant);
     procedure abort;
+    property status: Integer read Get_status;
+    property statusText: WideString read Get_statusText;
+    property responseXML: IDispatch read Get_responseXML;
+    property responseText: WideString read Get_responseText;
+    property responseBody: OleVariant read Get_responseBody;
+    property responseStream: OleVariant read Get_responseStream;
+    property readyState: Integer read Get_readyState;
+    property onreadystatechange: IDispatch write Set_onreadystatechange;
   public
     property DefaultInterface: IXMLHTTPRequest read GetDefaultInterface;
   end;
@@ -3095,6 +3120,19 @@ type
   private
     FIntf: IVBSAXXMLReader;
   private
+    function Get_entityResolver: IVBSAXEntityResolver;
+    procedure Set_entityResolver(const oResolver: IVBSAXEntityResolver);
+    function Get_contentHandler: IVBSAXContentHandler;
+    procedure Set_contentHandler(const oHandler: IVBSAXContentHandler);
+    function Get_dtdHandler: IVBSAXDTDHandler;
+    procedure Set_dtdHandler(const oHandler: IVBSAXDTDHandler);
+    function Get_errorHandler: IVBSAXErrorHandler;
+    procedure Set_errorHandler(const oHandler: IVBSAXErrorHandler);
+    function Get_baseURL: WideString;
+    procedure Set_baseURL(const strBaseURL: WideString);
+    function Get_secureBaseURL: WideString;
+    procedure Set_secureBaseURL(const strSecureBaseURL: WideString);
+  private
     function GetDefaultInterface: IVBSAXXMLReader;
   protected
     procedure InitServerData; override;
@@ -3112,6 +3150,12 @@ type
     procedure putProperty(const strName: WideString; varValue: OleVariant);
     procedure parse(varInput: OleVariant);
     procedure parseURL(const strURL: WideString);
+    property entityResolver: IVBSAXEntityResolver read Get_entityResolver write Set_entityResolver;
+    property contentHandler: IVBSAXContentHandler read Get_contentHandler write Set_contentHandler;
+    property dtdHandler: IVBSAXDTDHandler read Get_dtdHandler write Set_dtdHandler;
+    property errorHandler: IVBSAXErrorHandler read Get_errorHandler write Set_errorHandler;
+    property baseURL: WideString read Get_baseURL write Set_baseURL;
+    property secureBaseURL: WideString read Get_secureBaseURL write Set_secureBaseURL;
   public
     property DefaultInterface: IVBSAXXMLReader read GetDefaultInterface;
   end;
@@ -3125,6 +3169,23 @@ type
   private
     FIntf: IMXWriter;
   private
+    function Get_output: OleVariant;
+    procedure Set_output(varDestination: OleVariant);
+    function Get_encoding: WideString;
+    procedure Set_encoding(const strEncoding: WideString);
+    function Get_byteOrderMark: WordBool;
+    procedure Set_byteOrderMark(fWriteByteOrderMark: WordBool);
+    function Get_indent: WordBool;
+    procedure Set_indent(fIndentMode: WordBool);
+    function Get_standalone: WordBool;
+    procedure Set_standalone(fValue: WordBool);
+    function Get_omitXMLDeclaration: WordBool;
+    procedure Set_omitXMLDeclaration(fValue: WordBool);
+    function Get_version: WideString;
+    procedure Set_version(const strVersion: WideString);
+    function Get_disableOutputEscaping: WordBool;
+    procedure Set_disableOutputEscaping(fValue: WordBool);
+  private
     function GetDefaultInterface: IMXWriter;
   protected
     procedure InitServerData; override;
@@ -3137,6 +3198,14 @@ type
     procedure Disconnect; override;
   public  // Implements IMXWriter
     procedure flush;
+    property output: OleVariant read Get_output write Set_output;
+    property encoding: WideString read Get_encoding write Set_encoding;
+    property byteOrderMark: WordBool read Get_byteOrderMark write Set_byteOrderMark;
+    property indent: WordBool read Get_indent write Set_indent;
+    property standalone: WordBool read Get_standalone write Set_standalone;
+    property omitXMLDeclaration: WordBool read Get_omitXMLDeclaration write Set_omitXMLDeclaration;
+    property version: WideString read Get_version write Set_version;
+    property disableOutputEscaping: WordBool read Get_disableOutputEscaping write Set_disableOutputEscaping;
   public
     property DefaultInterface: IMXWriter read GetDefaultInterface;
   end;
@@ -3150,6 +3219,23 @@ type
   private
     FIntf: IMXWriter;
   private
+    function Get_output: OleVariant;
+    procedure Set_output(varDestination: OleVariant);
+    function Get_encoding: WideString;
+    procedure Set_encoding(const strEncoding: WideString);
+    function Get_byteOrderMark: WordBool;
+    procedure Set_byteOrderMark(fWriteByteOrderMark: WordBool);
+    function Get_indent: WordBool;
+    procedure Set_indent(fIndentMode: WordBool);
+    function Get_standalone: WordBool;
+    procedure Set_standalone(fValue: WordBool);
+    function Get_omitXMLDeclaration: WordBool;
+    procedure Set_omitXMLDeclaration(fValue: WordBool);
+    function Get_version: WideString;
+    procedure Set_version(const strVersion: WideString);
+    function Get_disableOutputEscaping: WordBool;
+    procedure Set_disableOutputEscaping(fValue: WordBool);
+  private
     function GetDefaultInterface: IMXWriter;
   protected
     procedure InitServerData; override;
@@ -3162,6 +3248,14 @@ type
     procedure Disconnect; override;
   public  // Implements IMXWriter
     procedure flush;
+    property output: OleVariant read Get_output write Set_output;
+    property encoding: WideString read Get_encoding write Set_encoding;
+    property byteOrderMark: WordBool read Get_byteOrderMark write Set_byteOrderMark;
+    property indent: WordBool read Get_indent write Set_indent;
+    property standalone: WordBool read Get_standalone write Set_standalone;
+    property omitXMLDeclaration: WordBool read Get_omitXMLDeclaration write Set_omitXMLDeclaration;
+    property version: WideString read Get_version write Set_version;
+    property disableOutputEscaping: WordBool read Get_disableOutputEscaping write Set_disableOutputEscaping;
   public
     property DefaultInterface: IMXWriter read GetDefaultInterface;
   end;
@@ -3211,6 +3305,9 @@ type
   private
     FIntf: IVBMXNamespaceManager;
   private
+    function Get_allowOverride: WordBool;
+    procedure Set_allowOverride(fOverride: WordBool);
+  private
     function GetDefaultInterface: IVBMXNamespaceManager;
   protected
     procedure InitServerData; override;
@@ -3231,6 +3328,7 @@ type
     function getPrefixes(const namespaceURI: WideString): IMXNamespacePrefixes;
     function getURI(const prefix: WideString): OleVariant;
     function getURIFromNode(const strPrefix: WideString; const contextNode: IXMLDOMNode): OleVariant;
+    property allowOverride: WordBool read Get_allowOverride write Set_allowOverride;
   public
     property DefaultInterface: IVBMXNamespaceManager read GetDefaultInterface;
   end;
@@ -3252,6 +3350,8 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_DOMDocument60) as IXMLDOMDocument3;
 end;
 
+{ TDOMDocument60 }
+
 { CoFreeThreadedDOMDocument60 }
 
 class function CoFreeThreadedDOMDocument60.Create: IXMLDOMDocument3;
@@ -3264,6 +3364,8 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_FreeThreadedDOMDocument60) as IXMLDOMDocument3;
 end;
 
+{ TFreeThreadedDOMDocument60 }
+
 { CoXMLSchemaCache60 }
 
 class function CoXMLSchemaCache60.Create: IXMLDOMSchemaCollection2;
@@ -3274,6 +3376,18 @@ end;
 class function CoXMLSchemaCache60.CreateRemote(const AMachineName: string): IXMLDOMSchemaCollection2;
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XMLSchemaCache60) as IXMLDOMSchemaCollection2;
+end;
+
+{ TXMLSchemaCache60 }
+
+function TXMLSchemaCache60.Get_validateOnLoad: WordBool;
+begin
+  Result := DefaultInterface.validateOnLoad;
+end;
+
+procedure TXMLSchemaCache60.Set_validateOnLoad(validateOnLoad: WordBool);
+begin
+  DefaultInterface.validateOnLoad := validateOnLoad;
 end;
 
 { CoXSLTemplate60 }
@@ -3288,6 +3402,18 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XSLTemplate60) as IXSLTemplate;
 end;
 
+{ TXSLTemplate60 }
+
+function TXSLTemplate60.Get_stylesheet: IXMLDOMNode;
+begin
+  Result := DefaultInterface.stylesheet;
+end;
+
+procedure TXSLTemplate60.Set_stylesheet(const stylesheet: IXMLDOMNode);
+begin
+  DefaultInterface.stylesheet := stylesheet;
+end;
+
 { CoXMLHTTP60 }
 
 class function CoXMLHTTP60.Create: IXMLHTTPRequest;
@@ -3298,6 +3424,48 @@ end;
 class function CoXMLHTTP60.CreateRemote(const AMachineName: string): IXMLHTTPRequest;
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_XMLHTTP60) as IXMLHTTPRequest;
+end;
+
+{ TXMLHTTP60 }
+
+function TXMLHTTP60.Get_status: Integer;
+begin
+  Result := DefaultInterface.status;
+end;
+
+function TXMLHTTP60.Get_statusText: WideString;
+begin
+  Result := DefaultInterface.statusText;
+end;
+
+function TXMLHTTP60.Get_responseXML: IDispatch;
+begin
+  Result := DefaultInterface.responseXML;
+end;
+
+function TXMLHTTP60.Get_responseText: WideString;
+begin
+  Result := DefaultInterface.responseText;
+end;
+
+function TXMLHTTP60.Get_responseBody: OleVariant;
+begin
+  Result := DefaultInterface.responseBody;
+end;
+
+function TXMLHTTP60.Get_responseStream: OleVariant;
+begin
+  Result := DefaultInterface.responseStream;
+end;
+
+function TXMLHTTP60.Get_readyState: Integer;
+begin
+  Result := DefaultInterface.readyState;
+end;
+
+procedure TXMLHTTP60.Set_onreadystatechange(const Param1: IDispatch);
+begin
+  DefaultInterface.onreadystatechange := Param1;
 end;
 
 { CoFreeThreadedXMLHTTP60 }
@@ -3312,6 +3480,8 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_FreeThreadedXMLHTTP60) as IXMLHTTPRequest2;
 end;
 
+{ TFreeThreadedXMLHTTP60 }
+
 { CoServerXMLHTTP60 }
 
 class function CoServerXMLHTTP60.Create: IServerXMLHTTPRequest2;
@@ -3324,6 +3494,8 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_ServerXMLHTTP60) as IServerXMLHTTPRequest2;
 end;
 
+{ TServerXMLHTTP60 }
+
 { CoSAXXMLReader60 }
 
 class function CoSAXXMLReader60.Create: IVBSAXXMLReader;
@@ -3334,6 +3506,68 @@ end;
 class function CoSAXXMLReader60.CreateRemote(const AMachineName: string): IVBSAXXMLReader;
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_SAXXMLReader60) as IVBSAXXMLReader;
+end;
+
+{ TSAXXMLReader60 }
+
+function TSAXXMLReader60.Get_entityResolver: IVBSAXEntityResolver;
+begin
+  Result := DefaultInterface.entityResolver;
+end;
+
+procedure TSAXXMLReader60.Set_entityResolver(const oResolver: IVBSAXEntityResolver);
+begin
+  DefaultInterface.entityResolver := oResolver;
+end;
+
+function TSAXXMLReader60.Get_contentHandler: IVBSAXContentHandler;
+begin
+  Result := DefaultInterface.contentHandler;
+end;
+
+procedure TSAXXMLReader60.Set_contentHandler(const oHandler: IVBSAXContentHandler);
+begin
+  DefaultInterface.contentHandler := oHandler;
+end;
+
+function TSAXXMLReader60.Get_dtdHandler: IVBSAXDTDHandler;
+begin
+  Result := DefaultInterface.dtdHandler;
+end;
+
+procedure TSAXXMLReader60.Set_dtdHandler(const oHandler: IVBSAXDTDHandler);
+begin
+  DefaultInterface.dtdHandler := oHandler;
+end;
+
+function TSAXXMLReader60.Get_errorHandler: IVBSAXErrorHandler;
+begin
+  Result := DefaultInterface.errorHandler;
+end;
+
+procedure TSAXXMLReader60.Set_errorHandler(const oHandler: IVBSAXErrorHandler);
+begin
+  DefaultInterface.errorHandler := oHandler;
+end;
+
+function TSAXXMLReader60.Get_baseURL: WideString;
+begin
+  Result := DefaultInterface.baseURL;
+end;
+
+procedure TSAXXMLReader60.Set_baseURL(const strBaseURL: WideString);
+begin
+  DefaultInterface.baseURL := strBaseURL;
+end;
+
+function TSAXXMLReader60.Get_secureBaseURL: WideString;
+begin
+  Result := DefaultInterface.secureBaseURL;
+end;
+
+procedure TSAXXMLReader60.Set_secureBaseURL(const strSecureBaseURL: WideString);
+begin
+  DefaultInterface.secureBaseURL := strSecureBaseURL;
 end;
 
 { CoMXXMLWriter60 }
@@ -3348,6 +3582,88 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXXMLWriter60) as IMXWriter;
 end;
 
+{ TMXXMLWriter60 }
+
+function TMXXMLWriter60.Get_output: OleVariant;
+begin
+  Result := DefaultInterface.output;
+end;
+
+procedure TMXXMLWriter60.Set_output(varDestination: OleVariant);
+begin
+  DefaultInterface.output := varDestination;
+end;
+
+function TMXXMLWriter60.Get_encoding: WideString;
+begin
+  Result := DefaultInterface.encoding;
+end;
+
+procedure TMXXMLWriter60.Set_encoding(const strEncoding: WideString);
+begin
+  DefaultInterface.encoding := strEncoding;
+end;
+
+function TMXXMLWriter60.Get_byteOrderMark: WordBool;
+begin
+  Result := DefaultInterface.byteOrderMark;
+end;
+
+procedure TMXXMLWriter60.Set_byteOrderMark(fWriteByteOrderMark: WordBool);
+begin
+  DefaultInterface.byteOrderMark := fWriteByteOrderMark;
+end;
+
+function TMXXMLWriter60.Get_indent: WordBool;
+begin
+  Result := DefaultInterface.indent;
+end;
+
+procedure TMXXMLWriter60.Set_indent(fIndentMode: WordBool);
+begin
+  DefaultInterface.indent := fIndentMode;
+end;
+
+function TMXXMLWriter60.Get_standalone: WordBool;
+begin
+  Result := DefaultInterface.standalone;
+end;
+
+procedure TMXXMLWriter60.Set_standalone(fValue: WordBool);
+begin
+  DefaultInterface.standalone := fValue;
+end;
+
+function TMXXMLWriter60.Get_omitXMLDeclaration: WordBool;
+begin
+  Result := DefaultInterface.omitXMLDeclaration;
+end;
+
+procedure TMXXMLWriter60.Set_omitXMLDeclaration(fValue: WordBool);
+begin
+  DefaultInterface.omitXMLDeclaration := fValue;
+end;
+
+function TMXXMLWriter60.Get_version: WideString;
+begin
+  Result := DefaultInterface.version;
+end;
+
+procedure TMXXMLWriter60.Set_version(const strVersion: WideString);
+begin
+  DefaultInterface.version := strVersion;
+end;
+
+function TMXXMLWriter60.Get_disableOutputEscaping: WordBool;
+begin
+  Result := DefaultInterface.disableOutputEscaping;
+end;
+
+procedure TMXXMLWriter60.Set_disableOutputEscaping(fValue: WordBool);
+begin
+  DefaultInterface.disableOutputEscaping := fValue;
+end;
+
 { CoMXHTMLWriter60 }
 
 class function CoMXHTMLWriter60.Create: IMXWriter;
@@ -3358,6 +3674,88 @@ end;
 class function CoMXHTMLWriter60.CreateRemote(const AMachineName: string): IMXWriter;
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXHTMLWriter60) as IMXWriter;
+end;
+
+{ TMXHTMLWriter60 }
+
+function TMXHTMLWriter60.Get_output: OleVariant;
+begin
+  Result := DefaultInterface.output;
+end;
+
+procedure TMXHTMLWriter60.Set_output(varDestination: OleVariant);
+begin
+  DefaultInterface.output := varDestination;
+end;
+
+function TMXHTMLWriter60.Get_encoding: WideString;
+begin
+  Result := DefaultInterface.encoding;
+end;
+
+procedure TMXHTMLWriter60.Set_encoding(const strEncoding: WideString);
+begin
+  DefaultInterface.encoding := strEncoding;
+end;
+
+function TMXHTMLWriter60.Get_byteOrderMark: WordBool;
+begin
+  Result := DefaultInterface.byteOrderMark;
+end;
+
+procedure TMXHTMLWriter60.Set_byteOrderMark(fWriteByteOrderMark: WordBool);
+begin
+  DefaultInterface.byteOrderMark := fWriteByteOrderMark;
+end;
+
+function TMXHTMLWriter60.Get_indent: WordBool;
+begin
+  Result := DefaultInterface.indent;
+end;
+
+procedure TMXHTMLWriter60.Set_indent(fIndentMode: WordBool);
+begin
+  DefaultInterface.indent := fIndentMode;
+end;
+
+function TMXHTMLWriter60.Get_standalone: WordBool;
+begin
+  Result := DefaultInterface.standalone;
+end;
+
+procedure TMXHTMLWriter60.Set_standalone(fValue: WordBool);
+begin
+  DefaultInterface.standalone := fValue;
+end;
+
+function TMXHTMLWriter60.Get_omitXMLDeclaration: WordBool;
+begin
+  Result := DefaultInterface.omitXMLDeclaration;
+end;
+
+procedure TMXHTMLWriter60.Set_omitXMLDeclaration(fValue: WordBool);
+begin
+  DefaultInterface.omitXMLDeclaration := fValue;
+end;
+
+function TMXHTMLWriter60.Get_version: WideString;
+begin
+  Result := DefaultInterface.version;
+end;
+
+procedure TMXHTMLWriter60.Set_version(const strVersion: WideString);
+begin
+  DefaultInterface.version := strVersion;
+end;
+
+function TMXHTMLWriter60.Get_disableOutputEscaping: WordBool;
+begin
+  Result := DefaultInterface.disableOutputEscaping;
+end;
+
+procedure TMXHTMLWriter60.Set_disableOutputEscaping(fValue: WordBool);
+begin
+  DefaultInterface.disableOutputEscaping := fValue;
 end;
 
 { CoSAXAttributes60 }
@@ -3372,6 +3770,8 @@ begin
   Result := CreateRemoteComObject(AMachineName, CLASS_SAXAttributes60) as IMXAttributes;
 end;
 
+{ TSAXAttributes60 }
+
 { CoMXNamespaceManager60 }
 
 class function CoMXNamespaceManager60.Create: IVBMXNamespaceManager;
@@ -3382,6 +3782,18 @@ end;
 class function CoMXNamespaceManager60.CreateRemote(const AMachineName: string): IVBMXNamespaceManager;
 begin
   Result := CreateRemoteComObject(AMachineName, CLASS_MXNamespaceManager60) as IVBMXNamespaceManager;
+end;
+
+{ TMXNamespaceManager60 }
+
+function TMXNamespaceManager60.Get_allowOverride: WordBool;
+begin
+  Result := DefaultInterface.allowOverride;
+end;
+
+procedure TMXNamespaceManager60.Set_allowOverride(fOverride: WordBool);
+begin
+  DefaultInterface.allowOverride := fOverride;
 end;
 
 end.

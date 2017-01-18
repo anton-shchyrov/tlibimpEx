@@ -40,7 +40,7 @@ var
   LTlb: ITypeLib2;
   LTlbName: WideString;
   LLibAttr: PTLibAttr;
-  LFile: TOutFile;
+  LFile: TCustomOut;
   LCnt: Integer;
   Li: Integer;
   LTypeKind: TTypeKind;
@@ -196,7 +196,7 @@ const
 
 var
   LParser: TTLBInfo;
-  LOut: TOutFile;
+  LOut: TCustomOut;
 begin
 //  TestAll;
 //  readln;

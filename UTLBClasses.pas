@@ -7,18 +7,22 @@ uses
   System.Generics.Collections;
 
 type
-  TOutFile = class
+  TCustomOut = class
   strict private
     const
+      CEmptyStr = '';
       CIdent = '  ';
   strict private
-    FFile: TextFile;
     FIdentStr: string;
     FLevels: TStrings;
   strict private
+    function GetIdent: Integer;
+    procedure SetIdent(AVal: Integer);
     function GetLevel(AIdx: Integer): string;
+  strict protected
+    procedure WriteStr(const AStr: string); virtual; abstract;
   public
-    constructor Create(const AFileName: string);
+    constructor Create;
     destructor Destroy; override;
     procedure Write(const AStr: string);
     procedure WriteFmt(const AFmt: string; const AArgs: array of const);
@@ -26,7 +30,36 @@ type
     procedure IncIdent;
     procedure DecIdent;
   public
+    property Ident: Integer read GetIdent write SetIdent;
     property Level[AIdx: Integer]: string read GetLevel;
+  end;
+
+  TOutFile = class(TCustomOut)
+  strict private
+    FFile: TextFile;
+  strict protected
+    procedure WriteStr(const AStr: string); override;
+  public
+    constructor Create(const AFileName: string);
+    destructor Destroy; override;
+  end;
+
+  TOutBuffer = class(TCustomOut)
+  strict private
+    FBuffer: TStrings;
+  strict private
+    function GetCount: Integer;
+    function GetBuffer(AIdx: Integer): string;
+  strict protected
+    procedure WriteStr(const AStr: string); override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    procedure Flush(AOut: TCustomOut);
+  public
+    property Count: Integer read GetCount;
+    property Buffer[AIdx: Integer]: string read GetBuffer;
   end;
 
   TStdUnits = (suSystem, suCustom, suActiveX, suWindows, suComObj);
@@ -65,7 +98,7 @@ type
     procedure AddStdUnit(AUnit: TStdUnits);
     procedure AddCustomUnit(const AUnit: string);
     procedure AddPasType(const AType: TPasTypeInfo);
-    procedure Print(AOut: TOutFile);
+    procedure Print(AOut: TCustomOut);
     procedure Clear;
   end;
 
@@ -99,6 +132,69 @@ begin
     Result := 1;
 end;
 
+{ TCustomOut }
+
+constructor TCustomOut.Create;
+begin
+  inherited Create;
+  FLevels := TStringList.Create;
+  FLevels.Add(CEmptyStr);
+end;
+
+destructor TCustomOut.Destroy;
+begin
+  FLevels.Free;
+  inherited Destroy;
+end;
+
+function TCustomOut.GetIdent: Integer;
+begin
+  Result := FLevels.Count - 1;
+end;
+
+procedure TCustomOut.SetIdent(AVal: Integer);
+begin
+  if AVal < 0 then
+    raise Exception.CreateFmt('Invalid ident %d', [AVal]);
+  while AVal > Ident do
+    IncIdent;
+  while AVal < Ident do
+    DecIdent;
+end;
+
+function TCustomOut.GetLevel(AIdx: Integer): string;
+begin
+  Result := FLevels[Ident + AIdx];
+end;
+
+procedure TCustomOut.Write(const AStr: string);
+begin
+  WriteStr(FIdentStr + AStr);
+  FLevels[Ident] := AStr;
+end;
+
+procedure TCustomOut.WriteFmt(const AFmt: string; const AArgs: array of const);
+begin
+  Write(Format(AFmt, AArgs));
+end;
+
+procedure TCustomOut.EmptyLine;
+begin
+  WriteStr(CEmptyStr);
+end;
+
+procedure TCustomOut.IncIdent;
+begin
+  FIdentStr := FIdentStr + CIdent;
+  FLevels.Add(CEmptyStr);
+end;
+
+procedure TCustomOut.DecIdent;
+begin
+  SetLength(FIdentStr, Length(FIdentStr) - Length(CIdent));
+  FLevels.Delete(Ident);
+end;
+
 { TOutFile }
 
 constructor TOutFile.Create(const AFileName: string);
@@ -106,48 +202,62 @@ begin
   inherited Create;
   AssignFile(FFile, AFileName);
   Rewrite(FFile);
-  FLevels := TStringList.Create;
-  FLevels.Add('');
 end;
 
 destructor TOutFile.Destroy;
 begin
-  FLevels.Free;
   CloseFile(FFile);
   inherited Destroy;
 end;
 
-function TOutFile.GetLevel(AIdx: Integer): string;
+procedure TOutFile.WriteStr(const AStr: string);
 begin
-  Result := FLevels[FLevels.Count - 1 + AIdx];
+  System.Writeln(FFile, AStr);
 end;
 
-procedure TOutFile.Write(const AStr: string);
+{ TOutBuffer }
+
+constructor TOutBuffer.Create;
 begin
-  System.Writeln(FFile, FIdentStr, AStr);
-  FLevels[FLevels.Count - 1] := AStr;
+  inherited Create;
+  FBuffer := TStringList.Create;
 end;
 
-procedure TOutFile.WriteFmt(const AFmt: string; const AArgs: array of const);
+destructor TOutBuffer.Destroy;
 begin
-  Write(Format(AFmt, AArgs));
+  FBuffer.Free;
+  inherited Destroy;
 end;
 
-procedure TOutFile.EmptyLine;
+function TOutBuffer.GetCount: Integer;
 begin
-  System.Writeln(FFile);
+  Result := FBuffer.Count;
 end;
 
-procedure TOutFile.IncIdent;
+function TOutBuffer.GetBuffer(AIdx: Integer): string;
 begin
-  FIdentStr := FIdentStr + CIdent;
-  FLevels.Add('');
+  Result := FBuffer[AIdx];
 end;
 
-procedure TOutFile.DecIdent;
+procedure TOutBuffer.WriteStr(const AStr: string);
 begin
-  SetLength(FIdentStr, Length(FIdentStr) - Length(CIdent));
-  FLevels.Delete(FLevels.Count - 1);
+  FBuffer.Add(AStr);
+end;
+
+procedure TOutBuffer.Clear;
+begin
+  FBuffer.Clear;
+end;
+
+procedure TOutBuffer.Flush(AOut: TCustomOut);
+var
+  Li: Integer;
+begin
+  AOut.Ident := 0;
+  for Li := 0 to FBuffer.Count - 1 do
+    AOut.Write(FBuffer[Li]);
+  Clear;
+  AOut.Ident := Ident;
 end;
 
 { TPasTypeInfo }
@@ -201,7 +311,7 @@ begin
     AddCustomUnit(AType.CustomUnit);
 end;
 
-procedure TUnitManager.Print(AOut: TOutFile);
+procedure TUnitManager.Print(AOut: TCustomOut);
 const
   CDelim = ', ';
 type
