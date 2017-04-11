@@ -1,0 +1,17 @@
+Закончить методы интерфейсов в OleClass
+
+[All]
+helpstrings
+EventTypes
+
+Config
+[Unit]
+namespaces
+
+[Emums]
+enum or number
+Hex or dec
+
+[class implements]
+added or not
+use "strict" private

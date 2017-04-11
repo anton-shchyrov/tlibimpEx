@@ -1,0 +1,27 @@
+Embarcadero TLIBIMP Version 12.16581
+Copyright(c) 1995-2010 Embarcadero Technologies, Inc.
+
+Syntax: TLIBIMP [options] <typelibfile>
+ Files to Generate (Required):            Output File Options:
+  -C   Generate C++ Import file            -D<path>  Output directory path
+  -P   Generate PASCAL Import file         -Fe<name> TLB suffix   (-Fe- none)
+  -I   Generate .ridl Import file          -Ft<name> TLB filename (no suffix)
+                                           -Ce<name> OCX suffix   (-Ce- none)
+                                           -Co<name> OCX filename (no suffix)
+ Customize code generated: 
+  -Ha+ Create IDE component for Controls   -Hpa<name> Set palette name
+  -Hs+ Create IDE component for Servers    -Hps<name> Set palette name
+  -Hr+ Generate component registration
+ C++ options:                             PASCAL options: 
+  -Cd+ Generate dispinterfaces             -Ps+ Map dual HRESULT to safecall
+  -Cm- Map disp interfaces to dual         -Pt- Map all HRESULT to safecall
+  -Cn<name> Set namespace name
+  -Cs- declspec(__selectany) for GUIDs    MISC options: 
+  -Ct+ Force the use of a _TLB file        -O+ Generate CoClassCreator wrappers
+  -Cu+ Expose namespace with 'using'     -R+ Process dependent type libraries
+  -Cv+ BCB4-style server events            -XM- Use MS-style getter/setter
+  -Cw- Use disp. in Control wrappers       -W+  Emit warnings in files
+                                           -Wc+ Emit comments in files
+ Ignore Flags: -Ya- All special flags,     -Yc+ [CanCreate],
+               -Yh- [Hidden],              -Yp- [Predefined], -Yr- [Restricted]
+
