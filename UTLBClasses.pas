@@ -26,6 +26,8 @@ type
     destructor Destroy; override;
     procedure Write(const AStr: string);
     procedure WriteFmt(const AFmt: string; const AArgs: array of const);
+    procedure WriteIdent(const AStr: string);
+    procedure WriteIdentFmt(const AFmt: string; const AArgs: array of const);
     procedure EmptyLine;
     procedure IncIdent;
     procedure DecIdent;
@@ -62,7 +64,8 @@ type
     property Buffer[AIdx: Integer]: string read GetBuffer;
   end;
 
-  TStdUnits = (suSystem, suCustom, suActiveX, suWindows, suComObj);
+  TStdUnits = (suSystem, suCustom, suActiveX, suWindows, suComObj, suOleServer,
+    suClasses);
 
   TPasTypeInfo = record
     Name: string;
@@ -87,7 +90,9 @@ type
         (Name: ''; NS: ''),
         (Name: 'ActiveX'; NS: 'Winapi'),
         (Name: 'Windows'; NS: 'Winapi'),
-        (Name: 'ComObj'; NS: 'System.Win')
+        (Name: 'ComObj'; NS: 'System.Win'),
+        (Name: 'OleServer'; NS: 'Vcl'),
+        (Name: 'Classes'; NS: 'System')
       );
   strict private
     FUnits: TDictionary<string, Integer>;
@@ -176,6 +181,26 @@ end;
 procedure TCustomOut.WriteFmt(const AFmt: string; const AArgs: array of const);
 begin
   Write(Format(AFmt, AArgs));
+end;
+
+procedure TCustomOut.WriteIdent(const AStr: string);
+begin
+  IncIdent;
+  try
+    Write(AStr);
+  finally
+    DecIdent;
+  end;
+end;
+
+procedure TCustomOut.WriteIdentFmt(const AFmt: string; const AArgs: array of const);
+begin
+  IncIdent;
+  try
+    WriteFmt(AFmt, AArgs);
+  finally
+    DecIdent;
+  end;
 end;
 
 procedure TCustomOut.EmptyLine;

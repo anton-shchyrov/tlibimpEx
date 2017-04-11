@@ -3,7 +3,7 @@ unit MSXML2_TLB;
 interface
 
 uses
-  Winapi.ActiveX;
+  Winapi.ActiveX, Vcl.OleServer, System.Classes;
 
 const
   MSXML2MajorVersion = 6;
@@ -508,7 +508,7 @@ type
     ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
     function Get_nodeName: WideString; safecall;
     function Get_nodeValue: OleVariant; safecall;
-    procedure Set_nodeValue(value: OleVariant); safecall;
+    procedure Set_nodeValue(const value: OleVariant); safecall;
     function Get_nodeType: DOMNodeType; safecall;
     function Get_parentNode: IXMLDOMNode; safecall;
     function Get_childNodes: IXMLDOMNodeList; safecall;
@@ -517,7 +517,7 @@ type
     function Get_previousSibling: IXMLDOMNode; safecall;
     function Get_nextSibling: IXMLDOMNode; safecall;
     function Get_attributes: IXMLDOMNamedNodeMap; safecall;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; safecall;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; safecall;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; safecall;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; safecall;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; safecall;
@@ -530,7 +530,7 @@ type
     function Get_specified: WordBool; safecall;
     function Get_definition: IXMLDOMNode; safecall;
     function Get_nodeTypedValue: OleVariant; safecall;
-    procedure Set_nodeTypedValue(typedValue: OleVariant); safecall;
+    procedure Set_nodeTypedValue(const typedValue: OleVariant); safecall;
     function Get_dataType: OleVariant; safecall;
     procedure Set_dataType(const dataTypeName: WideString); safecall;
     function Get_xml: WideString; safecall;
@@ -541,7 +541,7 @@ type
     function Get_namespaceURI: WideString; safecall;
     function Get_prefix: WideString; safecall;
     function Get_baseName: WideString; safecall;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); safecall;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); safecall;
     property nodeName: WideString read Get_nodeName;
     property nodeValue: OleVariant read Get_nodeValue write Set_nodeValue;
     property nodeType: DOMNodeType read Get_nodeType;
@@ -568,7 +568,7 @@ type
 
   IXMLDOMNodeDisp = dispinterface
     ['{2933BF80-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -577,7 +577,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property nodeName: WideString readonly dispid 2;
     property nodeValue: OleVariant dispid 3;
     property nodeType: DOMNodeType readonly dispid 4;
@@ -669,9 +669,9 @@ type
     function createAttribute(const name: WideString): IXMLDOMAttribute; safecall;
     function createEntityReference(const name: WideString): IXMLDOMEntityReference; safecall;
     function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; safecall;
-    function createNode(type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; safecall;
+    function createNode(const type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; safecall;
     function nodeFromID(const idString: WideString): IXMLDOMNode; safecall;
-    function load(xmlSource: OleVariant): WordBool; safecall;
+    function load(const xmlSource: OleVariant): WordBool; safecall;
     function Get_readyState: Integer; safecall;
     function Get_parseError: IXMLDOMParseError; safecall;
     function Get_url: WideString; safecall;
@@ -679,16 +679,16 @@ type
     procedure Set_async(isAsync: WordBool); safecall;
     procedure abort; safecall;
     function loadXML(const bstrXML: WideString): WordBool; safecall;
-    procedure save(destination: OleVariant); safecall;
+    procedure save(const destination: OleVariant); safecall;
     function Get_validateOnParse: WordBool; safecall;
     procedure Set_validateOnParse(isValidating: WordBool); safecall;
     function Get_resolveExternals: WordBool; safecall;
     procedure Set_resolveExternals(isResolving: WordBool); safecall;
     function Get_preserveWhiteSpace: WordBool; safecall;
     procedure Set_preserveWhiteSpace(isPreserving: WordBool); safecall;
-    procedure Set_onreadystatechange(Param1: OleVariant); safecall;
-    procedure Set_ondataavailable(Param1: OleVariant); safecall;
-    procedure Set_ontransformnode(Param1: OleVariant); safecall;
+    procedure Set_onreadystatechange(const Param1: OleVariant); safecall;
+    procedure Set_ondataavailable(const Param1: OleVariant); safecall;
+    procedure Set_ontransformnode(const Param1: OleVariant); safecall;
     property doctype: IXMLDOMDocumentType read Get_doctype;
     property implementation_: IXMLDOMImplementation read Get_implementation_;
     property documentElement: IXMLDOMElement read Get_documentElement write Set_documentElement;
@@ -715,13 +715,13 @@ type
     function createAttribute(const name: WideString): IXMLDOMAttribute; dispid 47;
     function createEntityReference(const name: WideString): IXMLDOMEntityReference; dispid 49;
     function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 50;
-    function createNode(type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
+    function createNode(const type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
     function nodeFromID(const idString: WideString): IXMLDOMNode; dispid 56;
-    function load(xmlSource: OleVariant): WordBool; dispid 58;
+    function load(const xmlSource: OleVariant): WordBool; dispid 58;
     procedure abort; dispid 62;
     function loadXML(const bstrXML: WideString): WordBool; dispid 63;
-    procedure save(destination: OleVariant); dispid 64;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    procedure save(const destination: OleVariant); dispid 64;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -730,7 +730,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property readyState: Integer readonly dispid -525;
     property doctype: IXMLDOMDocumentType readonly dispid 38;
     property implementation_: IXMLDOMImplementation readonly dispid 39;
@@ -780,7 +780,7 @@ type
 
   IXMLDOMDocumentTypeDisp = dispinterface
     ['{2933BF8B-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -789,7 +789,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property name: WideString readonly dispid 131;
     property entities: IXMLDOMNamedNodeMap readonly dispid 132;
     property notations: IXMLDOMNamedNodeMap readonly dispid 133;
@@ -831,7 +831,7 @@ type
     ['{2933BF86-7B36-11D2-B20E-00C04F983E60}']
     function Get_tagName: WideString; safecall;
     function getAttribute(const name: WideString): OleVariant; safecall;
-    procedure setAttribute(const name: WideString; value: OleVariant); safecall;
+    procedure setAttribute(const name: WideString; const value: OleVariant); safecall;
     procedure removeAttribute(const name: WideString); safecall;
     function getAttributeNode(const name: WideString): IXMLDOMAttribute; safecall;
     function setAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; safecall;
@@ -844,14 +844,14 @@ type
   IXMLDOMElementDisp = dispinterface
     ['{2933BF86-7B36-11D2-B20E-00C04F983E60}']
     function getAttribute(const name: WideString): OleVariant; dispid 99;
-    procedure setAttribute(const name: WideString; value: OleVariant); dispid 100;
+    procedure setAttribute(const name: WideString; const value: OleVariant); dispid 100;
     procedure removeAttribute(const name: WideString); dispid 101;
     function getAttributeNode(const name: WideString): IXMLDOMAttribute; dispid 102;
     function setAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; dispid 103;
     function removeAttributeNode(const DOMAttribute: IXMLDOMAttribute): IXMLDOMAttribute; dispid 104;
     function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 105;
     procedure normalize; dispid 106;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -860,7 +860,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property tagName: WideString readonly dispid 97;
     property nodeName: WideString readonly dispid 2;
     property nodeValue: OleVariant dispid 3;
@@ -890,14 +890,14 @@ type
     ['{2933BF85-7B36-11D2-B20E-00C04F983E60}']
     function Get_name: WideString; safecall;
     function Get_value: OleVariant; safecall;
-    procedure Set_value(attributeValue: OleVariant); safecall;
+    procedure Set_value(const attributeValue: OleVariant); safecall;
     property name: WideString read Get_name;
     property value: OleVariant read Get_value write Set_value;
   end;
 
   IXMLDOMAttributeDisp = dispinterface
     ['{2933BF85-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -906,7 +906,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property name: WideString readonly dispid 118;
     property value: OleVariant dispid 120;
     property nodeName: WideString readonly dispid 2;
@@ -939,7 +939,7 @@ type
 
   IXMLDOMDocumentFragmentDisp = dispinterface
     ['{3EFAA413-272F-11D2-836F-0000F87A7782}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -948,7 +948,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property nodeName: WideString readonly dispid 2;
     property nodeValue: OleVariant dispid 3;
     property nodeType: DOMNodeType readonly dispid 4;
@@ -994,7 +994,7 @@ type
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
     procedure deleteData(offset: Integer; count: Integer); dispid 114;
     procedure replaceData(offset: Integer; count: Integer; const data: WideString); dispid 115;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1003,7 +1003,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property data: WideString dispid 109;
     property length: Integer readonly dispid 110;
     property nodeName: WideString readonly dispid 2;
@@ -1043,7 +1043,7 @@ type
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
     procedure deleteData(offset: Integer; count: Integer); dispid 114;
     procedure replaceData(offset: Integer; count: Integer; const data: WideString); dispid 115;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1052,7 +1052,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property data: WideString dispid 109;
     property length: Integer readonly dispid 110;
     property nodeName: WideString readonly dispid 2;
@@ -1090,7 +1090,7 @@ type
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
     procedure deleteData(offset: Integer; count: Integer); dispid 114;
     procedure replaceData(offset: Integer; count: Integer; const data: WideString); dispid 115;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1099,7 +1099,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property data: WideString dispid 109;
     property length: Integer readonly dispid 110;
     property nodeName: WideString readonly dispid 2;
@@ -1138,7 +1138,7 @@ type
     procedure insertData(offset: Integer; const data: WideString); dispid 113;
     procedure deleteData(offset: Integer; count: Integer); dispid 114;
     procedure replaceData(offset: Integer; count: Integer; const data: WideString); dispid 115;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1147,7 +1147,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property data: WideString dispid 109;
     property length: Integer readonly dispid 110;
     property nodeName: WideString readonly dispid 2;
@@ -1185,7 +1185,7 @@ type
 
   IXMLDOMProcessingInstructionDisp = dispinterface
     ['{2933BF89-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1194,7 +1194,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property target: WideString readonly dispid 127;
     property data: WideString dispid 128;
     property nodeName: WideString readonly dispid 2;
@@ -1227,7 +1227,7 @@ type
 
   IXMLDOMEntityReferenceDisp = dispinterface
     ['{2933BF8E-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1236,7 +1236,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property nodeName: WideString readonly dispid 2;
     property nodeValue: OleVariant dispid 3;
     property nodeType: DOMNodeType readonly dispid 4;
@@ -1300,7 +1300,7 @@ type
 
   IXMLDOMNotationDisp = dispinterface
     ['{2933BF8C-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1309,7 +1309,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property publicId: OleVariant readonly dispid 136;
     property systemId: OleVariant readonly dispid 137;
     property nodeName: WideString readonly dispid 2;
@@ -1348,7 +1348,7 @@ type
 
   IXMLDOMEntityDisp = dispinterface
     ['{2933BF8D-7B36-11D2-B20E-00C04F983E60}']
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1357,7 +1357,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property publicId: OleVariant readonly dispid 140;
     property systemId: OleVariant readonly dispid 141;
     property notationName: WideString readonly dispid 142;
@@ -1442,8 +1442,8 @@ type
     function absoluteChildNumber(const pNode: IXMLDOMNode): Integer; safecall;
     function formatIndex(lIndex: Integer; const bstrFormat: WideString): WideString; safecall;
     function formatNumber(dblNumber: Double; const bstrFormat: WideString): WideString; safecall;
-    function formatDate(varDate: OleVariant; const bstrFormat: WideString; varDestLocale: OleVariant): WideString; safecall;
-    function formatTime(varTime: OleVariant; const bstrFormat: WideString; varDestLocale: OleVariant): WideString; safecall;
+    function formatDate(const varDate: OleVariant; const bstrFormat: WideString; const varDestLocale: OleVariant): WideString; safecall;
+    function formatTime(const varTime: OleVariant; const bstrFormat: WideString; const varDestLocale: OleVariant): WideString; safecall;
   end;
 
   IXTLRuntimeDisp = dispinterface
@@ -1455,9 +1455,9 @@ type
     function absoluteChildNumber(const pNode: IXMLDOMNode): Integer; dispid 191;
     function formatIndex(lIndex: Integer; const bstrFormat: WideString): WideString; dispid 192;
     function formatNumber(dblNumber: Double; const bstrFormat: WideString): WideString; dispid 193;
-    function formatDate(varDate: OleVariant; const bstrFormat: WideString; varDestLocale: OleVariant): WideString; dispid 194;
-    function formatTime(varTime: OleVariant; const bstrFormat: WideString; varDestLocale: OleVariant): WideString; dispid 195;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    function formatDate(const varDate: OleVariant; const bstrFormat: WideString; const varDestLocale: OleVariant): WideString; dispid 194;
+    function formatTime(const varTime: OleVariant; const bstrFormat: WideString; const varDestLocale: OleVariant): WideString; dispid 195;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -1466,7 +1466,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property nodeName: WideString readonly dispid 2;
     property nodeValue: OleVariant dispid 3;
     property nodeType: DOMNodeType readonly dispid 4;
@@ -1496,7 +1496,7 @@ type
     function getFeature(var pwchName: Word; out pvfValue: WordBool): HRESULT; stdcall;
     function putFeature(var pwchName: Word; vfValue: WordBool): HRESULT; stdcall;
     function getProperty(var pwchName: Word; out pvarValue: OleVariant): HRESULT; stdcall;
-    function putProperty(var pwchName: Word; varValue: OleVariant): HRESULT; stdcall;
+    function putProperty(var pwchName: Word; const varValue: OleVariant): HRESULT; stdcall;
     function getEntityResolver(out ppResolver: ISAXEntityResolver): HRESULT; stdcall;
     function putEntityResolver(const pResolver: ISAXEntityResolver): HRESULT; stdcall;
     function getContentHandler(out ppHandler: ISAXContentHandler): HRESULT; stdcall;
@@ -1509,7 +1509,7 @@ type
     function putBaseURL(var pwchBaseUrl: Word): HRESULT; stdcall;
     function getSecureBaseURL(out ppwchSecureBaseUrl: PWord): HRESULT; stdcall;
     function putSecureBaseURL(var pwchSecureBaseUrl: Word): HRESULT; stdcall;
-    function parse(varInput: OleVariant): HRESULT; stdcall;
+    function parse(const varInput: OleVariant): HRESULT; stdcall;
     function parseURL(var pwchUrl: Word): HRESULT; stdcall;
   end;
 
@@ -1596,7 +1596,7 @@ type
     function getFeature(const strName: WideString): WordBool; safecall;
     procedure putFeature(const strName: WideString; fValue: WordBool); safecall;
     function getProperty(const strName: WideString): OleVariant; safecall;
-    procedure putProperty(const strName: WideString; varValue: OleVariant); safecall;
+    procedure putProperty(const strName: WideString; const varValue: OleVariant); safecall;
     function Get_entityResolver: IVBSAXEntityResolver; safecall;
     procedure Set_entityResolver(const oResolver: IVBSAXEntityResolver); safecall;
     function Get_contentHandler: IVBSAXContentHandler; safecall;
@@ -1609,7 +1609,7 @@ type
     procedure Set_baseURL(const strBaseURL: WideString); safecall;
     function Get_secureBaseURL: WideString; safecall;
     procedure Set_secureBaseURL(const strSecureBaseURL: WideString); safecall;
-    procedure parse(varInput: OleVariant); safecall;
+    procedure parse(const varInput: OleVariant); safecall;
     procedure parseURL(const strURL: WideString); safecall;
     property entityResolver: IVBSAXEntityResolver read Get_entityResolver write Set_entityResolver;
     property contentHandler: IVBSAXContentHandler read Get_contentHandler write Set_contentHandler;
@@ -1624,8 +1624,8 @@ type
     function getFeature(const strName: WideString): WordBool; dispid 1282;
     procedure putFeature(const strName: WideString; fValue: WordBool); dispid 1283;
     function getProperty(const strName: WideString): OleVariant; dispid 1284;
-    procedure putProperty(const strName: WideString; varValue: OleVariant); dispid 1285;
-    procedure parse(varInput: OleVariant); dispid 1292;
+    procedure putProperty(const strName: WideString; const varValue: OleVariant); dispid 1285;
+    procedure parse(const varInput: OleVariant); dispid 1292;
     procedure parseURL(const strURL: WideString); dispid 1293;
     property entityResolver: IVBSAXEntityResolver dispid 1286;
     property contentHandler: IVBSAXContentHandler dispid 1287;
@@ -2121,7 +2121,7 @@ type
     function getFeature(const strName: WideString): WordBool; safecall;
     procedure putFeature(const strName: WideString; fValue: WordBool); safecall;
     function getProperty(const strName: WideString): OleVariant; safecall;
-    procedure putProperty(const strName: WideString; varValue: OleVariant); safecall;
+    procedure putProperty(const strName: WideString; const varValue: OleVariant); safecall;
     function Get_entityResolver: IUnknown; safecall;
     procedure Set_entityResolver(const oResolver: IUnknown); safecall;
     function Get_contentHandler: IUnknown; safecall;
@@ -2141,7 +2141,7 @@ type
     function getFeature(const strName: WideString): WordBool; dispid 1423;
     function getProperty(const strName: WideString): OleVariant; dispid 1424;
     procedure putFeature(const strName: WideString; fValue: WordBool); dispid 1425;
-    procedure putProperty(const strName: WideString; varValue: OleVariant); dispid 1426;
+    procedure putProperty(const strName: WideString; const varValue: OleVariant); dispid 1426;
     property contentHandler: IUnknown dispid 1419;
     property dtdHandler: IUnknown dispid 1420;
     property entityResolver: IUnknown dispid 1421;
@@ -2259,7 +2259,7 @@ type
     procedure removeAll; safecall;
     function clone: IXMLDOMSelection; safecall;
     function getProperty(const name: WideString): OleVariant; safecall;
-    procedure setProperty(const name: WideString; value: OleVariant); safecall;
+    procedure setProperty(const name: WideString; const value: OleVariant); safecall;
     property expr: WideString read Get_expr write Set_expr;
     property context: IXMLDOMNode read Get_context write Set_context;
   end;
@@ -2272,7 +2272,7 @@ type
     procedure removeAll; dispid 86;
     function clone: IXMLDOMSelection; dispid 87;
     function getProperty(const name: WideString): OleVariant; dispid 88;
-    procedure setProperty(const name: WideString; value: OleVariant); dispid 89;
+    procedure setProperty(const name: WideString; const value: OleVariant); dispid 89;
     function nextNode: IXMLDOMNode; dispid 76;
     procedure reset; dispid 77;
     property expr: WideString dispid 81;
@@ -2292,9 +2292,9 @@ type
     ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
     function Get_namespaces: IXMLDOMSchemaCollection; safecall;
     function Get_schemas: OleVariant; safecall;
-    procedure Set_schemas(otherCollection: OleVariant); safecall;
+    procedure Set_schemas(const otherCollection: OleVariant); safecall;
     function validate: IXMLDOMParseError; safecall;
-    procedure setProperty(const name: WideString; value: OleVariant); safecall;
+    procedure setProperty(const name: WideString; const value: OleVariant); safecall;
     function getProperty(const name: WideString): OleVariant; safecall;
     property namespaces: IXMLDOMSchemaCollection read Get_namespaces;
     property schemas: OleVariant read Get_schemas write Set_schemas;
@@ -2303,7 +2303,7 @@ type
   IXMLDOMDocument2Disp = dispinterface
     ['{2933BF95-7B36-11D2-B20E-00C04F983E60}']
     function validate: IXMLDOMParseError; dispid 203;
-    procedure setProperty(const name: WideString; value: OleVariant); dispid 204;
+    procedure setProperty(const name: WideString; const value: OleVariant); dispid 204;
     function getProperty(const name: WideString): OleVariant; dispid 205;
     function createElement(const tagName: WideString): IXMLDOMElement; dispid 41;
     function createDocumentFragment: IXMLDOMDocumentFragment; dispid 42;
@@ -2314,13 +2314,13 @@ type
     function createAttribute(const name: WideString): IXMLDOMAttribute; dispid 47;
     function createEntityReference(const name: WideString): IXMLDOMEntityReference; dispid 49;
     function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 50;
-    function createNode(type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
+    function createNode(const type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
     function nodeFromID(const idString: WideString): IXMLDOMNode; dispid 56;
-    function load(xmlSource: OleVariant): WordBool; dispid 58;
+    function load(const xmlSource: OleVariant): WordBool; dispid 58;
     procedure abort; dispid 62;
     function loadXML(const bstrXML: WideString): WordBool; dispid 63;
-    procedure save(destination: OleVariant); dispid 64;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    procedure save(const destination: OleVariant); dispid 64;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -2329,7 +2329,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property namespaces: IXMLDOMSchemaCollection readonly dispid 201;
     property schemas: OleVariant dispid 202;
     property doctype: IXMLDOMDocumentType readonly dispid 38;
@@ -2380,7 +2380,7 @@ type
     function validateNode(const node: IXMLDOMNode): IXMLDOMParseError; dispid 208;
     function importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode; dispid 209;
     function validate: IXMLDOMParseError; dispid 203;
-    procedure setProperty(const name: WideString; value: OleVariant); dispid 204;
+    procedure setProperty(const name: WideString; const value: OleVariant); dispid 204;
     function getProperty(const name: WideString): OleVariant; dispid 205;
     function createElement(const tagName: WideString): IXMLDOMElement; dispid 41;
     function createDocumentFragment: IXMLDOMDocumentFragment; dispid 42;
@@ -2391,13 +2391,13 @@ type
     function createAttribute(const name: WideString): IXMLDOMAttribute; dispid 47;
     function createEntityReference(const name: WideString): IXMLDOMEntityReference; dispid 49;
     function getElementsByTagName(const tagName: WideString): IXMLDOMNodeList; dispid 50;
-    function createNode(type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
+    function createNode(const type_: OleVariant; const name: WideString; const namespaceURI: WideString): IXMLDOMNode; dispid 54;
     function nodeFromID(const idString: WideString): IXMLDOMNode; dispid 56;
-    function load(xmlSource: OleVariant): WordBool; dispid 58;
+    function load(const xmlSource: OleVariant): WordBool; dispid 58;
     procedure abort; dispid 62;
     function loadXML(const bstrXML: WideString): WordBool; dispid 63;
-    procedure save(destination: OleVariant); dispid 64;
-    function insertBefore(const newChild: IXMLDOMNode; refChild: OleVariant): IXMLDOMNode; dispid 13;
+    procedure save(const destination: OleVariant); dispid 64;
+    function insertBefore(const newChild: IXMLDOMNode; const refChild: OleVariant): IXMLDOMNode; dispid 13;
     function replaceChild(const newChild: IXMLDOMNode; const oldChild: IXMLDOMNode): IXMLDOMNode; dispid 14;
     function removeChild(const childNode: IXMLDOMNode): IXMLDOMNode; dispid 15;
     function appendChild(const newChild: IXMLDOMNode): IXMLDOMNode; dispid 16;
@@ -2406,7 +2406,7 @@ type
     function transformNode(const stylesheet: IXMLDOMNode): WideString; dispid 28;
     function selectNodes(const queryString: WideString): IXMLDOMNodeList; dispid 29;
     function selectSingleNode(const queryString: WideString): IXMLDOMNode; dispid 30;
-    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; outputObject: OleVariant); dispid 35;
+    procedure transformNodeToObject(const stylesheet: IXMLDOMNode; const outputObject: OleVariant); dispid 35;
     property namespaces: IXMLDOMSchemaCollection readonly dispid 201;
     property schemas: OleVariant dispid 202;
     property doctype: IXMLDOMDocumentType readonly dispid 38;
@@ -2448,7 +2448,7 @@ type
 
   IXMLDOMSchemaCollection = interface(IDispatch)
     ['{373984C8-B845-449B-91E7-45AC83036ADE}']
-    procedure add(const namespaceURI: WideString; var_: OleVariant); safecall;
+    procedure add(const namespaceURI: WideString; const var_: OleVariant); safecall;
     function get(const namespaceURI: WideString): IXMLDOMNode; safecall;
     procedure remove(const namespaceURI: WideString); safecall;
     function Get_length: Integer; safecall;
@@ -2462,7 +2462,7 @@ type
 
   IXMLDOMSchemaCollectionDisp = dispinterface
     ['{373984C8-B845-449B-91E7-45AC83036ADE}']
-    procedure add(const namespaceURI: WideString; var_: OleVariant); dispid 3;
+    procedure add(const namespaceURI: WideString; const var_: OleVariant); dispid 3;
     function get(const namespaceURI: WideString): IXMLDOMNode; dispid 4;
     procedure remove(const namespaceURI: WideString); dispid 5;
     procedure addCollection(const otherCollection: IXMLDOMSchemaCollection); dispid 8;
@@ -2486,7 +2486,7 @@ type
     procedure validate; dispid 1419;
     function getSchema(const namespaceURI: WideString): ISchema; dispid 1421;
     function getDeclaration(const node: IXMLDOMNode): ISchemaItem; dispid 1422;
-    procedure add(const namespaceURI: WideString; var_: OleVariant); dispid 3;
+    procedure add(const namespaceURI: WideString; const var_: OleVariant); dispid 3;
     function get(const namespaceURI: WideString): IXMLDOMNode; dispid 4;
     procedure remove(const namespaceURI: WideString); dispid 5;
     procedure addCollection(const otherCollection: IXMLDOMSchemaCollection); dispid 8;
@@ -2512,18 +2512,18 @@ type
 
   IXSLProcessor = interface(IDispatch)
     ['{2933BF92-7B36-11D2-B20E-00C04F983E60}']
-    procedure Set_input(pVar: OleVariant); safecall;
+    procedure Set_input(const pVar: OleVariant); safecall;
     function Get_input: OleVariant; safecall;
     function Get_ownerTemplate: IXSLTemplate; safecall;
     procedure setStartMode(const mode: WideString; const namespaceURI: WideString); safecall;
     function Get_startMode: WideString; safecall;
     function Get_startModeURI: WideString; safecall;
-    procedure Set_output(pOutput: OleVariant); safecall;
+    procedure Set_output(const pOutput: OleVariant); safecall;
     function Get_output: OleVariant; safecall;
     function transform: WordBool; safecall;
     procedure reset; safecall;
     function Get_readyState: Integer; safecall;
-    procedure addParameter(const baseName: WideString; parameter: OleVariant; const namespaceURI: WideString); safecall;
+    procedure addParameter(const baseName: WideString; const parameter: OleVariant; const namespaceURI: WideString); safecall;
     procedure addObject(const obj: IDispatch; const namespaceURI: WideString); safecall;
     function Get_stylesheet: IXMLDOMNode; safecall;
     property input: OleVariant read Get_input write Set_input;
@@ -2540,7 +2540,7 @@ type
     procedure setStartMode(const mode: WideString; const namespaceURI: WideString); dispid 4;
     function transform: WordBool; dispid 8;
     procedure reset; dispid 9;
-    procedure addParameter(const baseName: WideString; parameter: OleVariant; const namespaceURI: WideString); dispid 11;
+    procedure addParameter(const baseName: WideString; const parameter: OleVariant; const namespaceURI: WideString); dispid 11;
     procedure addObject(const obj: IDispatch; const namespaceURI: WideString); dispid 12;
     property input: OleVariant dispid 2;
     property ownerTemplate: IXSLTemplate readonly dispid 3;
@@ -2553,11 +2553,11 @@ type
 
   IXMLHTTPRequest = interface(IDispatch)
     ['{ED8C108D-4349-11D2-91A4-00C04F7969E8}']
-    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); safecall;
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant); safecall;
     procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString); safecall;
     function getResponseHeader(const bstrHeader: WideString): WideString; safecall;
     function getAllResponseHeaders: WideString; safecall;
-    procedure send(varBody: OleVariant); safecall;
+    procedure send(const varBody: OleVariant); safecall;
     procedure abort; safecall;
     function Get_status: Integer; safecall;
     function Get_statusText: WideString; safecall;
@@ -2579,11 +2579,11 @@ type
 
   IXMLHTTPRequestDisp = dispinterface
     ['{ED8C108D-4349-11D2-91A4-00C04F7969E8}']
-    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); dispid 1;
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant); dispid 1;
     procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString); dispid 2;
     function getResponseHeader(const bstrHeader: WideString): WideString; dispid 3;
     function getAllResponseHeaders: WideString; dispid 4;
-    procedure send(varBody: OleVariant); dispid 5;
+    procedure send(const varBody: OleVariant); dispid 5;
     procedure abort; dispid 6;
     property status: Integer readonly dispid 7;
     property statusText: WideString readonly dispid 8;
@@ -2628,22 +2628,22 @@ type
   IServerXMLHTTPRequest = interface(IXMLHTTPRequest)
     ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
     procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); safecall;
-    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; safecall;
+    function waitForResponse(const timeoutInSeconds: OleVariant): WordBool; safecall;
     function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; safecall;
-    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); safecall;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; const value: OleVariant); safecall;
   end;
 
   IServerXMLHTTPRequestDisp = dispinterface
     ['{2E9196BF-13BA-4DD4-91CA-6C571F281495}']
     procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); dispid 15;
-    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; dispid 16;
+    function waitForResponse(const timeoutInSeconds: OleVariant): WordBool; dispid 16;
     function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; dispid 17;
-    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); dispid 18;
-    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); dispid 1;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; const value: OleVariant); dispid 18;
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant); dispid 1;
     procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString); dispid 2;
     function getResponseHeader(const bstrHeader: WideString): WideString; dispid 3;
     function getAllResponseHeaders: WideString; dispid 4;
-    procedure send(varBody: OleVariant); dispid 5;
+    procedure send(const varBody: OleVariant); dispid 5;
     procedure abort; dispid 6;
     property status: Integer readonly dispid 7;
     property statusText: WideString readonly dispid 8;
@@ -2657,23 +2657,23 @@ type
 
   IServerXMLHTTPRequest2 = interface(IServerXMLHTTPRequest)
     ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
-    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); safecall;
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; const varProxyServer: OleVariant; const varBypassList: OleVariant); safecall;
     procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); safecall;
   end;
 
   IServerXMLHTTPRequest2Disp = dispinterface
     ['{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}']
-    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant); dispid 19;
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; const varProxyServer: OleVariant; const varBypassList: OleVariant); dispid 19;
     procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString); dispid 20;
     procedure setTimeouts(resolveTimeout: Integer; connectTimeout: Integer; sendTimeout: Integer; receiveTimeout: Integer); dispid 15;
-    function waitForResponse(timeoutInSeconds: OleVariant): WordBool; dispid 16;
+    function waitForResponse(const timeoutInSeconds: OleVariant): WordBool; dispid 16;
     function getOption(option: SERVERXMLHTTP_OPTION): OleVariant; dispid 17;
-    procedure setOption(option: SERVERXMLHTTP_OPTION; value: OleVariant); dispid 18;
-    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant); dispid 1;
+    procedure setOption(option: SERVERXMLHTTP_OPTION; const value: OleVariant); dispid 18;
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant); dispid 1;
     procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString); dispid 2;
     function getResponseHeader(const bstrHeader: WideString): WideString; dispid 3;
     function getAllResponseHeaders: WideString; dispid 4;
-    procedure send(varBody: OleVariant); dispid 5;
+    procedure send(const varBody: OleVariant); dispid 5;
     procedure abort; dispid 6;
     property status: Integer readonly dispid 7;
     property statusText: WideString readonly dispid 8;
@@ -2687,7 +2687,7 @@ type
 
   IMXWriter = interface(IDispatch)
     ['{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}']
-    procedure Set_output(varDestination: OleVariant); safecall;
+    procedure Set_output(const varDestination: OleVariant); safecall;
     function Get_output: OleVariant; safecall;
     procedure Set_encoding(const strEncoding: WideString); safecall;
     function Get_encoding: WideString; safecall;
@@ -2788,12 +2788,12 @@ type
   IMXAttributes = interface(IDispatch)
     ['{F10D27CC-3EC0-415C-8ED8-77AB1C5E7262}']
     procedure addAttribute(const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString; const strValue: WideString); safecall;
-    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT); safecall;
+    procedure addAttributeFromIndex(const varAtts: OleVariant; nIndex: SYSINT); safecall;
     procedure clear; safecall;
     procedure removeAttribute(nIndex: SYSINT); safecall;
     procedure setAttribute(nIndex: SYSINT; const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
       const strValue: WideString); safecall;
-    procedure setAttributes(varAtts: OleVariant); safecall;
+    procedure setAttributes(const varAtts: OleVariant); safecall;
     procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString); safecall;
     procedure setQName(nIndex: SYSINT; const strQName: WideString); safecall;
     procedure setType(nIndex: SYSINT; const strType: WideString); safecall;
@@ -2808,13 +2808,13 @@ type
     procedure removeAttribute(nIndex: SYSINT); dispid 1375;
     procedure setAttribute(nIndex: SYSINT; const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
       const strValue: WideString); dispid 1376;
-    procedure setAttributes(varAtts: OleVariant); dispid 1377;
+    procedure setAttributes(const varAtts: OleVariant); dispid 1377;
     procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString); dispid 1378;
     procedure setQName(nIndex: SYSINT; const strQName: WideString); dispid 1379;
     procedure setType(nIndex: SYSINT; const strType: WideString); dispid 1380;
     procedure setURI(nIndex: SYSINT; const strURI: WideString); dispid 1381;
     procedure setValue(nIndex: SYSINT; const strValue: WideString); dispid 1382;
-    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT); dispid 1383;
+    procedure addAttributeFromIndex(const varAtts: OleVariant; nIndex: SYSINT); dispid 1383;
   end;
 
   IVBMXNamespaceManager = interface(IDispatch)
@@ -2896,10 +2896,8 @@ type
     procedure InitServerData; override;
     procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXMLDOMDocument3);
     procedure Disconnect; override;
   public  // Implements IXMLDOMDocument3
     function validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
@@ -2928,10 +2926,8 @@ type
     procedure InitServerData; override;
     procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXMLDOMDocument3);
     procedure Disconnect; override;
   public  // Implements IXMLDOMDocument3
     function validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
@@ -2958,12 +2954,9 @@ type
     function GetDefaultInterface: IXMLDOMSchemaCollection2;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXMLDOMSchemaCollection2);
     procedure Disconnect; override;
   public  // Implements IXMLDOMSchemaCollection2
     procedure validate;
@@ -2989,12 +2982,9 @@ type
     function GetDefaultInterface: IXSLTemplate;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXSLTemplate);
     procedure Disconnect; override;
   public  // Implements IXSLTemplate
     function createProcessor: IXSLProcessor;
@@ -3024,19 +3014,16 @@ type
     function GetDefaultInterface: IXMLHTTPRequest;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXMLHTTPRequest);
     procedure Disconnect; override;
   public  // Implements IXMLHTTPRequest
-    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; varAsync: OleVariant; bstrUser: OleVariant; bstrPassword: OleVariant);
+    procedure open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant);
     procedure setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString);
     function getResponseHeader(const bstrHeader: WideString): WideString;
     function getAllResponseHeaders: WideString;
-    procedure send(varBody: OleVariant);
+    procedure send(const varBody: OleVariant);
     procedure abort;
     property status: Integer read Get_status;
     property statusText: WideString read Get_statusText;
@@ -3062,12 +3049,9 @@ type
     function GetDefaultInterface: IXMLHTTPRequest2;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IXMLHTTPRequest2);
     procedure Disconnect; override;
   public  // Implements IXMLHTTPRequest2
     procedure open(pwszMethod: PWideChar; pwszUrl: PWideChar; const pStatusCallback: IXMLHTTPRequest2Callback; pwszUserName: PWideChar; pwszPassword: PWideChar;
@@ -3097,15 +3081,12 @@ type
     function GetDefaultInterface: IServerXMLHTTPRequest2;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IServerXMLHTTPRequest2);
     procedure Disconnect; override;
   public  // Implements IServerXMLHTTPRequest2
-    procedure setProxy(proxySetting: SXH_PROXY_SETTING; varProxyServer: OleVariant; varBypassList: OleVariant);
+    procedure setProxy(proxySetting: SXH_PROXY_SETTING; const varProxyServer: OleVariant; const varBypassList: OleVariant);
     procedure setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString);
   public
     property DefaultInterface: IServerXMLHTTPRequest2 read GetDefaultInterface;
@@ -3136,19 +3117,16 @@ type
     function GetDefaultInterface: IVBSAXXMLReader;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IVBSAXXMLReader);
     procedure Disconnect; override;
   public  // Implements IVBSAXXMLReader
     function getFeature(const strName: WideString): WordBool;
     procedure putFeature(const strName: WideString; fValue: WordBool);
     function getProperty(const strName: WideString): OleVariant;
-    procedure putProperty(const strName: WideString; varValue: OleVariant);
-    procedure parse(varInput: OleVariant);
+    procedure putProperty(const strName: WideString; const varValue: OleVariant);
+    procedure parse(const varInput: OleVariant);
     procedure parseURL(const strURL: WideString);
     property entityResolver: IVBSAXEntityResolver read Get_entityResolver write Set_entityResolver;
     property contentHandler: IVBSAXContentHandler read Get_contentHandler write Set_contentHandler;
@@ -3170,7 +3148,7 @@ type
     FIntf: IMXWriter;
   private
     function Get_output: OleVariant;
-    procedure Set_output(varDestination: OleVariant);
+    procedure Set_output(const varDestination: OleVariant);
     function Get_encoding: WideString;
     procedure Set_encoding(const strEncoding: WideString);
     function Get_byteOrderMark: WordBool;
@@ -3189,12 +3167,9 @@ type
     function GetDefaultInterface: IMXWriter;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IMXWriter);
     procedure Disconnect; override;
   public  // Implements IMXWriter
     procedure flush;
@@ -3220,7 +3195,7 @@ type
     FIntf: IMXWriter;
   private
     function Get_output: OleVariant;
-    procedure Set_output(varDestination: OleVariant);
+    procedure Set_output(const varDestination: OleVariant);
     function Get_encoding: WideString;
     procedure Set_encoding(const strEncoding: WideString);
     function Get_byteOrderMark: WordBool;
@@ -3239,12 +3214,9 @@ type
     function GetDefaultInterface: IMXWriter;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IMXWriter);
     procedure Disconnect; override;
   public  // Implements IMXWriter
     procedure flush;
@@ -3272,21 +3244,18 @@ type
     function GetDefaultInterface: IMXAttributes;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IMXAttributes);
     procedure Disconnect; override;
   public  // Implements IMXAttributes
     procedure addAttribute(const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString; const strValue: WideString);
-    procedure addAttributeFromIndex(varAtts: OleVariant; nIndex: SYSINT);
+    procedure addAttributeFromIndex(const varAtts: OleVariant; nIndex: SYSINT);
     procedure clear;
     procedure removeAttribute(nIndex: SYSINT);
     procedure setAttribute(nIndex: SYSINT; const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
       const strValue: WideString);
-    procedure setAttributes(varAtts: OleVariant);
+    procedure setAttributes(const varAtts: OleVariant);
     procedure setLocalName(nIndex: SYSINT; const strLocalName: WideString);
     procedure setQName(nIndex: SYSINT; const strQName: WideString);
     procedure setType(nIndex: SYSINT; const strType: WideString);
@@ -3311,12 +3280,9 @@ type
     function GetDefaultInterface: IVBMXNamespaceManager;
   protected
     procedure InitServerData; override;
-    procedure InvokeEvent(ADispID: TDispID; var AParams: TVariantArray); override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure Connect; override;
-    procedure ConnectTo(const ASvrIntf: IXMLDOMDocument3);
+    procedure ConnectTo(const ASrvIntf: IVBMXNamespaceManager);
     procedure Disconnect; override;
   public  // Implements IVBMXNamespaceManager
     procedure reset;
@@ -3352,6 +3318,82 @@ end;
 
 { TDOMDocument60 }
 
+function TDOMDocument60.GetDefaultInterface: IXMLDOMDocument3;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TDOMDocument60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A05-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{2933BF96-7B36-11D2-B20E-00C04F983E60}';
+    EventIID:  '{3EFAA427-272F-11D2-836F-0000F87A7782}';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TDOMDocument60.InvokeEvent(ADispID: TDispID; var AParams: TVariantArray);
+begin
+  case ADispID of
+    DISPID_UNKNOWN: Exit;
+    198: begin
+      if Assigned(FOnondataavailable) then
+        FOnondataavailable(Self);
+    end;
+    -609: begin
+      if Assigned(FOnonreadystatechange) then
+        FOnonreadystatechange(Self);
+    end;
+  end;
+end;
+
+procedure TDOMDocument60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXMLDOMDocument3;
+  end;
+end;
+
+procedure TDOMDocument60.ConnectTo(const ASrvIntf: IXMLDOMDocument3);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TDOMDocument60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXMLDOMDocument3
+function TDOMDocument60.validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
+begin
+  Result := DefaultInterface.validateNode(node);
+end;
+
+function TDOMDocument60.importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode;
+begin
+  Result := DefaultInterface.importNode(node, deep);
+end;
+
 { CoFreeThreadedDOMDocument60 }
 
 class function CoFreeThreadedDOMDocument60.Create: IXMLDOMDocument3;
@@ -3365,6 +3407,82 @@ begin
 end;
 
 { TFreeThreadedDOMDocument60 }
+
+function TFreeThreadedDOMDocument60.GetDefaultInterface: IXMLDOMDocument3;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TFreeThreadedDOMDocument60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A06-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{2933BF96-7B36-11D2-B20E-00C04F983E60}';
+    EventIID:  '{3EFAA427-272F-11D2-836F-0000F87A7782}';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TFreeThreadedDOMDocument60.InvokeEvent(ADispID: TDispID; var AParams: TVariantArray);
+begin
+  case ADispID of
+    DISPID_UNKNOWN: Exit;
+    198: begin
+      if Assigned(FOnondataavailable) then
+        FOnondataavailable(Self);
+    end;
+    -609: begin
+      if Assigned(FOnonreadystatechange) then
+        FOnonreadystatechange(Self);
+    end;
+  end;
+end;
+
+procedure TFreeThreadedDOMDocument60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXMLDOMDocument3;
+  end;
+end;
+
+procedure TFreeThreadedDOMDocument60.ConnectTo(const ASrvIntf: IXMLDOMDocument3);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TFreeThreadedDOMDocument60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXMLDOMDocument3
+function TFreeThreadedDOMDocument60.validateNode(const node: IXMLDOMNode): IXMLDOMParseError;
+begin
+  Result := DefaultInterface.validateNode(node);
+end;
+
+function TFreeThreadedDOMDocument60.importNode(const node: IXMLDOMNode; deep: WordBool): IXMLDOMNode;
+begin
+  Result := DefaultInterface.importNode(node, deep);
+end;
 
 { CoXMLSchemaCache60 }
 
@@ -3390,6 +3508,72 @@ begin
   DefaultInterface.validateOnLoad := validateOnLoad;
 end;
 
+function TXMLSchemaCache60.GetDefaultInterface: IXMLDOMSchemaCollection2;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TXMLSchemaCache60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A07-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{50EA08B0-DD1B-4664-9A50-C2F40F4BD79A}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TXMLSchemaCache60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXMLDOMSchemaCollection2;
+  end;
+end;
+
+procedure TXMLSchemaCache60.ConnectTo(const ASrvIntf: IXMLDOMSchemaCollection2);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TXMLSchemaCache60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXMLDOMSchemaCollection2
+procedure TXMLSchemaCache60.validate;
+begin
+  DefaultInterface.validate;
+end;
+
+function TXMLSchemaCache60.getSchema(const namespaceURI: WideString): ISchema;
+begin
+  Result := DefaultInterface.getSchema(namespaceURI);
+end;
+
+function TXMLSchemaCache60.getDeclaration(const node: IXMLDOMNode): ISchemaItem;
+begin
+  Result := DefaultInterface.getDeclaration(node);
+end;
+
 { CoXSLTemplate60 }
 
 class function CoXSLTemplate60.Create: IXSLTemplate;
@@ -3412,6 +3596,62 @@ end;
 procedure TXSLTemplate60.Set_stylesheet(const stylesheet: IXMLDOMNode);
 begin
   DefaultInterface.stylesheet := stylesheet;
+end;
+
+function TXSLTemplate60.GetDefaultInterface: IXSLTemplate;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TXSLTemplate60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A08-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{2933BF93-7B36-11D2-B20E-00C04F983E60}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TXSLTemplate60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXSLTemplate;
+  end;
+end;
+
+procedure TXSLTemplate60.ConnectTo(const ASrvIntf: IXSLTemplate);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TXSLTemplate60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXSLTemplate
+function TXSLTemplate60.createProcessor: IXSLProcessor;
+begin
+  Result := DefaultInterface.createProcessor;
 end;
 
 { CoXMLHTTP60 }
@@ -3468,6 +3708,87 @@ begin
   DefaultInterface.onreadystatechange := Param1;
 end;
 
+function TXMLHTTP60.GetDefaultInterface: IXMLHTTPRequest;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TXMLHTTP60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A0A-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{ED8C108D-4349-11D2-91A4-00C04F7969E8}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TXMLHTTP60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXMLHTTPRequest;
+  end;
+end;
+
+procedure TXMLHTTP60.ConnectTo(const ASrvIntf: IXMLHTTPRequest);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TXMLHTTP60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXMLHTTPRequest
+procedure TXMLHTTP60.open(const bstrMethod: WideString; const bstrUrl: WideString; const varAsync: OleVariant; const bstrUser: OleVariant; const bstrPassword: OleVariant);
+begin
+  DefaultInterface.open(bstrMethod, bstrUrl, varAsync, bstrUser, bstrPassword);
+end;
+
+procedure TXMLHTTP60.setRequestHeader(const bstrHeader: WideString; const bstrValue: WideString);
+begin
+  DefaultInterface.setRequestHeader(bstrHeader, bstrValue);
+end;
+
+function TXMLHTTP60.getResponseHeader(const bstrHeader: WideString): WideString;
+begin
+  Result := DefaultInterface.getResponseHeader(bstrHeader);
+end;
+
+function TXMLHTTP60.getAllResponseHeaders: WideString;
+begin
+  Result := DefaultInterface.getAllResponseHeaders;
+end;
+
+procedure TXMLHTTP60.send(const varBody: OleVariant);
+begin
+  DefaultInterface.send(varBody);
+end;
+
+procedure TXMLHTTP60.abort;
+begin
+  DefaultInterface.abort;
+end;
+
 { CoFreeThreadedXMLHTTP60 }
 
 class function CoFreeThreadedXMLHTTP60.Create: IXMLHTTPRequest2;
@@ -3482,6 +3803,108 @@ end;
 
 { TFreeThreadedXMLHTTP60 }
 
+function TFreeThreadedXMLHTTP60.GetDefaultInterface: IXMLHTTPRequest2;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TFreeThreadedXMLHTTP60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A09-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{E5D37DC0-552A-4D52-9CC0-A14D546FBD04}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TFreeThreadedXMLHTTP60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IXMLHTTPRequest2;
+  end;
+end;
+
+procedure TFreeThreadedXMLHTTP60.ConnectTo(const ASrvIntf: IXMLHTTPRequest2);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TFreeThreadedXMLHTTP60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IXMLHTTPRequest2
+procedure TFreeThreadedXMLHTTP60.open(pwszMethod: PWideChar; pwszUrl: PWideChar; const pStatusCallback: IXMLHTTPRequest2Callback; pwszUserName: PWideChar;
+  pwszPassword: PWideChar; pwszProxyUserName: PWideChar; pwszProxyPassword: PWideChar);
+begin
+  DefaultInterface.open(pwszMethod, pwszUrl, pStatusCallback, pwszUserName, pwszPassword, pwszProxyUserName, pwszProxyPassword);
+end;
+
+procedure TFreeThreadedXMLHTTP60.send(const pBody: ISequentialStream; cbBody: UInt64);
+begin
+  DefaultInterface.send(pBody, cbBody);
+end;
+
+procedure TFreeThreadedXMLHTTP60.abort;
+begin
+  DefaultInterface.abort;
+end;
+
+procedure TFreeThreadedXMLHTTP60.SetCookie(var pCookie: tagXHR_COOKIE; out pdwCookieState: Cardinal);
+begin
+  DefaultInterface.SetCookie(pCookie, pdwCookieState);
+end;
+
+procedure TFreeThreadedXMLHTTP60.SetCustomResponseStream(const pSequentialStream: ISequentialStream);
+begin
+  DefaultInterface.SetCustomResponseStream(pSequentialStream);
+end;
+
+procedure TFreeThreadedXMLHTTP60.setProperty(eProperty: XHR_PROPERTY; ullValue: UInt64);
+begin
+  DefaultInterface.setProperty(eProperty, ullValue);
+end;
+
+procedure TFreeThreadedXMLHTTP60.setRequestHeader(pwszHeader: PWideChar; pwszValue: PWideChar);
+begin
+  DefaultInterface.setRequestHeader(pwszHeader, pwszValue);
+end;
+
+procedure TFreeThreadedXMLHTTP60.getAllResponseHeaders(out ppwszHeaders: PWideChar);
+begin
+  DefaultInterface.getAllResponseHeaders(ppwszHeaders);
+end;
+
+procedure TFreeThreadedXMLHTTP60.GetCookie(pwszUrl: PWideChar; pwszName: PWideChar; dwFlags: Cardinal; out pcCookies: Cardinal; out ppCookies: PtagXHR_COOKIE);
+begin
+  DefaultInterface.GetCookie(pwszUrl, pwszName, dwFlags, pcCookies, ppCookies);
+end;
+
+procedure TFreeThreadedXMLHTTP60.getResponseHeader(pwszHeader: PWideChar; out ppwszValue: PWideChar);
+begin
+  DefaultInterface.getResponseHeader(pwszHeader, ppwszValue);
+end;
+
 { CoServerXMLHTTP60 }
 
 class function CoServerXMLHTTP60.Create: IServerXMLHTTPRequest2;
@@ -3495,6 +3918,67 @@ begin
 end;
 
 { TServerXMLHTTP60 }
+
+function TServerXMLHTTP60.GetDefaultInterface: IServerXMLHTTPRequest2;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TServerXMLHTTP60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A0B-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{2E01311B-C322-4B0A-BD77-B90CFDC8DCE7}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TServerXMLHTTP60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IServerXMLHTTPRequest2;
+  end;
+end;
+
+procedure TServerXMLHTTP60.ConnectTo(const ASrvIntf: IServerXMLHTTPRequest2);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TServerXMLHTTP60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IServerXMLHTTPRequest2
+procedure TServerXMLHTTP60.setProxy(proxySetting: SXH_PROXY_SETTING; const varProxyServer: OleVariant; const varBypassList: OleVariant);
+begin
+  DefaultInterface.setProxy(proxySetting, varProxyServer, varBypassList);
+end;
+
+procedure TServerXMLHTTP60.setProxyCredentials(const bstrUserName: WideString; const bstrPassword: WideString);
+begin
+  DefaultInterface.setProxyCredentials(bstrUserName, bstrPassword);
+end;
 
 { CoSAXXMLReader60 }
 
@@ -3570,6 +4054,87 @@ begin
   DefaultInterface.secureBaseURL := strSecureBaseURL;
 end;
 
+function TSAXXMLReader60.GetDefaultInterface: IVBSAXXMLReader;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TSAXXMLReader60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A0C-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{8C033CAA-6CD6-4F73-B728-4531AF74945F}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TSAXXMLReader60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IVBSAXXMLReader;
+  end;
+end;
+
+procedure TSAXXMLReader60.ConnectTo(const ASrvIntf: IVBSAXXMLReader);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TSAXXMLReader60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IVBSAXXMLReader
+function TSAXXMLReader60.getFeature(const strName: WideString): WordBool;
+begin
+  Result := DefaultInterface.getFeature(strName);
+end;
+
+procedure TSAXXMLReader60.putFeature(const strName: WideString; fValue: WordBool);
+begin
+  DefaultInterface.putFeature(strName, fValue);
+end;
+
+function TSAXXMLReader60.getProperty(const strName: WideString): OleVariant;
+begin
+  Result := DefaultInterface.getProperty(strName);
+end;
+
+procedure TSAXXMLReader60.putProperty(const strName: WideString; const varValue: OleVariant);
+begin
+  DefaultInterface.putProperty(strName, varValue);
+end;
+
+procedure TSAXXMLReader60.parse(const varInput: OleVariant);
+begin
+  DefaultInterface.parse(varInput);
+end;
+
+procedure TSAXXMLReader60.parseURL(const strURL: WideString);
+begin
+  DefaultInterface.parseURL(strURL);
+end;
+
 { CoMXXMLWriter60 }
 
 class function CoMXXMLWriter60.Create: IMXWriter;
@@ -3589,7 +4154,7 @@ begin
   Result := DefaultInterface.output;
 end;
 
-procedure TMXXMLWriter60.Set_output(varDestination: OleVariant);
+procedure TMXXMLWriter60.Set_output(const varDestination: OleVariant);
 begin
   DefaultInterface.output := varDestination;
 end;
@@ -3664,6 +4229,62 @@ begin
   DefaultInterface.disableOutputEscaping := fValue;
 end;
 
+function TMXXMLWriter60.GetDefaultInterface: IMXWriter;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TMXXMLWriter60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A0F-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TMXXMLWriter60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IMXWriter;
+  end;
+end;
+
+procedure TMXXMLWriter60.ConnectTo(const ASrvIntf: IMXWriter);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TMXXMLWriter60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IMXWriter
+procedure TMXXMLWriter60.flush;
+begin
+  DefaultInterface.flush;
+end;
+
 { CoMXHTMLWriter60 }
 
 class function CoMXHTMLWriter60.Create: IMXWriter;
@@ -3683,7 +4304,7 @@ begin
   Result := DefaultInterface.output;
 end;
 
-procedure TMXHTMLWriter60.Set_output(varDestination: OleVariant);
+procedure TMXHTMLWriter60.Set_output(const varDestination: OleVariant);
 begin
   DefaultInterface.output := varDestination;
 end;
@@ -3758,6 +4379,62 @@ begin
   DefaultInterface.disableOutputEscaping := fValue;
 end;
 
+function TMXHTMLWriter60.GetDefaultInterface: IMXWriter;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TMXHTMLWriter60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A10-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{4D7FF4BA-1565-4EA8-94E1-6E724A46F98D}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TMXHTMLWriter60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IMXWriter;
+  end;
+end;
+
+procedure TMXHTMLWriter60.ConnectTo(const ASrvIntf: IMXWriter);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TMXHTMLWriter60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IMXWriter
+procedure TMXHTMLWriter60.flush;
+begin
+  DefaultInterface.flush;
+end;
+
 { CoSAXAttributes60 }
 
 class function CoSAXAttributes60.Create: IMXAttributes;
@@ -3771,6 +4448,114 @@ begin
 end;
 
 { TSAXAttributes60 }
+
+function TSAXAttributes60.GetDefaultInterface: IMXAttributes;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TSAXAttributes60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A0E-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{F10D27CC-3EC0-415C-8ED8-77AB1C5E7262}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TSAXAttributes60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IMXAttributes;
+  end;
+end;
+
+procedure TSAXAttributes60.ConnectTo(const ASrvIntf: IMXAttributes);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TSAXAttributes60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IMXAttributes
+procedure TSAXAttributes60.addAttribute(const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
+  const strValue: WideString);
+begin
+  DefaultInterface.addAttribute(strURI, strLocalName, strQName, strType, strValue);
+end;
+
+procedure TSAXAttributes60.addAttributeFromIndex(const varAtts: OleVariant; nIndex: SYSINT);
+begin
+  DefaultInterface.addAttributeFromIndex(varAtts, nIndex);
+end;
+
+procedure TSAXAttributes60.clear;
+begin
+  DefaultInterface.clear;
+end;
+
+procedure TSAXAttributes60.removeAttribute(nIndex: SYSINT);
+begin
+  DefaultInterface.removeAttribute(nIndex);
+end;
+
+procedure TSAXAttributes60.setAttribute(nIndex: SYSINT; const strURI: WideString; const strLocalName: WideString; const strQName: WideString; const strType: WideString;
+  const strValue: WideString);
+begin
+  DefaultInterface.setAttribute(nIndex, strURI, strLocalName, strQName, strType, strValue);
+end;
+
+procedure TSAXAttributes60.setAttributes(const varAtts: OleVariant);
+begin
+  DefaultInterface.setAttributes(varAtts);
+end;
+
+procedure TSAXAttributes60.setLocalName(nIndex: SYSINT; const strLocalName: WideString);
+begin
+  DefaultInterface.setLocalName(nIndex, strLocalName);
+end;
+
+procedure TSAXAttributes60.setQName(nIndex: SYSINT; const strQName: WideString);
+begin
+  DefaultInterface.setQName(nIndex, strQName);
+end;
+
+procedure TSAXAttributes60.setType(nIndex: SYSINT; const strType: WideString);
+begin
+  DefaultInterface.setType(nIndex, strType);
+end;
+
+procedure TSAXAttributes60.setURI(nIndex: SYSINT; const strURI: WideString);
+begin
+  DefaultInterface.setURI(nIndex, strURI);
+end;
+
+procedure TSAXAttributes60.setValue(nIndex: SYSINT; const strValue: WideString);
+begin
+  DefaultInterface.setValue(nIndex, strValue);
+end;
 
 { CoMXNamespaceManager60 }
 
@@ -3794,6 +4579,102 @@ end;
 procedure TMXNamespaceManager60.Set_allowOverride(fOverride: WordBool);
 begin
   DefaultInterface.allowOverride := fOverride;
+end;
+
+function TMXNamespaceManager60.GetDefaultInterface: IVBMXNamespaceManager;
+begin
+  if FIntf = nil then
+    Connect;
+  Assert(
+    FIntf <> nil,
+    'DefaultInterface is NULL. Component is not connected to Server. You must call "Connect" or "ConnectTo" before this operation'
+  );
+  Result := FIntf;
+end;
+
+procedure TMXNamespaceManager60.InitServerData;
+const
+  CServerData: TServerData = (
+    ClassID:   '{88D96A11-F192-11D4-A65F-0040963251E5}';
+    IntfIID:   '{C90352F5-643C-4FBC-BB23-E996EB2D51FD}';
+    EventIID:  '';
+    LicenseKey: nil;
+    Version: 500
+  );
+begin
+  ServerData := @CServerData;
+end;
+
+procedure TMXNamespaceManager60.Connect;
+var
+  LServer: IInterface;
+begin
+  if FIntf = nil then begin
+    LServer := GetServer;
+    ConnectEvents(LServer);
+    FIntf:= LServer as IVBMXNamespaceManager;
+  end;
+end;
+
+procedure TMXNamespaceManager60.ConnectTo(const ASrvIntf: IVBMXNamespaceManager);
+begin
+  Disconnect;
+  FIntf := ASrvIntf;
+  ConnectEvents(FIntf);
+end;
+
+procedure TMXNamespaceManager60.Disconnect;
+begin
+  if FIntf <> nil then begin
+    DisconnectEvents(FIntf);
+    FIntf := nil;
+  end;
+end;
+
+// Implements IVBMXNamespaceManager
+procedure TMXNamespaceManager60.reset;
+begin
+  DefaultInterface.reset;
+end;
+
+procedure TMXNamespaceManager60.pushContext;
+begin
+  DefaultInterface.pushContext;
+end;
+
+procedure TMXNamespaceManager60.pushNodeContext(const contextNode: IXMLDOMNode; fDeep: WordBool);
+begin
+  DefaultInterface.pushNodeContext(contextNode, fDeep);
+end;
+
+procedure TMXNamespaceManager60.popContext;
+begin
+  DefaultInterface.popContext;
+end;
+
+procedure TMXNamespaceManager60.declarePrefix(const prefix: WideString; const namespaceURI: WideString);
+begin
+  DefaultInterface.declarePrefix(prefix, namespaceURI);
+end;
+
+function TMXNamespaceManager60.getDeclaredPrefixes: IMXNamespacePrefixes;
+begin
+  Result := DefaultInterface.getDeclaredPrefixes;
+end;
+
+function TMXNamespaceManager60.getPrefixes(const namespaceURI: WideString): IMXNamespacePrefixes;
+begin
+  Result := DefaultInterface.getPrefixes(namespaceURI);
+end;
+
+function TMXNamespaceManager60.getURI(const prefix: WideString): OleVariant;
+begin
+  Result := DefaultInterface.getURI(prefix);
+end;
+
+function TMXNamespaceManager60.getURIFromNode(const strPrefix: WideString; const contextNode: IXMLDOMNode): OleVariant;
+begin
+  Result := DefaultInterface.getURIFromNode(strPrefix, contextNode);
 end;
 
 end.

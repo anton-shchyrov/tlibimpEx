@@ -7,7 +7,7 @@ uses
   System.SysUtils,
   Winapi.ActiveX,
   System.Win.ComObj,
-//  MSXML2_TLB in 'Win32\Debug\MSXML2_TLB.pas',
+  MSXML2_TLB in 'Win32\Debug\MSXML2_TLB.pas',
   UTLBMembers in 'UTLBMembers.pas',
   UTLBClasses in 'UTLBClasses.pas';
 
@@ -147,13 +147,13 @@ begin
 end;
 
 type
-  TTestType = TGUID;
+  TTestType = OleVariant;
 const
-//  CTestVal = TTestType($FF);
-  CTestVal: TGUID = (
-    D1: 0;
-    D2: $FF;
-  );
+  CTestVal = 0;
+//  CTestVal: TGUID = (
+//    D1: 0;
+//    D2: $FF;
+//  );
 
 
 procedure Test_(AVal: TTestType);
